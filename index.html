@@ -340,6 +340,11 @@ body.light .hot-note{background:rgba(255,255,255,.6)}
 #labHot.flow .hot:active{transform:scale(.96)}
 #labHot.flow .hot .n{width:17px;height:17px;font-size:10px}
 @media (prefers-reduced-motion:reduce){ .hot.next{animation:none;border-color:var(--neon);color:var(--neon)} }
+@media (prefers-reduced-motion:reduce){
+  .echip.landed,.bin.cansel .bin-drop{animation:none}
+  .echip.ghost{transform:none}
+  .echip:hover:not(.ghost):not(.dragging),.bin.over{transform:none}
+}
 
 /* ══════════ 탭2 분류하기 ══════════ */
 #p-classify{padding:var(--s4) var(--s5) var(--s3);display:none;flex-direction:column;gap:var(--s2);min-height:0}
@@ -353,7 +358,11 @@ body.light .hot-note{background:rgba(255,255,255,.6)}
 .cls-head{display:flex;align-items:center;gap:var(--s3);flex-wrap:wrap}
 .cls-head h2{margin:0;font-family:var(--f-title);font-size:var(--fs-h2);font-weight:600}
 .cls-head .lead{font-size:12.5px;color:var(--fg-3)}
-.cls-flow{flex:1;display:flex;flex-direction:column;align-items:center;gap:0;min-height:0;position:relative}
+.cls-flow{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:0;min-height:0;position:relative;
+  overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin
+}
+.cls-flow::-webkit-scrollbar{width:6px}
 /* 원소 풀 (보라 바) */
 .pool{
   width:min(880px,100%);border-radius:var(--r3);padding:var(--s3) var(--s4);
@@ -369,12 +378,23 @@ body.light .pool{background:rgba(44,104,200,.10);border-color:rgba(44,104,200,.2
   transition:transform var(--t1) var(--ease),box-shadow var(--t1);box-shadow:var(--sh1);
 }
 .echip:active{cursor:grabbing}
+.echip:hover:not(.ghost):not(.dragging){transform:translateY(-2px);box-shadow:var(--sh2)}
 .echip .kr{display:block;font-family:var(--f-body);font-size:10px;font-weight:400;color:var(--fg-3);letter-spacing:0}
 .echip.metal{background:linear-gradient(148deg,#96A0B2,#D8DEE8 40%,#9AA5B8);color:#131A2C;border-color:#7E8A9E}
 .echip.metal .kr{color:#3A465C}
 .echip.gasx{border-color:var(--argon);box-shadow:0 0 14px -4px var(--argon),var(--sh1)}
-.echip.dragging{opacity:.35}
-.echip.ghost{position:fixed;z-index:999;pointer-events:none;box-shadow:var(--sh3);transform:scale(1.06);margin:0}
+.echip.dragging{opacity:.2;transform:scale(.94);box-shadow:none}
+.echip.ghost{
+  position:fixed;left:0;top:0;z-index:999;pointer-events:none;margin:0;opacity:.97;
+  box-shadow:var(--sh3);transform:scale(1.08) rotate(-3deg);transition:none;will-change:left,top
+}
+/* 눌러서 고르기 — 끌기가 어려운 상황을 위한 대체 조작 */
+.echip.sel{
+  outline:2px solid var(--neon);outline-offset:2px;transform:translateY(-2px);
+  box-shadow:0 0 0 5px var(--neon-soft),var(--sh2)
+}
+.echip.landed{animation:landpop .36s var(--spring)}
+@keyframes landpop{0%{transform:scale(.7)}58%{transform:scale(1.09)}100%{transform:scale(1)}}
 /* 기준 박스 */
 .crit{
   width:min(880px,100%);border:2px solid var(--argon);border-radius:var(--r3);
@@ -390,22 +410,34 @@ body.light .pool{background:rgba(44,104,200,.10);border-color:rgba(44,104,200,.2
 .link{width:min(880px,100%);height:var(--linkH,26px);flex-shrink:0}
 .link svg{width:100%;height:100%;overflow:visible;display:block}
 /* 그룹 상자 */
-.bins{width:min(880px,100%);display:grid;grid-template-columns:1fr 1fr;gap:var(--s5);flex:1;min-height:0}
+.bins{width:min(880px,100%);display:grid;grid-template-columns:1fr 1fr;gap:var(--s5);flex:1 0 auto;min-height:170px}
 .bin{
   border:1.5px solid var(--kero);border-radius:var(--r3);background:var(--kero-soft);
   padding:var(--s3);display:flex;flex-direction:column;gap:var(--s2);min-height:0;
-  transition:background var(--t1),border-color var(--t1)
+  transition:background var(--t1),border-color var(--t1),transform var(--t1) var(--ease),box-shadow var(--t1)
 }
-.bin.over{background:rgba(217,164,65,.28);border-color:var(--fg)}
+.bin.over{background:rgba(217,164,65,.28);border-color:var(--fg);transform:translateY(-3px);box-shadow:var(--sh2)}
+.bin.over .bin-drop{border-color:var(--fg)}
 .bin.b18{border-color:var(--argon);background:var(--argon-soft)}
 .bin.b18.over{background:rgba(138,182,255,.28)}
+/* 원소를 골라 둔 상태 — 받을 수 있는 무리를 알려 준다 */
+.bin.cansel{border-color:var(--neon)}
+.bin.cansel .bin-drop{border-color:var(--neon);animation:binpulse 1.6s ease-in-out infinite}
+@keyframes binpulse{0%,100%{opacity:.45}50%{opacity:1}}
 .bin-h{display:flex;align-items:center;gap:var(--s2);flex-shrink:0}
 .bin-num{
   width:24px;height:24px;border-radius:99px;background:#6C4FB8;color:#fff;
   font-family:var(--f-num);font-size:12px;font-weight:600;display:grid;place-items:center;flex-shrink:0
 }
 .bin.b18 .bin-num{background:var(--argon);color:#0B1020}
-.bin-h .yn{font-size:12px;color:var(--fg-3);margin-left:auto}
+.bin-h .yn{font-size:12px;color:var(--fg-3)}
+.bin-h .cnt{
+  margin-left:auto;font-family:var(--f-num);font-size:11.5px;font-weight:600;
+  padding:2px 8px;border-radius:99px;background:rgba(0,0,0,.22);color:var(--fg-2);
+  min-width:34px;text-align:center;transition:color var(--t1)
+}
+body.light .bin-h .cnt{background:rgba(20,30,50,.08)}
+.bin-h .cnt:empty{display:none}
 .bin-h input{
   flex:1;background:transparent;border:none;border-bottom:1px dashed var(--line-2);
   font-size:13.5px;font-weight:500;padding:2px 0;min-width:0
@@ -419,6 +451,35 @@ body.light .pool{background:rgba(44,104,200,.10);border-color:rgba(44,104,200,.2
 }
 .bin-drop:empty::after{content:"여기로 원소를 끌어다 놓아요";font-size:12px;color:var(--fg-3);margin:auto}
 .cls-foot{display:flex;align-items:center;gap:var(--s3);width:min(880px,100%);font-size:12.5px;color:var(--fg-3)}
+/* 단계 A ↔ 1족·18족 비교 */
+.cmp{
+  width:min(880px,100%);flex-shrink:0;margin-top:var(--s2);
+  border:1px solid var(--line-2);border-radius:var(--r3);background:var(--ink-1);
+  padding:var(--s3) var(--s4);animation:tin .3s var(--ease)
+}
+.cmp[hidden]{display:none}
+.cmp-h{display:flex;align-items:baseline;gap:var(--s2);flex-wrap:wrap;margin-bottom:var(--s2)}
+.cmp-h b{font-family:var(--f-title);font-size:14.5px;font-weight:600}
+.cmp-h .crit-echo{font-size:12px;color:var(--fg-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:44%}
+.cmp-h .rate{
+  margin-left:auto;font-family:var(--f-num);font-size:12.5px;font-weight:600;
+  padding:3px 10px;border-radius:99px;border:1px solid currentColor
+}
+.cmp-h .rate.good{color:var(--ok);background:var(--ok-soft)}
+.cmp-h .rate.part{color:var(--kero);background:var(--kero-soft)}
+.cmp-rows{display:flex;gap:6px;flex-wrap:wrap}
+.cmp-el{
+  display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:99px;
+  border:1px solid var(--line);background:var(--ink-2);font-size:12px;color:var(--fg-2)
+}
+.cmp-el b{font-family:var(--f-title);font-size:13.5px;color:var(--fg);font-weight:700}
+.cmp-el .mk{font-size:12px;font-weight:700}
+.cmp-el.same{border-color:var(--ok);color:var(--ok)}
+.cmp-el.same .mk{color:var(--ok)}
+.cmp-el.diff{border-color:var(--bad);color:var(--bad)}
+.cmp-el.diff .mk{color:var(--bad)}
+.cmp-note{margin:var(--s2) 0 0;font-size:12.5px;color:var(--fg-2);line-height:1.6}
+.cmp-note b{color:var(--fg)}
 .verdict{padding:5px 11px;border-radius:99px;font-size:12.5px;font-weight:500;display:none}
 .verdict.show{display:inline-block}
 .verdict.good{background:var(--ok-soft);color:var(--ok);border:1px solid var(--ok)}
@@ -471,7 +532,7 @@ body.light .pool{background:rgba(44,104,200,.10);border-color:rgba(44,104,200,.2
 .slot .hintq{font-size:calc(var(--cell)*.34);color:var(--fg-3);opacity:.5;font-weight:600}
 .slot.g1{border-color:var(--kero);background:var(--kero-soft)}
 .slot.g18{border-color:var(--argon);background:var(--argon-soft)}
-.slot.over{border-color:var(--fg);background:var(--ink-3);transform:scale(1.06)}
+.slot.over{border-color:var(--fg);background:var(--ink-3);transform:scale(1.08);box-shadow:0 0 0 3px var(--argon-soft)}
 .slot.filled{border-style:solid;padding:0}
 .slot.justplaced{animation:pop .4s var(--spring)}
 @keyframes pop{0%{transform:scale(.7)}60%{transform:scale(1.08)}100%{transform:scale(1)}}
@@ -542,7 +603,11 @@ body.light .pool{background:rgba(44,104,200,.10);border-color:rgba(44,104,200,.2
   padding:3px 8px;border-radius:99px;background:var(--ink-2);border:1px solid var(--line)
 }
 #cardTip .nums b{font-family:var(--f-num);color:var(--argon);font-weight:600;font-size:12.5px}
-.ecard.ghost{position:fixed;z-index:999;pointer-events:none;opacity:.92}
+.ecard.ghost{
+  position:fixed;left:0;top:0;z-index:999;pointer-events:none;opacity:.94;
+  transform:rotate(-3deg) scale(1.04);filter:drop-shadow(0 18px 34px rgba(0,0,0,.5));
+  transition:none;will-change:left,top
+}
 .ecard.wrong .face{animation:shake .3s;border-color:var(--bad)}
 .tray{
   flex:0 0 auto;height:126px;
@@ -1045,7 +1110,8 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border:none;border-ra
           <div class="bin-h">
             <span class="bin-num">1</span>
             <input class="txt" id="bin1Name" type="text" placeholder="이 무리의 이름" autocomplete="off">
-            <span class="fixname" id="bin1Fixed" style="display:none">1족 원소</span>
+            <span class="fixname" id="bin1Fixed" style="display:none">1족 · 알칼리 금속</span>
+            <span class="cnt" id="bin1Cnt"></span>
             <span class="yn" id="bin1YN">예</span>
           </div>
           <div class="bin-drop" data-bin="1" id="drop1"></div>
@@ -1054,7 +1120,8 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border:none;border-ra
           <div class="bin-h">
             <span class="bin-num">2</span>
             <input class="txt" id="bin2Name" type="text" placeholder="이 무리의 이름" autocomplete="off">
-            <span class="fixname" id="bin2Fixed" style="display:none">18족 원소</span>
+            <span class="fixname" id="bin2Fixed" style="display:none">18족 · 비활성 기체</span>
+            <span class="cnt" id="bin2Cnt"></span>
             <span class="yn" id="bin2YN">아니요</span>
           </div>
           <div class="bin-drop" data-bin="2" id="drop2"></div>
@@ -1062,8 +1129,18 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border:none;border-ra
       </div>
 
       <div class="cls-foot">
-        <span id="clsFootTxt">원소를 끌어다 놓으면 저장돼요. 손가락·마우스 모두 됩니다.</span>
+        <span id="clsFootTxt">원소를 끌어다 놓거나, 눌러서 고른 뒤 무리를 눌러도 돼요.</span>
         <span class="verdict" id="clsVerdict"></span>
+      </div>
+
+      <div class="cmp" id="clsCmp" hidden>
+        <div class="cmp-h">
+          <b>내 기준 ↔ 1족·18족 비교</b>
+          <span class="crit-echo" id="cmpCrit"></span>
+          <span class="rate" id="cmpRate"></span>
+        </div>
+        <div class="cmp-rows" id="cmpRows"></div>
+        <p class="cmp-note" id="cmpNote"></p>
       </div>
     </div>
   </section>
@@ -1211,7 +1288,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border:none;border-ra
     <div class="help-sec">
       <h3>이 실험실에서 하는 일</h3>
       <p><b>① 원소 조사</b> — He·Li·Ne·Na·Ar·K 여섯 가지를 물에 넣어 보고, 방전관에 전압을 걸어 봅니다. 관찰한 것을 7가지 항목으로 적고 조사 카드(PNG)와 이미지 프롬프트를 만듭니다.</p>
-      <p><b>② 분류하기</b> — 직접 세운 기준으로 두 무리로 나눈 뒤, 1족과 18족으로 다시 나눕니다.</p>
+      <p><b>② 분류하기</b> — 직접 세운 기준으로 두 무리로 나눈 뒤, 1족과 18족으로 다시 나눕니다. 원소는 <b>끌어다 놓거나</b>, 한 번 <b>눌러서 고른 뒤 무리 상자를 눌러</b> 옮길 수 있어요. 두 단계를 모두 마치면 내 기준과 족 분류가 얼마나 같았는지 아래에 나옵니다.</p>
       <p><b>③ 주기율표 배치</b> — 1~20번 원소 카드를 뒤집어 확인하고 주기율표 제자리에 끌어다 놓습니다.</p>
       <p><b>④ 퀴즈 · ⑤ 탐구 질문</b> — 배운 것을 확인하고 내 문장으로 설명합니다.</p>
     </div>
@@ -1855,13 +1932,54 @@ $('#nameGo').addEventListener('click',()=>{
 const fname=(base,ext)=>base+'_'+(ST.sid||'학번')+'_'+(ST.nm||'이름')+'.'+ext;
 const today=()=>{const d=new Date();return d.getFullYear()+'. '+(d.getMonth()+1)+'. '+d.getDate()+'.'};
 
+/* ═══════════════════════════════════════
+   드래그 공통 — 고스트(끌리는 분신)는 body에 붙는 position:fixed 요소라
+   정리에 실패하면 화면에 남아 다른 탭까지 덮는다. 어떤 경로로 끝나든
+   반드시 지워지도록 상태를 한곳에서 관리한다.
+   ═══════════════════════════════════════ */
+let dragG=null;              /* 분류하기 원소 칩 드래그 */
+let dragC=null,cMoved=false; /* 주기율표 카드 드래그 */
+let selSym=null;             /* 눌러서 고른 원소 (끌기 대체 조작) */
+
+/* body에 남아 있는 고스트를 남김없이 제거 */
+function sweepGhosts(){
+  $$('.echip.ghost,.ecard.ghost').forEach(g=>g.remove());
+}
+function relCap(d){
+  if(!d||d.pid==null||!d.el)return;
+  try{if(d.el.hasPointerCapture&&d.el.hasPointerCapture(d.pid))d.el.releasePointerCapture(d.pid)}catch(e){}
+}
+function endDragG(){
+  if(dragG){relCap(dragG);if(dragG.g)dragG.g.remove();
+    if(dragG.el)dragG.el.classList.remove('dragging');dragG=null}
+  $$('.bin.over').forEach(b=>b.classList.remove('over'));
+  sweepGhosts();
+}
+function endDragC(){
+  if(dragC){relCap(dragC);if(dragC.g)dragC.g.remove();
+    if(dragC.el)dragC.el.style.opacity='';dragC=null}
+  $$('.slot.over').forEach(s=>s.classList.remove('over'));
+  sweepGhosts();
+}
+function endAllDrag(){endDragG();endDragC()}
+/* 안전망 ① 포인터가 어디서 떨어지든 (버블 단계라 각 요소 처리 뒤에 실행된다) */
+window.addEventListener('pointerup',endAllDrag);
+window.addEventListener('pointercancel',endAllDrag);
+/* 안전망 ② 창 밖에서 버튼을 놓아 pointerup을 못 받은 경우 — 다음 움직임에서 정리 */
+window.addEventListener('pointermove',ev=>{
+  if((dragG||dragC)&&ev.pointerType==='mouse'&&ev.buttons===0){endAllDrag();if($('#p-classify').classList.contains('active'))clsRender()}
+});
+/* 안전망 ③ 탭 전환·창 이탈 */
+window.addEventListener('blur',endAllDrag);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)endAllDrag()});
+
 /* ═══════════ 탭 ═══════════ */
 const TABS=['survey','group','classify','ptable','quiz','inquiry'];
 const TABNAME={survey:'원소 조사',group:'족 실험실',classify:'분류하기',ptable:'주기율표 배치',quiz:'퀴즈',inquiry:'탐구 질문'};
 function surveyedCount(){return Object.keys(ST.survey).filter(s=>Object.values(ST.survey[s]||{}).some(v=>v&&v.trim())).length}
 /* 탭은 잠그지 않는다 — 모든 활동은 처음부터 열려 있고, 진행 상태만 표시한다 */
 function setTab(t){
-  ST.tab=t; hideCardTip();
+  ST.tab=t; hideCardTip(); endAllDrag(); selSym=null;
   $$('.tab').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===t)));
   $$('.panel').forEach(p=>p.classList.toggle('active',p.id==='p-'+t));
   ctrlBar(); updSteps();
@@ -3066,7 +3184,7 @@ function clsSetStage(st){
     :'원소 6종을 살펴보고, 두 무리로 나눌 수 있는 기준을 직접 정해 보세요.';
   $('#critIn').style.display=B?'none':'';
   $('#critFixed').style.display=B?'':'none';
-  $('#critFixed').textContent='주기율표에서 1족(세로줄 맨 왼쪽)에 속하는가?';
+  $('#critFixed').textContent='주기율표 1족 알칼리 금속 계열에 속하는가?';
   $('#critBox').classList.toggle('fixed',B);
   $('#bin1Name').style.display=B?'none':'';
   $('#bin2Name').style.display=B?'none':'';
@@ -3074,14 +3192,27 @@ function clsSetStage(st){
   $('#bin2Fixed').style.display=B?'':'none';
   $('#bin2').classList.toggle('b18',B);
   $('#clsVerdict').classList.remove('show');
-  $('#clsFootTxt').textContent=B?'모두 놓은 뒤 [분류 확인하기]를 누르면 채점해 드려요.'
-    :'원소를 끌어다 놓으면 저장돼요. 손가락·마우스 모두 됩니다.';
-  clsRender();ctrlBar();
+  selSym=null; endDragG();
+  clsRender();clsFoot();ctrlBar();
 }
-function clsRender(){
+/* 아래 안내 문구 — 지금 상태에 맞춰 바꾼다 */
+function clsFoot(){
+  const D=clsData(),all=D[1].length+D[2].length;
+  let t;
+  if(selSym)t='['+selSym+'] 을(를) 골랐어요. 놓을 무리 상자를 눌러 주세요.';
+  else if(ST.clsStage==='B')
+    t=all===6?'다 놓았어요. [분류 확인하기]를 눌러 보세요.'
+             :'모두 놓은 뒤 [분류 확인하기]를 누르면 채점해 드려요.';
+  else t=all===6?'여섯 원소를 모두 나눴어요. [단계 B로 넘어가기]를 눌러 보세요.'
+                :'원소를 끌어다 놓거나, 눌러서 고른 뒤 무리를 눌러도 돼요.';
+  $('#clsFootTxt').textContent=t;
+}
+function clsRender(landSym){
   const D=clsData(),placed=[].concat(D[1],D[2]);
   const pool=EL6.filter(e=>placed.indexOf(e.sym)<0);
-  const chip=e=>'<button class="echip '+(e.grp===1?'metal':'gasx')+'" draggable="false" data-el="'+e.sym+'">'+
+  const chip=e=>'<button type="button" class="echip '+(e.grp===1?'metal':'gasx')+
+    (e.sym===selSym?' sel':'')+(e.sym===landSym?' landed':'')+
+    '" draggable="false" data-el="'+e.sym+'" aria-pressed="'+(e.sym===selSym)+'">'+
     e.sym+'<span class="kr">'+e.kr.split('(')[0]+'</span></button>';
   $('#pool').innerHTML=pool.map(chip).join('');
   $('#pool').classList.toggle('empty',pool.length===0);
@@ -3089,58 +3220,114 @@ function clsRender(){
   $('#drop2').innerHTML=D[2].map(s=>chip(byId[s])).join('');
   $('#critIn').value=ST.crit;
   $('#bin1Name').value=ST.binName[0];$('#bin2Name').value=ST.binName[1];
+  $('#bin1Cnt').textContent=D[1].length?D[1].length+'개':'';
+  $('#bin2Cnt').textContent=D[2].length?D[2].length+'개':'';
+  $$('.bin').forEach(b=>b.classList.toggle('cansel',!!selSym));
+  clsCmp();
   bindDrag();
 }
-/* 포인터 드래그 (마우스·터치 공통) */
-let dragG=null;
+/* 원소 하나를 무리 n(0=풀)으로 옮긴다 — 끌기·누르기·키보드가 모두 여기로 모인다 */
+function clsPlace(sym,n){
+  const D=clsData();
+  const from=D[1].indexOf(sym)>=0?1:D[2].indexOf(sym)>=0?2:0;
+  D[1]=D[1].filter(x=>x!==sym);D[2]=D[2].filter(x=>x!==sym);
+  if(n)D[n].push(sym);
+  selSym=null;
+  sfx(n&&n!==from?'place':'click');
+  clsSave();clsRender(n&&n!==from?sym:null);clsFoot();
+}
+function clsSelect(sym){
+  selSym=(selSym===sym)?null:sym;
+  if(selSym)sfx('click');
+  clsRender();clsFoot();
+}
+/* 단계 A의 내 분류와 실제 1족·18족을 견주어 본다 (탐구 질문 ②의 발판) */
+function clsCmp(){
+  const box=$('#clsCmp'),A=ST.clsA,B=ST.clsB;
+  const full=x=>x[1].length+x[2].length===6;
+  if(ST.clsStage!=='B'||!full(A)||!full(B)){box.hidden=true;return}
+  box.hidden=false;
+  const mine=x=>A[1].indexOf(x)>=0?1:2, real=x=>G1.indexOf(x)>=0?1:2;
+  let same=0; EL6.forEach(e=>{if(mine(e.sym)===real(e.sym))same++});
+  const flip=same<3;                       /* 무리 번호만 반대인 경우도 '같은 나눔'이다 */
+  const hit=e=>flip?mine(e.sym)!==real(e.sym):mine(e.sym)===real(e.sym);
+  const cnt=EL6.filter(hit).length;
+  $('#cmpCrit').textContent=ST.crit?'기준: '+ST.crit:'';
+  const r=$('#cmpRate');
+  r.className='rate '+(cnt===6?'good':'part');
+  r.textContent='6개 중 '+cnt+'개 일치';
+  $('#cmpRows').innerHTML=EL6.map(e=>{
+    const ok=hit(e);
+    return '<span class="cmp-el '+(ok?'same':'diff')+'"><b>'+e.sym+'</b>'+
+      e.kr.split('(')[0]+'<span class="mk">'+(ok?'✓':'✕')+'</span></span>';
+  }).join('');
+  $('#cmpNote').innerHTML = cnt===6
+    ? '내가 세운 기준으로 나눈 두 무리가 <b>1족·18족 분류와 똑같았어요.</b> 성질이 비슷한 원소끼리 같은 세로줄(족)에 모여 있기 때문입니다.'
+    : cnt>=4
+    ? '여섯 중 <b>'+cnt+'개</b>가 같은 무리에 들어갔어요. 어긋난 원소는 어떤 성질 때문에 다르게 묶였는지 살펴보세요.'
+    : '내 기준은 족과 다른 방식으로 원소를 나눴어요. <b>물과의 반응·상태</b> 같은 성질을 기준으로 삼으면 족 분류와 가까워집니다.';
+}
+/* 포인터 드래그 (마우스·터치 공통) — 상태·정리는 위쪽 공통 코드가 맡는다 */
 function bindDrag(){
-  $$('.echip').forEach(el=>{
+  /* 분류하기 패널 안쪽만 고른다. body에 뜬 고스트에는 손잡이를 달지 않는다 */
+  $$('#p-classify .echip').forEach(el=>{
     el.onpointerdown=ev=>{
+      if(ev.button)return;
+      endDragG();                       /* 앞선 드래그가 남아 있으면 먼저 치운다 */
       ev.preventDefault();
       const r=el.getBoundingClientRect();
-      const g=el.cloneNode(true);g.classList.add('ghost');
+      const g=el.cloneNode(true);
+      g.classList.remove('sel','landed','dragging');g.classList.add('ghost');
+      g.removeAttribute('id');
       g.style.left=r.left+'px';g.style.top=r.top+'px';g.style.width=r.width+'px';
       document.body.appendChild(g);
       el.classList.add('dragging');
-      dragG={el,g,ox:ev.clientX-r.left,oy:ev.clientY-r.top,sym:el.dataset.el};
+      dragG={el,g,ox:ev.clientX-r.left,oy:ev.clientY-r.top,sym:el.dataset.el,
+             pid:ev.pointerId,sx:ev.clientX,sy:ev.clientY,moved:false};
       try{el.setPointerCapture&&el.setPointerCapture(ev.pointerId)}catch(err){}
-      sfx('click');
     };
     el.onpointermove=ev=>{
-      if(!dragG)return; ev.preventDefault();
+      if(!dragG||ev.pointerId!==dragG.pid)return; ev.preventDefault();
+      if(Math.abs(ev.clientX-dragG.sx)>4||Math.abs(ev.clientY-dragG.sy)>4)dragG.moved=true;
       dragG.g.style.left=(ev.clientX-dragG.ox)+'px';
       dragG.g.style.top=(ev.clientY-dragG.oy)+'px';
       const t=document.elementFromPoint(ev.clientX,ev.clientY);
-      $$('.bin').forEach(b=>b.classList.remove('over'));
-      const bin=t&&t.closest('.bin'); if(bin)bin.classList.add('over');
+      const bin=t&&t.closest('.bin');
+      $$('.bin').forEach(b=>b.classList.toggle('over',b===bin));
     };
     el.onpointerup=ev=>{
-      if(!dragG)return;
+      if(!dragG||ev.pointerId!==dragG.pid)return;
       const t=document.elementFromPoint(ev.clientX,ev.clientY);
-      const bin=t&&t.closest('.bin'), pool=t&&t.closest('.pool');
-      dragG.g.remove();dragG.el.classList.remove('dragging');
-      $$('.bin').forEach(b=>b.classList.remove('over'));
-      const sym=dragG.sym;dragG=null;
-      const D=clsData();
-      D[1]=D[1].filter(x=>x!==sym);D[2]=D[2].filter(x=>x!==sym);
-      if(bin){const n=bin.id==='bin1'?1:2;D[n].push(sym);sfx('place')}
-      else if(pool){sfx('click')}
-      else{ /* 원위치 */ }
-      clsSave();clsRender();
-      if(ST.clsStage==='B'){const all=D[1].length+D[2].length;if(all===6)$('#clsFootTxt').textContent='다 놓았어요. [분류 확인하기]를 눌러 보세요.'}
+      const bin=t&&t.closest('.bin'), pl=t&&t.closest('.pool');
+      const sym=dragG.sym, moved=dragG.moved;
+      endDragG();
+      if(!moved){clsSelect(sym);return}          /* 움직이지 않았으면 = 눌러서 고르기 */
+      if(bin)clsPlace(sym,bin.id==='bin1'?1:2);
+      else if(pl)clsPlace(sym,0);
+      else clsRender();                          /* 엉뚱한 곳에 놓으면 제자리로 */
     };
-    el.onpointercancel=()=>{if(dragG){dragG.g.remove();dragG.el.classList.remove('dragging');dragG=null;clsRender()}};
-    /* 키보드 접근성 */
+    el.onpointercancel=el.onlostpointercapture=ev=>{
+      if(!dragG||(ev&&ev.pointerId!==dragG.pid))return;
+      endDragG();clsRender();
+    };
+    /* 키보드 접근성 — 풀 → 무리① → 무리② → 풀 순서로 옮긴다 */
     el.onkeydown=ev=>{
       if(ev.key!=='Enter'&&ev.key!==' ')return; ev.preventDefault();
       const D=clsData(),sym=el.dataset.el;
       const at=D[1].indexOf(sym)>=0?1:D[2].indexOf(sym)>=0?2:0;
-      D[1]=D[1].filter(x=>x!==sym);D[2]=D[2].filter(x=>x!==sym);
-      const nx=at===0?1:at===1?2:0; if(nx)D[nx].push(sym);
-      sfx('place');clsSave();clsRender();
+      clsPlace(sym,at===0?1:at===1?2:0);
     };
   });
 }
+/* 눌러서 고른 원소를 무리 상자를 눌러 옮긴다 (칩 자체를 누르면 그 칩이 다시 선택된다) */
+function binTap(n){return ev=>{
+  if(ev.target.closest('.echip'))return;
+  if(!selSym)return;
+  clsPlace(selSym,n);
+}}
+$('#bin1').addEventListener('click',binTap(1));
+$('#bin2').addEventListener('click',binTap(2));
+$('#pool').addEventListener('click',binTap(0));
 function clsCheck(){
   const D=ST.clsB;
   if(D[1].length+D[2].length<6){toast('여섯 원소를 모두 놓아 주세요','no');return}
@@ -3166,7 +3353,8 @@ function clsCheck(){
 function clsReset(){
   const D=clsData();D[1]=[];D[2]=[];
   if(ST.clsStage==='A'){ST.crit='';ST.binName=['',''];S.set('crit','');S.set('binName',ST.binName)}
-  clsSave();clsRender();$('#clsVerdict').classList.remove('show');sfx('click');
+  selSym=null;endDragG();
+  clsSave();clsRender();clsFoot();$('#clsVerdict').classList.remove('show');sfx('click');
 }
 $('#segA').addEventListener('click',()=>clsSetStage('A'));
 $('#segB').addEventListener('click',()=>clsSetStage('B'));
@@ -3257,26 +3445,29 @@ function ptRestore(){
     if(slot){slot.classList.add('filled');slot.innerHTML=cardHTML(byZ[+z],true)}
   });
 }
-let dragC=null,cMoved=false;
 function bindCards(){
-  $$('.ecard').forEach(el=>{
+  /* 주기율표 패널 안쪽만 — body에 뜬 고스트는 제외 */
+  $$('#p-ptable .ecard').forEach(el=>{
     const inSlot=!!el.closest('.slot');
     el.onpointerdown=ev=>{
       cMoved=false;
       if(inSlot)return;
+      if(ev.button)return;
+      endDragC();
       ev.preventDefault();
       const r=el.getBoundingClientRect();
-      const g=el.cloneNode(true);g.classList.add('ghost');
+      const g=el.cloneNode(true);g.classList.add('ghost');g.removeAttribute('id');
       g.style.left=r.left+'px';g.style.top=r.top+'px';
       g.style.setProperty('--cw',r.width+'px');g.style.setProperty('--ch',r.height+'px');
       g.style.width=r.width+'px';g.style.height=r.height+'px';
       document.body.appendChild(g);
       el.style.opacity='.3';
-      dragC={el,g,ox:ev.clientX-r.left,oy:ev.clientY-r.top,z:+el.dataset.z,sx:ev.clientX,sy:ev.clientY};
+      dragC={el,g,ox:ev.clientX-r.left,oy:ev.clientY-r.top,z:+el.dataset.z,
+             sx:ev.clientX,sy:ev.clientY,pid:ev.pointerId};
       try{el.setPointerCapture&&el.setPointerCapture(ev.pointerId)}catch(err){}
     };
     el.onpointermove=ev=>{
-      if(!dragC)return;
+      if(!dragC||ev.pointerId!==dragC.pid)return;
       if(Math.abs(ev.clientX-dragC.sx)>6||Math.abs(ev.clientY-dragC.sy)>6)cMoved=true;
       ev.preventDefault();
       dragC.g.style.left=(ev.clientX-dragC.ox)+'px';
@@ -3286,12 +3477,11 @@ function bindCards(){
       const sl=t&&t.closest('.slot'); if(sl&&!sl.classList.contains('filled'))sl.classList.add('over');
     };
     el.onpointerup=ev=>{
-      if(!dragC){ if(!cMoved)flipCard(el); return }
+      if(!dragC||ev.pointerId!==dragC.pid){ if(!cMoved)flipCard(el); return }
       const t=document.elementFromPoint(ev.clientX,ev.clientY);
       const sl=t&&t.closest('.slot');
-      dragC.g.remove();dragC.el.style.opacity='';
-      $$('.slot').forEach(s=>s.classList.remove('over'));
-      const z=dragC.z;dragC=null;
+      const z=dragC.z;
+      endDragC();
       if(!cMoved){flipCard(el);return}
       if(sl&&!sl.classList.contains('filled')){
         const want=+sl.dataset.slot;
@@ -3311,7 +3501,10 @@ function bindCards(){
         }
       }
     };
-    el.onpointercancel=()=>{if(dragC){dragC.g.remove();dragC.el.style.opacity='';dragC=null}};
+    el.onpointercancel=el.onlostpointercapture=ev=>{
+      if(!dragC||(ev&&ev.pointerId!==dragC.pid))return;
+      endDragC();
+    };
     el.onkeydown=ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();flipCard(el)}};
   });
 }
@@ -3927,7 +4120,7 @@ document.addEventListener('keydown',e=>{
   else setTimeout(()=>toast('왼쪽에서 원소를 골라 실험을 시작해 보세요'),700);
   /* 페이지 스크롤 차단 */
   document.addEventListener('touchmove',e=>{
-    if(!e.target.closest('.scrollable,.md-b,.dr-body,.note-body,.gl-list,.inq-list,.tray-scroll,.bin-drop,.quiz-opts,.promptbox,textarea'))
+    if(!e.target.closest('.scrollable,.md-b,.dr-body,.note-body,.gl-list,.inq-list,.tray-scroll,.cls-flow,.bin-drop,.quiz-opts,.promptbox,textarea'))
       e.preventDefault();
   },{passive:false});
 })();
