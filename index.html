@@ -148,7 +148,8 @@ footer.ctrl{
   display:flex;align-items:center;gap:var(--s2);padding:0 var(--s4);
   border-top:1px solid var(--line);background:var(--ink-1);overflow:hidden;
 }
-.ctrl-hint{font-size:12px;color:var(--fg-3);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#ctrlLeft{flex-shrink:0}
+.ctrl-hint{flex:1 1 0;font-size:12px;color:var(--fg-3);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ctrl-right{margin-left:auto;display:flex;align-items:center;gap:var(--s2);flex-shrink:0}
 .foot-brand{
   font-size:11px;color:var(--fg-3);white-space:nowrap;cursor:pointer;
@@ -612,7 +613,7 @@ body.light .bin-h .cnt{background:rgba(20,30,50,.08)}
 }
 .ecard.wrong .face{animation:shake .3s;border-color:var(--bad)}
 .tray{
-  flex:0 0 auto;height:126px;
+  flex:0 0 auto;height:134px;
   border-top:1px solid var(--line);background:var(--ink-1);
   margin:var(--s2) calc(var(--s4)*-1) 0;padding:var(--s2) var(--s4);
   display:flex;align-items:center;gap:var(--s3);overflow:hidden
@@ -910,7 +911,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border:none;border-ra
 @media (max-width:760px){
   :root{--h-header:52px;--fs-h1:20px;--fs-h2:17px;--fs-body:15px;--fs-num:22px}
   .ecard{--cw:66px;--ch:86px}
-  .tray{height:110px}
+  .tray{height:118px}
   h1.title{font-size:var(--fs-h1)}
   .title-sub,.lab-facts{display:none}
   #p-survey{grid-template-columns:80px 1fr}
@@ -2076,6 +2077,8 @@ const SCN={w:900,h:560};   /* 실험 장면 가상 좌표계 (비율 고정) */
    1족은 시계 접시를, 18족은 방전관을 오른쪽 자리로 보냈다.
    기체 용기 → 고무관 → 물 그릇이 한 줄로 이어져 연결이 눈에 보인다. */
 const POS={dish:.395, dishR:.150, watch:.740, tube:.742, tubeW:.250};
+/* 조작 버튼 행의 장면 좌표 기준선 — 이 위(y<HOTY-20)와 아래(y>HOTBOT)는 캔버스 설명이 쓰지 않는다 */
+const HOTY=40, HOTBOT=112;
 const LC={cv:null,ctx:null,w:0,h:0,dpr:1,mode:'idle',t0:0,t:0,raf:0,parts:[],
   phenol:false,phenT:-9,glow:0,shrink:1,tarnish:0,done:false,pink:0,hi:null,fit:1,
   puff:[],mol:[]};
@@ -2225,7 +2228,7 @@ function LCdraw(){
   /* 실험대 (좌우로 넉넉히 확장해 화면 끝까지 이어지게) */
   c.strokeStyle=k.line;c.lineWidth=1;
   c.beginPath();c.moveTo(-2000,H*.80);c.lineTo(W+2000,H*.80);c.stroke();
-  c.fillStyle=k.benchTop;c.fillRect(-2000,H*.80,W+4000,H*.28);
+  c.fillStyle=k.benchTop;c.fillRect(-2000,H*.80,W+4000,H*3);
   const e=byId[ST.el];
   if(e.grp===1)drawMetalScene(e); else drawGasScene(e);
   drawParticles();drawMolecules(e);
@@ -2304,7 +2307,7 @@ function drawMetalScene(e){
   c.fillStyle=k.fg3;c.font='400 10.5px IBM Plex Sans KR, sans-serif';c.textAlign='center';
   c.fillText('시계 접시',wx,wy+H*.082);
   /* 물과 반응할 때 나오는 기체를 분자 모형으로 함께 보여 준다 */
-  if(LC.mode==='water'&&LC.t>1.0)drawGasModel('H2',e,W*POS.watch,H*.245,k);
+  if(LC.mode==='water'&&LC.t>1.0)drawGasModel('H2',e,W*.405,H*.315,k,{x:W*POS.dish,y:H*.545});
 }
 
 /* 광택 계기 — "흐려지는 중"을 눈금으로 읽게 한다 (공기 중에 두기) */
@@ -2331,17 +2334,30 @@ function drawLusterGauge(cx,cy,w,k){
 
 /* 기체 모형 콜아웃 — 눈에 보이지 않는 기체를 분자·원자 모형으로 세운다.
    'H2' = 수소 분자(원자 2개) / 'MONO' = 18족 단원자 분자(원자 1개) */
-function drawGasModel(kind,e,cx,cy,k){
+function drawGasModel(kind,e,cx,cy,k,src){
   const c=LC.ctx,H=SCN.h,W=SCN.w;
-  const w=W*.235,h=H*.185;
+  const ttl='기체 모형 · 눈에는 보이지 않아요';
+  const cap=(kind==='H2')?'수소 분자 H₂ — 원자 2개가 결합'
+                         :e.sym+' — 원자 1개가 그대로 (단원자 분자)';
   c.save();
+  /* 글자가 상자 밖으로 삐져나가지 않도록 폭을 글자에 맞춘다 */
+  c.font='600 12px IBM Plex Sans KR, sans-serif';const capW=c.measureText(cap).width;
+  c.font='500 10px IBM Plex Sans KR, sans-serif';const ttlW=c.measureText(ttl).width;
+  const w=Math.min(W*.34,Math.max(W*.25,Math.max(capW,ttlW)+30)),h=H*.16;
+  cx=Math.max(w/2+10,Math.min(W-w/2-10,cx));
+  if(src){
+    c.strokeStyle=k.line;c.lineWidth=1.2;c.setLineDash([5,5]);
+    c.beginPath();c.moveTo(cx,cy+h/2);c.lineTo(src.x,src.y);c.stroke();
+    c.setLineDash([]);
+    c.fillStyle=k.line;c.beginPath();c.arc(src.x,src.y,2.4,0,7);c.fill();
+  }
   rr(cx-w/2,cy-h/2,w,h,10);
   c.fillStyle=ST.theme==='light'?'rgba(255,255,255,.86)':'rgba(14,20,38,.80)';c.fill();
   c.strokeStyle=k.line;c.lineWidth=1;c.stroke();
   c.textAlign='left';
   c.fillStyle=k.fg3;c.font='500 10px IBM Plex Sans KR, sans-serif';
-  c.fillText('기체 모형 · 눈에는 보이지 않아요',cx-w/2+12,cy-h/2+16);
-  const my=cy+H*.006;
+  c.fillText(ttl,cx-w/2+12,cy-h/2+15);
+  const my=cy+H*.008;
   if(kind==='H2'){
     for(let i=0;i<3;i++){
       const bx=cx-w/2+w*(.24+i*.26), bob=Math.sin(LC.t*2.2+i*1.7)*3.2, r=7.2;
@@ -2352,7 +2368,7 @@ function drawGasModel(kind,e,cx,cy,k){
     }
     c.textAlign='center';
     c.fillStyle=k.fg;c.font='600 12px IBM Plex Sans KR, sans-serif';
-    c.fillText('수소 분자 H₂ — 원자 2개가 결합',cx,cy+h/2-10);
+    c.fillText(cap,cx,cy+h/2-10);
   }else{
     for(let i=0;i<3;i++){
       const bx=cx-w/2+w*(.26+i*.24), bob=Math.sin(LC.t*2.0+i*2.1)*3.4;
@@ -2360,7 +2376,7 @@ function drawGasModel(kind,e,cx,cy,k){
     }
     c.textAlign='center';
     c.fillStyle=k.fg;c.font='600 12px IBM Plex Sans KR, sans-serif';
-    c.fillText(e.sym+' — 원자 1개가 그대로 (단원자 분자)',cx,cy+h/2-10);
+    c.fillText(cap,cx,cy+h/2-10);
   }
   c.restore();c.textAlign='left';
 }
@@ -2688,7 +2704,7 @@ function drawGasScene(e){
   hiRing(c,'tube',tx,ty,tw*.60,th*1.5);
   drawPSU(e,tx-W*.058,ty+H*.165,W*.116,H*.090,LC.glow,k);
   drawDish(e);
-  if(LC.mode==='air'&&LC.t>.5)drawGasModel('MONO',e,W*POS.tube,H*.155,k);
+  if(LC.mode==='air'&&LC.t>.5)drawGasModel('MONO',e,W*POS.tube,H*.295,k);
 }
 
 /* 기체 용기 밸브에서 물 그릇까지 이어지는 고무관 + 유리 도관.
@@ -2856,10 +2872,10 @@ function drawTube(e,tx,ty,tw,th,glow,k){
   rr(tx-tw/2+th*.5,ty-th*.36,tw-th,th*.11,3);c.fill();
   c.restore();
   c.fillStyle=k.fg3;c.font='400 10.5px IBM Plex Sans KR, sans-serif';c.textAlign='center';
-  c.fillText('방전관',tx,ty-th*.5-H*.030);
+  c.fillText('방전관',tx,ty+th*.5+H*.040);
   if(glow>0){
     c.fillStyle=e.glow;c.font='600 12px IBM Plex Sans KR, sans-serif';
-    c.fillText(e.sym==='He'?'연한 분홍빛':e.sym==='Ne'?'붉은 주황빛':'연보랏빛',tx,ty+th*.5+H*.042);
+    c.fillText(e.sym==='He'?'연한 분홍빛':e.sym==='Ne'?'붉은 주황빛':'연보랏빛',tx,ty+th*.5+H*.088);
   }
 }
 function drawPSU(e,x,y,w,h,glow,k){
@@ -3006,7 +3022,7 @@ function hotLayout(){
   btns.forEach((b,i)=>{
     const h=list[i]; if(!h)return;
     b.style.left=(ox+h.x*s)+'px';
-    b.style.top=(oy+132*s+(h.y>150?rowH:0))+'px';
+    b.style.top=(oy+HOTY*s+(h.y>150?rowH:0))+'px';
   });
 }
 function markExp(k){
@@ -3175,7 +3191,7 @@ function GLdraw(){
   fitScene(c,GL.dpr,GL.w,GL.h,W,H);
   if(GL.mode!=='compare'){
     c.strokeStyle=k.line;c.lineWidth=1;c.beginPath();c.moveTo(-2000,H*.80);c.lineTo(W+2000,H*.80);c.stroke();
-    c.fillStyle=k.benchTop;c.fillRect(-2000,H*.80,W+4000,H*.28);
+    c.fillStyle=k.benchTop;c.fillRect(-2000,H*.80,W+4000,H*3);
   }
   if(GL.mode==='compare'){GLchart();}
   else if(GL.grp===1)GLmetal();else GLgas();
