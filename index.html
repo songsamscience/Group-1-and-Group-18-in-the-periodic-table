@@ -249,6 +249,14 @@ footer.ctrl{
 }
 body.light .rd{background:rgba(255,255,255,.8)}
 .rd b{color:var(--fg);font-weight:600}
+.rd{display:inline-flex;align-items:center;gap:6px}
+.rd .dot{width:6px;height:6px;border-radius:99px;flex-shrink:0;background:var(--fg-3)}
+.rd.react{border-color:var(--neon)}
+.rd.react .dot{background:var(--neon)}
+.rd.react b{color:var(--neon)}
+.rd.calm{border-color:var(--argon)}
+.rd.calm .dot{background:var(--argon);border-radius:1px}
+.rd.calm b{color:var(--argon)}
 
 /* 조사 노트 */
 .note{
@@ -313,7 +321,7 @@ body.light .hot{background:rgba(255,255,255,.9)}
 .hot.on{border-color:var(--neon);color:var(--neon);background:rgba(255,107,61,.13)}
 .hot.on .n{background:var(--neon);color:#160A05}
 .hot.did .n{background:var(--ok);color:#04150E}
-.hot.did::after{content:"";width:0}
+.hot::after{content:"";position:absolute;inset:-7px -3px}
 .hot.next{animation:hotpulse 1.9s var(--ease) infinite}
 @keyframes hotpulse{
   0%,100%{box-shadow:0 0 0 0 rgba(255,107,61,.45),var(--sh1)}
@@ -325,18 +333,12 @@ body.light .hot{background:rgba(255,255,255,.9)}
 }
 .hot.ghost .n{display:none}
 .hot.ghost:hover{color:var(--fg-2);border-color:var(--line-2);border-style:solid}
-.hot-note{
-  position:absolute;left:0;top:0;transform:translate(-50%,-50%) scale(var(--hs,1));
-  pointer-events:none;font-size:11.5px;color:var(--fg-3);white-space:nowrap;
-  padding:3px 9px;border-radius:99px;background:rgba(11,16,32,.5)
-}
-body.light .hot-note{background:rgba(255,255,255,.6)}
 /* 기구 위에 놓을 만큼 넓지 않으면 상단 바로 자동 전환 */
 #labHot.flow{
   display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-content:flex-start;
   padding:6px 4px 0
 }
-#labHot.flow .hot{position:static;transform:none;height:30px;padding:0 11px 0 7px;font-size:12px}
+#labHot.flow .hot{position:relative;transform:none;height:32px;padding:0 11px 0 7px;font-size:12px}
 #labHot.flow .hot:active{transform:scale(.96)}
 #labHot.flow .hot .n{width:17px;height:17px;font-size:10px}
 @media (prefers-reduced-motion:reduce){ .hot.next{animation:none;border-color:var(--neon);color:var(--neon)} }
@@ -1030,7 +1032,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border:none;border-ra
       <div id="labCanvasWrap">
         <canvas id="labCanvas"></canvas>
         <div id="labHot" role="group" aria-label="실험 조작"></div>
-        <div class="lab-readout" id="labReadout"></div>
+        <div class="lab-readout" id="labReadout" role="status" aria-live="polite" aria-label="관찰 기록"></div>
       </div>
     </div>
 
@@ -1066,7 +1068,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border:none;border-ra
       </div>
       <div id="glCanvasWrap">
         <canvas id="glCanvas"></canvas>
-        <div class="gl-readout" id="glReadout"></div>
+        <div class="gl-readout" id="glReadout" role="status" aria-live="polite" aria-label="관찰 기록"></div>
       </div>
     </div>
     <aside class="gl-side" id="glSide">
@@ -1165,7 +1167,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border:none;border-ra
   <section class="panel" id="p-quiz" role="tabpanel" aria-label="퀴즈">
     <div class="quiz-card">
       <div class="quiz-top">
-        <span id="qIdx">문항 1 / 5</span>
+        <span id="qIdx">문항 1 / 11</span>
         <span id="qType" style="color:var(--fg-2)"></span>
         <span class="pips" id="qPips"></span>
       </div>
@@ -1183,7 +1185,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border:none;border-ra
   <section class="panel" id="p-inquiry" role="tabpanel" aria-label="탐구 질문">
     <div class="inq-head">
       <h2>탐구 질문</h2>
-      <span class="cnt" id="inqCnt">0 / 6 작성</span>
+      <span class="cnt" id="inqCnt">0 / 7 작성</span>
       <span class="note">답안은 자동 저장되며 리포트에 인쇄됩니다</span>
     </div>
     <div class="inq-list scrollable" id="inqList"></div>
@@ -1287,7 +1289,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border:none;border-ra
   <div class="md-b">
     <div class="help-sec">
       <h3>이 실험실에서 하는 일</h3>
-      <p><b>① 원소 조사</b> — He·Li·Ne·Na·Ar·K 여섯 가지를 물에 넣어 보고, 방전관에 전압을 걸어 봅니다. 관찰한 것을 7가지 항목으로 적고 조사 카드(PNG)와 이미지 프롬프트를 만듭니다.</p>
+      <p><b>① 원소 조사</b> — 실험대는 <b>왼쪽 보관 용기 → 가운데 물 그릇 → 오른쪽 실험대</b> 순서로 놓여 있어요. ① 물에 넣기 → ② 스포이트로 페놀프탈레인 넣기 → ③ 공기 중에 두기 → ④ 칼로 잘라 보기(1족) 또는 방전 켜기(18족) 순서로 눌러 봅니다. 물과 반응할 때 나오는 <b>수소 기체</b>와 관 끝에서 나오는 <b>18족 기체</b>는 분자 모형으로 함께 보여 줍니다. 관찰한 것을 7가지 항목으로 적고 조사 카드(PNG)와 이미지 프롬프트를 만듭니다.</p>
       <p><b>② 분류하기</b> — 직접 세운 기준으로 두 무리로 나눈 뒤, 1족과 18족으로 다시 나눕니다. 원소는 <b>끌어다 놓거나</b>, 한 번 <b>눌러서 고른 뒤 무리 상자를 눌러</b> 옮길 수 있어요. 두 단계를 모두 마치면 내 기준과 족 분류가 얼마나 같았는지 아래에 나옵니다.</p>
       <p><b>③ 주기율표 배치</b> — 1~20번 원소 카드를 뒤집어 확인하고 주기율표 제자리에 끌어다 놓습니다.</p>
       <p><b>④ 퀴즈 · ⑤ 탐구 질문</b> — 배운 것을 확인하고 내 문장으로 설명합니다.</p>
@@ -1301,7 +1303,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border:none;border-ra
         <tr><td><kbd>B</kbd></td><td>이론 책자</td></tr>
         <tr><td><kbd>R</kbd></td><td>학습 리포트</td></tr>
         <tr><td><kbd>Space</kbd></td><td>원소 조사 탭에서 실험 실행 / 되돌리기</td></tr>
-        <tr><td><kbd>1</kbd>~<kbd>5</kbd></td><td>탭 이동</td></tr>
+        <tr><td><kbd>1</kbd>~<kbd>6</kbd></td><td>탭 이동</td></tr>
         <tr><td><kbd>Esc</kbd></td><td>열린 창 닫기</td></tr>
       </table>
       <p style="font-size:12px;color:var(--fg-3);margin-top:var(--s2)">글자를 입력하는 중에는 단축키가 동작하지 않아요.</p>
@@ -1448,12 +1450,12 @@ const EL6=[
   facts:['자른 단면이 은백색으로 반짝이다 곧 흐려져요','물보다 살짝 가벼워 물에 뜹니다','소금(염화 나트륨)의 성분'],
   use:'가로등(나트륨 램프), 소금·비누 원료'},
  {sym:'Ar',kr:'아르곤',z:18,mass:'39.95',grp:18,phase:'기체',mp:'-189.3',bp:'-185.8',dens:'1.784 g/L',
-  glow:'#8AB6FF',glow2:'#C3D8FF',air:'0.93 %',
+  glow:'#A9A6FF',glow2:'#DCD9FF',air:'0.93 %',
   facts:['공기에서 세 번째로 많은 성분이에요','반응하지 않아 금속을 보호합니다','방전관에서 연보라빛을 내요'],
   use:'형광등·전구 충전 기체, 아르곤 용접'},
  {sym:'K',kr:'칼륨(포타슘)',z:19,mass:'39.098',grp:1,phase:'고체(금속)',mp:'63.5',bp:'759',dens:'0.862 g/cm³',
   flame:'#C08BE8',flameKr:'보라색',react:3,
-  facts:['물과 반응할 때 스스로 불이 붙어요','손의 체온보다 조금 높은 온도에서 녹아요','식물의 3대 영양소 중 하나'],
+  facts:['물과 반응할 때 스스로 불이 붙어요','뜨거운 물(63.5 ℃)에서도 녹을 만큼 녹는점이 낮아요','식물의 3대 영양소 중 하나'],
   use:'칼륨 비료, 화약·성냥'}
 ];
 const byId={};EL6.forEach(e=>byId[e.sym]=e);
@@ -1464,9 +1466,9 @@ const Q7=[
  {k:'state', t:'실온에서 물질의 상태',
   peek:'화면 위쪽 자료 칩에 <b>녹는점·끓는점</b>이 있어요. 실온(약 20 ℃)이 그 사이인지, 아래인지, 위인지 확인해 보세요.'},
  {k:'water', t:'물과의 반응',
-  peek:'<b>[물에 넣기]</b>를 누르고 기포·움직임·불꽃을 살펴보세요. 이어서 <b>[페놀프탈레인]</b>으로 물의 색 변화까지 확인합니다.'},
+  peek:'가운데 물 그릇의 <b>[① 물에 넣기]</b>를 누르고 기포·움직임·불꽃을 살펴보세요. 이어서 <b>[② 페놀프탈레인 넣기]</b>를 누르면 스포이트로 용액을 떨어뜨립니다.'},
  {k:'other', t:'다른 물질과의 반응',
-  peek:'<b>[공기 중에 두기]</b>를 눌러 표면이 어떻게 달라지는지 보세요. 공기 속 산소·수증기와 만난 결과입니다.'},
+  peek:'오른쪽 <b>[③ 공기 중에 두기]</b>를 눌러 보세요. 1족은 광택 계기가 줄어들고, 18족은 관 끝에서 나온 기체가 모형으로 보입니다.'},
  {k:'stable',t:'원소의 안정성',
   peek:'앞의 두 실험에서 <b>얼마나 잘 반응했는지</b>로 판단해요. 이론 책자(B)의 "원자가 전자" 쪽도 함께 보세요.'},
  {k:'keep', t:'보관 방법',
@@ -1567,26 +1569,34 @@ const THEORY=[
  more:{t:'원소의 주기율이란?',c:'원소들을 원자 번호 순으로 늘어놓으면 성질이 비슷한 원소가 <b>일정한 간격을 두고 주기적으로</b> 나타나요. 이 규칙을 원소의 주기율이라고 합니다.'}},
 
 {g:'기본',t:'같은 족은 왜 성질이 비슷할까',
- fig:`<svg viewBox="0 0 380 160">
- <circle cx="95" cy="80" r="52" fill="none" stroke="{LINE}"/><circle cx="95" cy="80" r="30" fill="none" stroke="{LINE}"/>
- <circle cx="95" cy="80" r="13" fill="{KERO}"/><text x="95" y="85" fill="{ONCOL}" font-size="12" text-anchor="middle" font-family="IBM Plex Mono">+11</text>
- <circle cx="95" cy="50" r="5" fill="{FG2}"/><circle cx="125" cy="80" r="5" fill="{FG2}"/>
- <circle cx="95" cy="110" r="5" fill="{FG2}"/><circle cx="65" cy="80" r="5" fill="{FG2}"/>
- <circle cx="74" cy="59" r="5" fill="{FG2}"/><circle cx="116" cy="59" r="5" fill="{FG2}"/>
- <circle cx="74" cy="101" r="5" fill="{FG2}"/><circle cx="116" cy="101" r="5" fill="{FG2}"/>
- <circle cx="95" cy="28" r="6.5" fill="{NEON}"/>
- <text x="95" y="152" fill="{FG2}" font-size="11" text-anchor="middle" font-family="IBM Plex Sans KR">나트륨 Na</text>
- <circle cx="275" cy="80" r="52" fill="none" stroke="{LINE}"/><circle cx="275" cy="80" r="30" fill="none" stroke="{LINE}"/>
- <circle cx="275" cy="80" r="13" fill="{ARGON}"/><text x="275" y="85" fill="{ONCOL}" font-size="12" text-anchor="middle" font-family="IBM Plex Mono">+10</text>
- <circle cx="275" cy="50" r="5" fill="{FG2}"/><circle cx="305" cy="80" r="5" fill="{FG2}"/>
- <circle cx="275" cy="110" r="5" fill="{FG2}"/><circle cx="245" cy="80" r="5" fill="{FG2}"/>
- <circle cx="254" cy="59" r="5" fill="{FG2}"/><circle cx="296" cy="59" r="5" fill="{FG2}"/>
- <circle cx="254" cy="101" r="5" fill="{FG2}"/><circle cx="296" cy="101" r="5" fill="{FG2}"/>
- <text x="275" y="152" fill="{FG2}" font-size="11" text-anchor="middle" font-family="IBM Plex Sans KR">네온 Ne</text>
- <text x="95" y="16" fill="{NEON}" font-size="10" text-anchor="middle" font-family="IBM Plex Sans KR">가장 바깥 전자 1개</text>
- <text x="275" y="16" fill="{ARGON}" font-size="10" text-anchor="middle" font-family="IBM Plex Sans KR">가장 바깥 전자 8개(꽉 참)</text></svg>`,
+ fig:`<svg viewBox="0 0 380 176">
+ <circle cx="95" cy="84" r="56" fill="none" stroke="{LINE}"/>
+ <circle cx="95" cy="84" r="38" fill="none" stroke="{LINE}"/>
+ <circle cx="95" cy="84" r="22" fill="none" stroke="{LINE}"/>
+ <circle cx="95" cy="84" r="12" fill="{KERO}"/><text x="95" y="89" fill="{ONCOL}" font-size="11" text-anchor="middle" font-family="IBM Plex Mono">+11</text>
+ <circle cx="95" cy="62" r="4.2" fill="{FG2}"/><circle cx="95" cy="106" r="4.2" fill="{FG2}"/>
+ <circle cx="95" cy="46" r="4.2" fill="{FG2}"/><circle cx="122" cy="57" r="4.2" fill="{FG2}"/>
+ <circle cx="133" cy="84" r="4.2" fill="{FG2}"/><circle cx="122" cy="111" r="4.2" fill="{FG2}"/>
+ <circle cx="95" cy="122" r="4.2" fill="{FG2}"/><circle cx="68" cy="111" r="4.2" fill="{FG2}"/>
+ <circle cx="57" cy="84" r="4.2" fill="{FG2}"/><circle cx="68" cy="57" r="4.2" fill="{FG2}"/>
+ <circle cx="95" cy="28" r="6.4" fill="{NEON}"/>
+ <text x="95" y="156" fill="{FG2}" font-size="11" text-anchor="middle" font-family="IBM Plex Sans KR">나트륨 Na</text>
+ <text x="95" y="171" fill="{FG3}" font-size="10" text-anchor="middle" font-family="IBM Plex Mono">2 · 8 · 1</text>
+ <circle cx="275" cy="84" r="50" fill="none" stroke="{LINE}"/>
+ <circle cx="275" cy="84" r="26" fill="none" stroke="{LINE}"/>
+ <circle cx="275" cy="84" r="12" fill="{ARGON}"/><text x="275" y="89" fill="{ONCOL}" font-size="11" text-anchor="middle" font-family="IBM Plex Mono">+10</text>
+ <circle cx="275" cy="58" r="4.2" fill="{FG2}"/><circle cx="275" cy="110" r="4.2" fill="{FG2}"/>
+ <circle cx="275" cy="34" r="5.6" fill="{ARGON}"/><circle cx="310" cy="49" r="5.6" fill="{ARGON}"/>
+ <circle cx="325" cy="84" r="5.6" fill="{ARGON}"/><circle cx="310" cy="119" r="5.6" fill="{ARGON}"/>
+ <circle cx="275" cy="134" r="5.6" fill="{ARGON}"/><circle cx="240" cy="119" r="5.6" fill="{ARGON}"/>
+ <circle cx="225" cy="84" r="5.6" fill="{ARGON}"/><circle cx="240" cy="49" r="5.6" fill="{ARGON}"/>
+ <text x="275" y="156" fill="{FG2}" font-size="11" text-anchor="middle" font-family="IBM Plex Sans KR">네온 Ne</text>
+ <text x="275" y="171" fill="{FG3}" font-size="10" text-anchor="middle" font-family="IBM Plex Mono">2 · 8</text>
+ <text x="95" y="13" fill="{NEON}" font-size="10" text-anchor="middle" font-family="IBM Plex Sans KR">가장 바깥 전자 1개</text>
+ <text x="275" y="13" fill="{ARGON}" font-size="10" text-anchor="middle" font-family="IBM Plex Sans KR">가장 바깥 전자 8개(꽉 참)</text></svg>`,
  def:'같은 족 원소는 가장 바깥 전자 껍질의 전자 수가 같아요.',
- p:['1족은 가장 바깥 전자가 <b>1개</b>여서 그 전자를 잃기 쉽습니다. 그래서 물·산소와 잘 반응해요.',
+ p:['전자는 안쪽 껍질부터 채워집니다 — 나트륨은 <b>2 · 8 · 1</b>, 네온은 <b>2 · 8</b>이에요.',
+    '1족은 가장 바깥 전자가 <b>1개</b>여서 그 전자를 잃기 쉽습니다. 그래서 물·산소와 잘 반응해요.',
     '18족은 가장 바깥 전자 껍질이 <b>꽉 차 있어</b> 전자를 주고받을 필요가 없습니다. 그래서 거의 반응하지 않아요.',
     '반응하는 방식이 같으니 <b>성질도 닮게</b> 됩니다.'],
  tie:'Li·Na·K가 모두 물과 반응해 수소 기체를 낸 것, He·Ne·Ar이 모두 아무 변화가 없던 것이 바로 이 때문입니다.',
@@ -2015,7 +2025,7 @@ function ctrlBar(){
     else{
       const e=byId[ST.el],did=expDone();
       const nx=HOT[e.grp].find(h=>h.k!=='idle'&&!did[h.k]);
-      hint=nx?(nx.n+' '+nx.t+' — '+HOTHINT[nx.k]+'. 버튼은 실험 기구 위에 있어요.')
+      hint=nx?(nx.n+' '+nx.t+' — '+HOTHINT[e.grp][nx.k]+'. 버튼은 실험 기구 위에 있어요.')
              :'실험을 모두 마쳤어요. 관찰한 것을 오른쪽 조사 노트에 적어 보세요.';
     }
     mk('cCard','조사 카드 만들기','',
@@ -2026,7 +2036,7 @@ function ctrlBar(){
     const g1=GL.grp===1;
     mk('gWater',g1?'세 원소 물에 넣기':'세 기체 물에 통과시키기','primary',
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3s6 6.4 6 10.5A6 6 0 0 1 6 13.5C6 9.4 12 3 12 3Z"/></svg>').onclick=()=>GLrun('water');
-    mk('gPhe','페놀프탈레인','',null).onclick=()=>{
+    mk('gPhe','페놀프탈레인 넣기','',null).onclick=()=>{
       if(GL.mode!=='water'){toast('먼저 물에 넣어 반응을 일으켜 보세요','no');return}
       GL.phenol=!GL.phenol;sfx('pour');
       if(GL.phenol&&GL.grp===1)GLmark('phenol');
@@ -2061,8 +2071,14 @@ function ctrlBar(){
    실험 스테이지 — Canvas
    ═══════════════════════════════════════ */
 const SCN={w:900,h:560};   /* 실험 장면 가상 좌표계 (비율 고정) */
+/* 기구 배치 (장면 폭에 대한 비율)
+   V3: 물 그릇을 가운데로 옮겨 보관 용기(등유 병·기체 용기) 바로 옆에 두고,
+   1족은 시계 접시를, 18족은 방전관을 오른쪽 자리로 보냈다.
+   기체 용기 → 고무관 → 물 그릇이 한 줄로 이어져 연결이 눈에 보인다. */
+const POS={dish:.395, dishR:.150, watch:.740, tube:.742, tubeW:.250};
 const LC={cv:null,ctx:null,w:0,h:0,dpr:1,mode:'idle',t0:0,t:0,raf:0,parts:[],
-  phenol:false,glow:0,shrink:1,tarnish:0,done:false,pink:0,hi:null,fit:1};
+  phenol:false,phenT:-9,glow:0,shrink:1,tarnish:0,done:false,pink:0,hi:null,fit:1,
+  puff:[],mol:[]};
 function C(){const l=ST.theme==='light';return{
   bg:l?'#EEF1F6':'#0B1020', bench:l?'#E2E8F1':'#141B2C', benchTop:l?'#F3F6FA':'#1B2338',
   glass:l?'rgba(40,60,90,.07)':'rgba(190,215,255,.07)', glassEdge:l?'#A5B4C8':'#495874',
@@ -2093,8 +2109,9 @@ function LCrun(mode){
   if(mode==='discharge'&&e.grp===1)return;
   if(mode==='cut'&&e.grp===18)return;
   LC.mode=mode;LC.t0=performance.now();LC.t=0;LC.parts=[];LC.glow=0;LC.shrink=1;
-  LC.tarnish=0;LC.done=false;LC.pink=0;
-  if(mode==='idle')LC.phenol=false;
+  LC.tarnish=0;LC.done=false;LC.pink=0;LC.puff=[];LC.mol=[];
+  /* 실험을 새로 시작하면 늘 깨끗한 물에서 출발한다 */
+  LC.phenol=false;LC.phenT=-9;
   sfx(mode==='discharge'?'on':mode==='water'?'pour':mode==='cut'?'flip':'click');
   hiss(false);
   LCread();hotRender();
@@ -2105,15 +2122,17 @@ function LCloop(){
   LC.t=(performance.now()-LC.t0)/1000;
   LCstep();LCdraw();
   /* 정지 화면이면 루프를 멈춰 태블릿 배터리를 아낀다 */
-  const still=(LC.mode==='idle'||LC.mode==='cut'||(LC.mode==='air'&&LC.tarnish>=1)||LC.done)
-              && LC.parts.length===0 && !LC.hi && LC.t>2.2;
+  const still=(LC.mode==='idle'||LC.mode==='cut'
+               ||(LC.mode==='air'&&(LC.tarnish>=1||LC.t>11)&&!LC.puff.length)||LC.done)
+              && LC.parts.length===0 && LC.mol.length===0 && !LC.hi
+              && LC.t>2.2 && LC.t-LC.phenT>3;
   if(still){LC.raf=0;return}
   LC.raf=requestAnimationFrame(LCloop);
 }
 function LCstep(){
   const e=ST.el?byId[ST.el]:null; if(!e)return;
   const W=SCN.w,H=SCN.h;
-  const dishX=W*.74,dishY=H*.72,dishR=W*.175;
+  const dishX=W*POS.dish,dishY=H*.72,dishR=W*POS.dishR;
   if(LC.mode==='water'){
     if(e.grp===1){
       const r=e.react, tt=Math.max(0,LC.t-.75);
@@ -2129,19 +2148,38 @@ function LCstep(){
           LC.parts.push({t:'f',x:dishX+Math.sin(tt*1.6*r)*dishR*.42,y:dishY-H*.03,
             vx:(Math.random()-.5)*30,vy:-(40+Math.random()*70),life:1,col:e.flame});
         }
-        if(LC.phenol)LC.pink=Math.min(1,LC.pink+.012);
+        /* 스포이트에서 떨어진 방울이 물에 닿은 뒤부터 색이 번진다 */
+        if(LC.phenol&&LC.t-LC.phenT>.85)LC.pink=Math.min(1,LC.pink+.014);
+        /* 수면에서 터진 기포 = 수소 분자 모형으로 올려 보낸다 (H2, 이원자 분자) */
+        if(Math.random()<.10+r*.05&&LC.mol.length<14){
+          LC.mol.push({x:dishX+(Math.random()-.5)*dishR*1.1,y:dishY-H*.03,
+            vx:(Math.random()-.5)*10,vy:-(26+Math.random()*16),
+            r:5.0+Math.random()*1.2,rot:Math.random()*6.3,life:1});
+        }
         if(LC.shrink<=.13){LC.done=true;hiss(false);sfx('done')}
       }
     }else{
       hiss(false);
-      if(LC.t>.4&&Math.random()<.5){
-        LC.parts.push({t:'b',x:dishX+(Math.random()-.5)*W*.05,y:dishY+H*.03,
-          r:2+Math.random()*3,vy:-(30+Math.random()*30),life:1});
+      /* 도관 끝에서 기포가 올라온다 — 반응이 아니라 그대로 빠져나가는 모습 */
+      if(LC.t>.55&&Math.random()<.55){
+        LC.parts.push({t:'b',x:dishX+(Math.random()-.5)*W*.026,y:dishY+H*.050,
+          r:2.2+Math.random()*3.0,vy:-(34+Math.random()*28),life:1});
       }
     }
   } else if(LC.mode==='air'){
     hiss(false);
     if(e.grp===1)LC.tarnish=Math.min(1,LC.t/4.5);
+    else if(LC.t>.5){
+      /* 관 끝에서 나오는 기체 — 18족은 단원자 분자라 원자 하나가 그대로 퍼진다.
+         공기(1.29 g/L)보다 가벼우면 위로, 무거우면 아래로 흐른다 */
+      const up=parseFloat(e.dens)<1.29;
+      if(LC.t<11&&Math.random()<.5&&LC.puff.length<64){
+        LC.puff.push({x:W*.335,y:H*.335,
+          vx:16+Math.random()*30,
+          vy:(up?-1:1)*(12+Math.random()*20),
+          r:5.6+Math.random()*2.0,life:1,up:up});
+      }
+    }
   } else if(LC.mode==='discharge'){
     hiss(false);
     LC.glow=Math.min(1,LC.t/.4);
@@ -2157,6 +2195,13 @@ function LCstep(){
     if(p.life<=0)LC.parts.splice(i,1);
   }
   if(LC.parts.length>240)LC.parts.splice(0,LC.parts.length-240);
+  /* 기체 모형(수소 분자 · 18족 원자) 갱신 */
+  for(let i=LC.mol.length-1;i>=0;i--){const m=LC.mol[i];
+    m.x+=m.vx*dt;m.y+=m.vy*dt;m.vy*=.985;m.rot+=dt*1.1;m.life-=dt*.42;
+    if(m.life<=0)LC.mol.splice(i,1);}
+  for(let i=LC.puff.length-1;i>=0;i--){const p=LC.puff[i];
+    p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.995;p.life-=dt*.30;
+    if(p.life<=0)LC.puff.splice(i,1);}
 }
 function fitScene(c,dpr,w,h,VW,VH){
   const s=Math.min(w/VW,h/VH);
@@ -2183,7 +2228,7 @@ function LCdraw(){
   c.fillStyle=k.benchTop;c.fillRect(-2000,H*.80,W+4000,H*.28);
   const e=byId[ST.el];
   if(e.grp===1)drawMetalScene(e); else drawGasScene(e);
-  drawParticles();
+  drawParticles();drawMolecules(e);
   c.setTransform(LC.dpr,0,0,LC.dpr,0,0);
   LCmark();
 }
@@ -2229,36 +2274,104 @@ function glassBody(c,x,y,w,h,r,k){
 }
 function easeIO(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2}
 
-/* ── 1족 금속 장면 ── */
+/* ── 1족 금속 장면 ──
+   왼쪽: 등유 병(보관) · 가운데: 물 그릇 · 오른쪽: 시계 접시(공기·자르기) */
 function drawMetalScene(e){
   const c=LC.ctx,W=SCN.w,H=SCN.h,k=C();
   const jx=W*.045,jw=W*.125,jy=H*.40,jh=H*.40;
   drawKeroseneJar(e,jx,jy,jw,jh,k);
   hiRing(c,'jar',jx+jw/2,jy+jh*.5,jw*.78,jh*.58);
 
-  const wx=W*.40,wy=H*.735,wr=W*.078;
+  const wx=W*POS.watch,wy=H*.735,wr=W*.086;
   drawWatchGlass(wx,wy,wr,k);
   hiRing(c,'watch',wx,wy+H*.010,wr*1.22,wr*.44);
 
   const inWater=(LC.mode==='water'&&LC.t>.75);
   if(!inWater){
-    let cx=wx,cy=wy-wr*.12,sz=wr*.40;
+    let cx=wx,cy=wy-wr*.14,sz=wr*.46;
     if(LC.mode==='water'&&LC.t<=.75){
+      /* 핀셋으로 시계 접시(오른쪽) → 물 그릇(가운데)으로 옮기는 동작 */
       const p=easeIO(Math.min(1,LC.t/.75));
-      cx=wx+(W*.74-wx)*p;
+      cx=wx+(W*POS.dish-wx)*p;
       cy=(wy-wr*.12)+((H*.72-H*.028)-(wy-wr*.12))*p-Math.sin(p*Math.PI)*H*.17;
       drawTweezers(c,cx,cy,sz,k);
     }
     if(LC.mode==='cut')drawCutScene(cx,cy,sz,k);
     else drawChunk(cx,cy,sz,LC.mode==='air'?LC.tarnish:0,false);
-    if(LC.mode==='air'&&LC.tarnish>.06){
-      c.fillStyle=k.fg3;c.font='400 11px IBM Plex Sans KR, sans-serif';c.textAlign='center';
-      c.fillText(LC.tarnish>.78?'금속 광택이 사라졌어요':'광택이 흐려지는 중…',wx,wy-wr*1.45);
-    }
+    if(LC.mode==='air')drawLusterGauge(wx,wy-wr*1.02,wr*2.0,k);
   }
   drawDish(e);
   c.fillStyle=k.fg3;c.font='400 10.5px IBM Plex Sans KR, sans-serif';c.textAlign='center';
   c.fillText('시계 접시',wx,wy+H*.082);
+  /* 물과 반응할 때 나오는 기체를 분자 모형으로 함께 보여 준다 */
+  if(LC.mode==='water'&&LC.t>1.0)drawGasModel('H2',e,W*POS.watch,H*.245,k);
+}
+
+/* 광택 계기 — "흐려지는 중"을 눈금으로 읽게 한다 (공기 중에 두기) */
+function drawLusterGauge(cx,cy,w,k){
+  const c=LC.ctx,H=SCN.h,v=1-LC.tarnish, h=8;
+  c.save();
+  c.textAlign='center';
+  c.fillStyle=k.fg2;c.font='500 11px IBM Plex Sans KR, sans-serif';
+  c.fillText('금속 광택',cx,cy-H*.032);
+  rr(cx-w/2,cy-H*.020,w,h,h/2);
+  c.fillStyle=ST.theme==='light'?'rgba(20,30,50,.10)':'rgba(255,255,255,.10)';c.fill();
+  const bw=Math.max(2,w*v);
+  const g=c.createLinearGradient(cx-w/2,0,cx+w/2,0);
+  g.addColorStop(0,'#E8EDF5');g.addColorStop(1,'#98A3B5');
+  rr(cx-w/2,cy-H*.020,bw,h,h/2);c.fillStyle=g;c.fill();
+  c.fillStyle=k.fg3;c.font='500 10.5px IBM Plex Mono, monospace';
+  c.fillText(Math.round(v*100)+' %',cx,cy+H*.016);
+  c.fillStyle=LC.tarnish>.78?k.fg2:k.fg3;
+  c.font='400 11px IBM Plex Sans KR, sans-serif';
+  c.fillText(LC.tarnish>.78?'산소와 반응해 광택이 사라졌어요'
+            :LC.tarnish>.06?'광택이 흐려지는 중…':'자른 면이 아직 반짝여요',cx,cy+H*.045);
+  c.restore();
+}
+
+/* 기체 모형 콜아웃 — 눈에 보이지 않는 기체를 분자·원자 모형으로 세운다.
+   'H2' = 수소 분자(원자 2개) / 'MONO' = 18족 단원자 분자(원자 1개) */
+function drawGasModel(kind,e,cx,cy,k){
+  const c=LC.ctx,H=SCN.h,W=SCN.w;
+  const w=W*.235,h=H*.185;
+  c.save();
+  rr(cx-w/2,cy-h/2,w,h,10);
+  c.fillStyle=ST.theme==='light'?'rgba(255,255,255,.86)':'rgba(14,20,38,.80)';c.fill();
+  c.strokeStyle=k.line;c.lineWidth=1;c.stroke();
+  c.textAlign='left';
+  c.fillStyle=k.fg3;c.font='500 10px IBM Plex Sans KR, sans-serif';
+  c.fillText('기체 모형 · 눈에는 보이지 않아요',cx-w/2+12,cy-h/2+16);
+  const my=cy+H*.006;
+  if(kind==='H2'){
+    for(let i=0;i<3;i++){
+      const bx=cx-w/2+w*(.24+i*.26), bob=Math.sin(LC.t*2.2+i*1.7)*3.2, r=7.2;
+      drawAtomBall(c,bx-r*.86,my+bob,r,'#E9EEF4','#98A6BE','H');
+      drawAtomBall(c,bx+r*.86,my+bob,r,'#E9EEF4','#98A6BE','H');
+      c.strokeStyle='rgba(150,170,200,.7)';c.lineWidth=3.4;
+      c.beginPath();c.moveTo(bx-r*.5,my+bob);c.lineTo(bx+r*.5,my+bob);c.stroke();
+    }
+    c.textAlign='center';
+    c.fillStyle=k.fg;c.font='600 12px IBM Plex Sans KR, sans-serif';
+    c.fillText('수소 분자 H₂ — 원자 2개가 결합',cx,cy+h/2-10);
+  }else{
+    for(let i=0;i<3;i++){
+      const bx=cx-w/2+w*(.26+i*.24), bob=Math.sin(LC.t*2.0+i*2.1)*3.4;
+      drawAtomBall(c,bx,my+bob,9,hexa(e.glow,.55),e.glow,e.sym);
+    }
+    c.textAlign='center';
+    c.fillStyle=k.fg;c.font='600 12px IBM Plex Sans KR, sans-serif';
+    c.fillText(e.sym+' — 원자 1개가 그대로 (단원자 분자)',cx,cy+h/2-10);
+  }
+  c.restore();c.textAlign='left';
+}
+function drawAtomBall(c,x,y,r,fill,edge,label){
+  const g=c.createRadialGradient(x-r*.34,y-r*.36,r*.1,x,y,r);
+  g.addColorStop(0,'rgba(255,255,255,.95)');g.addColorStop(1,fill);
+  c.fillStyle=g;c.beginPath();c.arc(x,y,r,0,7);c.fill();
+  c.strokeStyle=edge;c.lineWidth=1.1;c.stroke();
+  c.fillStyle='#1B2233';c.font='600 '+Math.round(r*1.05)+'px IBM Plex Mono, monospace';
+  c.textAlign='center';c.textBaseline='middle';
+  c.fillText(label,x,y+.5);c.textBaseline='alphabetic';
 }
 /* 등유 병 */
 function drawKeroseneJar(e,x,y,w,h,k){
@@ -2367,8 +2480,8 @@ function drawCutScene(cx,cy,sz,k){
   c.fillStyle=hg;rr(cx-9,ky-H*.082,18,H*.085,4);c.fill();
   c.restore();
   if(LC.t>.9){
-    c.fillStyle=k.fg3;c.font='400 11px IBM Plex Sans KR, sans-serif';c.textAlign='center';
-    c.fillText('칼로 잘릴 만큼 무릅니다',cx+sz*.3,cy+sz*2.4);
+    c.fillStyle=k.fg2;c.font='500 11.5px IBM Plex Sans KR, sans-serif';c.textAlign='center';
+    c.fillText('칼로 잘릴 만큼 무릅니다',cx,cy-sz*3.9);
   }
 }
 /* 금속 조각 — 3면 셰이딩 + 절단면 스페큘러 */
@@ -2401,6 +2514,23 @@ function drawChunk(cx,cy,sz,tarnish,freshCut){
        tg.addColorStop(0,t1);tg.addColorStop(.6,t2);tg.addColorStop(1,t1)}
   c.fillStyle=tg;c.fill();
   c.strokeStyle=mix('#6E7A8E','#454B57',tarnish);c.lineWidth=1;c.stroke();
+  /* 산화 얼룩 — 광택이 사라지는 과정을 면으로 표현 */
+  if(tarnish>.08){
+    c.save();
+    c.beginPath();
+    c.moveTo(cx-sz*.72,cy-sz*.06);c.lineTo(cx-sz*.55,cy-sz*.50);
+    c.lineTo(cx+sz*.62,cy-sz*.62);c.lineTo(cx+sz*.30,cy-sz*.16);c.closePath();
+    c.clip();
+    c.globalAlpha=Math.min(.72,tarnish*.85);
+    const spots=[[-.44,-.34,.30],[-.06,-.44,.24],[.30,-.40,.20],[-.24,-.16,.22],[.12,-.22,.17]];
+    spots.forEach((p,i)=>{
+      const gr=c.createRadialGradient(cx+sz*p[0],cy+sz*p[1],0,cx+sz*p[0],cy+sz*p[1],sz*p[2]*(.5+tarnish));
+      gr.addColorStop(0,'rgba(126,134,148,.95)');gr.addColorStop(1,'rgba(126,134,148,0)');
+      c.fillStyle=gr;c.beginPath();
+      c.arc(cx+sz*p[0],cy+sz*p[1],sz*p[2]*(.5+tarnish),0,7);c.fill();
+    });
+    c.restore();
+  }
   /* 스페큘러 스트라이프 */
   if(tarnish<.5){
     c.save();c.globalAlpha=(1-tarnish*2)*.85;
@@ -2415,20 +2545,21 @@ function drawChunk(cx,cy,sz,tarnish,freshCut){
 /* 물 그릇 */
 function drawDish(e){
   const c=LC.ctx,W=SCN.w,H=SCN.h,k=C();
-  const dx=W*.74,dy=H*.72,rx=W*.178,ry=H*.050,dh=H*.078;
+  const dx=W*POS.dish,dy=H*.72,rx=W*POS.dishR,ry=H*.046,dh=H*.078;
   softShadow(c,dx,dy+dh+H*.014,rx*1.05,H*.020,.42);
   /* 물 */
   c.save();
   c.beginPath();c.ellipse(dx,dy,Math.max(1,rx-2),Math.max(1,ry-2),0,0,7);
   c.rect(dx-rx+2,dy,Math.max(2,rx*2-4),dh);c.clip();
+  const wfade=1-LC.pink*.72;
   const wg=c.createLinearGradient(0,dy-ry,0,dy+dh);
-  wg.addColorStop(0,ST.theme==='light'?'rgba(150,195,235,.50)':'rgba(96,150,215,.44)');
-  wg.addColorStop(1,ST.theme==='light'?'rgba(84,148,200,.60)':'rgba(48,92,150,.60)');
+  wg.addColorStop(0,ST.theme==='light'?'rgba(150,195,235,'+(.50*wfade)+')':'rgba(96,150,215,'+(.44*wfade)+')');
+  wg.addColorStop(1,ST.theme==='light'?'rgba(84,148,200,'+(.60*wfade)+')':'rgba(48,92,150,'+(.60*wfade)+')');
   c.fillStyle=wg;c.fillRect(dx-rx,dy-ry,rx*2,dh+ry*2);
   if(LC.pink>0){
     const pg=c.createLinearGradient(0,dy-ry,0,dy+dh);
-    pg.addColorStop(0,'rgba(226,72,140,'+(LC.pink*.55)+')');
-    pg.addColorStop(1,'rgba(176,26,96,'+(LC.pink*.70)+')');
+    pg.addColorStop(0,'rgba(232,64,132,'+(LC.pink*.72)+')');
+    pg.addColorStop(1,'rgba(186,20,92,'+(LC.pink*.86)+')');
     c.fillStyle=pg;c.fillRect(dx-rx,dy-ry,rx*2,dh+ry*2);
   }
   /* 바닥 광반 */
@@ -2461,7 +2592,7 @@ function drawDish(e){
   if(e.grp===1&&LC.mode==='water'&&LC.t>.75&&!LC.done){
     const tt=LC.t-.75,r=e.react;
     const mx=dx+Math.sin(tt*1.6*r)*rx*.42, my=dy-H*.006;
-    const sz=SCN.w*.078*.40*LC.shrink;
+    const sz=SCN.w*.086*.46*LC.shrink;
     c.save();
     softShadow(c,mx,my+sz*.5,sz*1.6,sz*.5,.20);
     const g=c.createRadialGradient(mx-sz*.3,my-sz*.35,sz*.1,mx,my,sz*1.15);
@@ -2480,31 +2611,155 @@ function drawDish(e){
     }
     c.restore();
   }
-  /* 18족: 물속 유리관 */
-  if(e.grp===18&&LC.mode==='water'){
-    c.save();
-    c.strokeStyle='rgba(0,0,0,.18)';c.lineWidth=4.2;c.lineCap='round';
-    c.beginPath();c.moveTo(dx+1,dy-H*.15);c.lineTo(dx+1,dy+dh*.72);c.stroke();
-    c.strokeStyle=k.glassEdge;c.lineWidth=3;
-    c.beginPath();c.moveTo(dx,dy-H*.15);c.lineTo(dx,dy+dh*.72);c.stroke();
-    c.strokeStyle='rgba(255,255,255,.42)';c.lineWidth=1;
-    c.beginPath();c.moveTo(dx-1.1,dy-H*.145);c.lineTo(dx-1.1,dy+dh*.62);c.stroke();
-    c.restore();
-  }
+  /* 스포이트로 페놀프탈레인 용액 떨어뜨리기 */
+  if(LC.phenol)drawPipette(dx,dy,k);
   c.fillStyle=k.fg3;c.font='400 10.5px IBM Plex Sans KR, sans-serif';c.textAlign='center';
   c.fillText(LC.phenol?'물 + 페놀프탈레인 용액':'물',dx,dy+dh+H*.055);
 }
-/* ── 18족 기체 장면 ── */
+
+/* 스포이트 — 내려와서 두세 방울 떨어뜨리고 다시 올라간다 */
+function drawPipette(dx,dy,k){
+  const c=LC.ctx,H=SCN.h,W=SCN.w;
+  const t=LC.t-LC.phenT; if(t<0)return;
+  const down=easeIO(Math.min(1,t/.45));
+  const up=t>2.0?easeIO(Math.min(1,(t-2.0)/.5)):0;
+  const topY=dy-H*.40, restY=dy-H*.155;
+  const py=topY+(restY-topY)*down-(restY-topY)*up;
+  const px=dx-W*.062;
+  const bl=H*.108, bw=W*.026;              /* 유리관 */
+  c.save();
+  /* 고무 꼭지 — 반사율 낮은 무광 재질 */
+  const bg=c.createLinearGradient(px-bw,py-H*.075,px+bw,py-H*.020);
+  bg.addColorStop(0,'#7B5B58');bg.addColorStop(.42,'#C08C86');bg.addColorStop(1,'#6B4C4A');
+  c.fillStyle=bg;
+  c.beginPath();c.ellipse(px,py-H*.048,bw*.92,H*.030,0,0,7);c.fill();
+  c.strokeStyle='rgba(0,0,0,.25)';c.lineWidth=1;c.stroke();
+  c.fillStyle='rgba(255,255,255,.16)';
+  c.beginPath();c.ellipse(px-bw*.32,py-H*.056,bw*.26,H*.010,-.4,0,7);c.fill();
+  /* 유리 몸통 (아래로 갈수록 가늘어짐) */
+  c.beginPath();
+  c.moveTo(px-bw*.42,py-H*.022);c.lineTo(px+bw*.42,py-H*.022);
+  c.lineTo(px+bw*.13,py+bl*.62);c.lineTo(px+bw*.07,py+bl);
+  c.lineTo(px-bw*.07,py+bl);c.lineTo(px-bw*.13,py+bl*.62);c.closePath();
+  c.fillStyle=k.glass;c.fill();
+  c.strokeStyle=k.glassEdge;c.lineWidth=1.2;c.stroke();
+  /* 관 속 용액 */
+  c.save();
+  c.beginPath();
+  c.moveTo(px-bw*.42,py-H*.022);c.lineTo(px+bw*.42,py-H*.022);
+  c.lineTo(px+bw*.13,py+bl*.62);c.lineTo(px+bw*.07,py+bl);
+  c.lineTo(px-bw*.07,py+bl);c.lineTo(px-bw*.13,py+bl*.62);c.closePath();c.clip();
+  c.fillStyle='rgba(232,236,244,.55)';
+  c.fillRect(px-bw,py-H*.010,bw*2,bl);
+  c.restore();
+  c.strokeStyle='rgba(255,255,255,.42)';c.lineWidth=1;
+  c.beginPath();c.moveTo(px-bw*.30,py-H*.012);c.lineTo(px-bw*.09,py+bl*.72);c.stroke();
+  /* 방울 — 0.55 / 0.85 / 1.15초에 하나씩 */
+  [.55,.85,1.15].forEach(t0=>{
+    const dt2=t-t0; if(dt2<0||dt2>.60)return;
+    const y0=py+bl, y1=dy-H*.004;
+    const q=Math.min(1,dt2/.42), yy=y0+(y1-y0)*(q*q);
+    if(yy>=y1-1)return;
+    c.fillStyle='rgba(236,240,248,.92)';
+    c.beginPath();c.ellipse(px,yy,3.0,4.4,0,0,7);c.fill();
+    c.strokeStyle='rgba(255,255,255,.6)';c.lineWidth=.8;c.stroke();
+  });
+  /* 방울이 닿은 자리에서 번지는 파문 */
+  if(t>.9&&t<2.6){
+    const q=Math.min(1,(t-.9)/1.5);
+    c.strokeStyle='rgba(226,72,140,'+(.35*(1-q))+')';c.lineWidth=1.4;
+    c.beginPath();c.ellipse(px,dy,W*.02+W*.10*q,H*.006+H*.028*q,0,0,7);c.stroke();
+  }
+  c.fillStyle=k.fg3;c.font='400 10.5px IBM Plex Sans KR, sans-serif';c.textAlign='center';
+  c.fillText('스포이트',px,py-H*.088);
+  c.restore();
+}
+/* ── 18족 기체 장면 ──
+   왼쪽: 기체 용기 · 가운데: 고무관으로 이어진 물 그릇 · 오른쪽: 방전관 + 전원 장치 */
 function drawGasScene(e){
   const c=LC.ctx,W=SCN.w,H=SCN.h,k=C();
   const jx=W*.045,jw=W*.098,jy=H*.34,jh=H*.46;
   drawCylinder(e,jx,jy,jw,jh,k);
   hiRing(c,'cyl',jx+jw/2,jy+jh*.5,jw*.95,jh*.56);
-  const tx=W*.44,ty=H*.44,tw=W*.30,th=H*.092;
+  /* 기체 용기 → 물 그릇 연결 (관 실험이 아닐 때도 이어져 있다) */
+  drawGasLine(e,jx+jw/2,jy-H*.062,k);
+  const tx=W*POS.tube,ty=H*.44,tw=W*POS.tubeW,th=H*.088;
   drawTube(e,tx,ty,tw,th,LC.glow,k);
   hiRing(c,'tube',tx,ty,tw*.60,th*1.5);
-  drawPSU(e,tx-W*.058,ty+H*.16,W*.116,H*.092,LC.glow,k);
+  drawPSU(e,tx-W*.058,ty+H*.165,W*.116,H*.090,LC.glow,k);
   drawDish(e);
+  if(LC.mode==='air'&&LC.t>.5)drawGasModel('MONO',e,W*POS.tube,H*.155,k);
+}
+
+/* 기체 용기 밸브에서 물 그릇까지 이어지는 고무관 + 유리 도관.
+   air 모드에서는 도관 끝을 물 밖으로 들어 올려 기체가 공기 중으로 나온다. */
+function drawGasLine(e,vx,vy,k){
+  const c=LC.ctx,W=SCN.w,H=SCN.h;
+  const dx=W*POS.dish, dy=H*.72, dh=H*.078;
+  const air=(LC.mode==='air');
+  const outX=air?W*.335:dx, outY=air?H*.335:dy+dh*.55;
+  const midX=(vx+outX)/2;
+  c.save();
+  /* 고무관 — 무광, 낮은 반사율 */
+  c.lineCap='round';c.lineJoin='round';
+  c.strokeStyle='rgba(0,0,0,.26)';c.lineWidth=9;
+  c.beginPath();c.moveTo(vx,vy);
+  c.bezierCurveTo(vx,vy-H*.085,midX,H*.150,outX,air?outY+H*.030:H*.395);c.stroke();
+  c.strokeStyle=ST.theme==='light'?'#4E5666':'#39414F';c.lineWidth=7.4;
+  c.beginPath();c.moveTo(vx,vy);
+  c.bezierCurveTo(vx,vy-H*.085,midX,H*.150,outX,air?outY+H*.030:H*.395);c.stroke();
+  c.strokeStyle='rgba(255,255,255,.10)';c.lineWidth=1.8;
+  c.beginPath();c.moveTo(vx-1.6,vy);
+  c.bezierCurveTo(vx-1.6,vy-H*.085,midX-1.6,H*.148,outX-1.6,air?outY+H*.028:H*.390);c.stroke();
+  /* 유리 도관 */
+  if(!air){
+    c.strokeStyle='rgba(0,0,0,.18)';c.lineWidth=6.2;
+    c.beginPath();c.moveTo(outX+1,H*.392);c.lineTo(outX+1,outY);c.stroke();
+    c.strokeStyle=k.glassEdge;c.lineWidth=5;
+    c.beginPath();c.moveTo(outX,H*.392);c.lineTo(outX,outY);c.stroke();
+    c.strokeStyle='rgba(255,255,255,.42)';c.lineWidth=1.2;
+    c.beginPath();c.moveTo(outX-1.6,H*.398);c.lineTo(outX-1.6,outY-4);c.stroke();
+  }else{
+    /* 물 밖으로 들어 올린 관 끝 — 위쪽을 향한다 */
+    c.strokeStyle='rgba(0,0,0,.18)';c.lineWidth=6.2;
+    c.beginPath();c.moveTo(outX+1,outY+H*.055);c.lineTo(outX+1,outY);c.stroke();
+    c.strokeStyle=k.glassEdge;c.lineWidth=5;
+    c.beginPath();c.moveTo(outX,outY+H*.055);c.lineTo(outX,outY);c.stroke();
+    c.fillStyle=k.fg3;c.font='400 10.5px IBM Plex Sans KR, sans-serif';c.textAlign='center';
+    c.fillText('관 끝 (공기 중)',outX,outY-H*.028);
+  }
+  /* 조절 집게 */
+  const cy=vy-H*.052;
+  c.fillStyle=ST.theme==='light'?'#8B95A6':'#6E7887';
+  rr(vx-7,cy-5,14,10,3);c.fill();
+  c.fillStyle='rgba(255,255,255,.18)';rr(vx-7,cy-5,14,3.4,2);c.fill();
+  c.restore();
+  hiRing(c,'hose',outX,air?outY+H*.03:H*.52,W*.045,H*.14);
+  /* 관 끝에서 퍼지는 기체 원자 모형 */
+  if(air&&LC.puff.length)drawPuff(e,k);
+}
+
+/* 눈에 보이지 않는 18족 기체를 원자 모형으로 그린다.
+   He·Ne은 공기(1.29 g/L)보다 가벼워 위로, Ar은 무거워 아래로 흐른다 */
+function drawPuff(e,k){
+  const c=LC.ctx,W=SCN.w,H=SCN.h;
+  c.save();
+  LC.puff.forEach(p=>{
+    c.globalAlpha=Math.max(0,p.life)*.85;
+    const g=c.createRadialGradient(p.x-p.r*.3,p.y-p.r*.34,p.r*.1,p.x,p.y,p.r);
+    g.addColorStop(0,'rgba(255,255,255,.90)');g.addColorStop(1,hexa(e.glow,.42));
+    c.fillStyle=g;c.beginPath();c.arc(p.x,p.y,p.r,0,7);c.fill();
+    c.strokeStyle=hexa(e.glow,.55);c.lineWidth=1;c.stroke();
+  });
+  c.globalAlpha=1;
+  const up=parseFloat(e.dens)<1.29;
+  c.textAlign='left';
+  c.fillStyle=k.fg2;c.font='500 11.5px IBM Plex Sans KR, sans-serif';
+  c.fillText('공기와 섞여도 반응하지 않아요',W*.30,H*.575);
+  c.fillStyle=k.fg3;c.font='400 11px IBM Plex Sans KR, sans-serif';
+  c.fillText(e.dens+' — 공기(1.29 g/L)보다 '+(up?'가벼워 위로 퍼져요':'무거워 아래로 가라앉아요'),W*.30,H*.615);
+  c.textAlign='center';
+  c.restore();
 }
 function drawCylinder(e,x,y,w,h,k){
   const c=LC.ctx,H=SCN.h;
@@ -2648,6 +2903,20 @@ function drawPSU(e,x,y,w,h,glow,k){
 function hexa(h,a){
   return 'rgba('+parseInt(h.slice(1,3),16)+','+parseInt(h.slice(3,5),16)+','+parseInt(h.slice(5,7),16)+','+a+')';
 }
+/* 수면에서 터진 기포 = 수소 분자(H₂) 모형으로 떠오른다 */
+function drawMolecules(e){
+  if(!LC.mol.length)return;
+  const c=LC.ctx;c.save();
+  LC.mol.forEach(m=>{
+    c.globalAlpha=Math.max(0,m.life)*.92;
+    const dx=Math.cos(m.rot)*m.r*.86, dy=Math.sin(m.rot)*m.r*.30;
+    c.strokeStyle='rgba(160,180,210,.75)';c.lineWidth=m.r*.46;c.lineCap='round';
+    c.beginPath();c.moveTo(m.x-dx*.5,m.y-dy*.5);c.lineTo(m.x+dx*.5,m.y+dy*.5);c.stroke();
+    drawAtomBall(c,m.x-dx,m.y-dy,m.r,'#DDE4EF','#94A3BB','H');
+    drawAtomBall(c,m.x+dx,m.y+dy,m.r,'#DDE4EF','#94A3BB','H');
+  });
+  c.restore();c.globalAlpha=1;c.textAlign='left';
+}
 function drawParticles(){
   const c=LC.ctx;c.save();
   LC.parts.forEach(p=>{
@@ -2672,20 +2941,22 @@ function drawParticles(){
 /* ═══════ 실험 공간 안의 조작 버튼 ═══════ */
 /* 좌표는 장면 가상 좌표계(SCN 900×560) 기준 — 캔버스와 같은 변환으로 배치된다 */
 const HOT={
- 1:[{k:'water',    n:'①',t:'물에 넣기',        x:666,y:132,hi:'dish'},
-    {k:'phenol',   n:'②',t:'페놀프탈레인',     x:666,y:180,hi:'dish'},
-    {k:'air',      n:'③',t:'공기 중에 두기',   x:360,y:132,hi:'watch'},
-    {k:'cut',      n:'④',t:'칼로 잘라 보기',   x:360,y:180,hi:'watch'},
-    {k:'idle',     n:'', t:'처음으로',         x:104,y:132,hi:'jar',ghost:1}],
- 18:[{k:'water',   n:'①',t:'물에 통과시키기',  x:666,y:132,hi:'dish'},
-    {k:'phenol',   n:'②',t:'페놀프탈레인',     x:666,y:180,hi:'dish'},
-    {k:'discharge',n:'③',t:'방전 켜기',        x:396,y:132,hi:'tube'},
-    {k:'air',      n:'④',t:'공기 중에 두기',   x:396,y:180,hi:'tube'},
-    {k:'idle',     n:'', t:'처음으로',         x:88, y:132,hi:'cyl',ghost:1}]
+ 1:[{k:'water',    n:'①',t:'물에 넣기',          x:356,y:132,hi:'dish'},
+    {k:'phenol',   n:'②',t:'페놀프탈레인 넣기',  x:356,y:180,hi:'dish'},
+    {k:'air',      n:'③',t:'공기 중에 두기',     x:666,y:132,hi:'watch'},
+    {k:'cut',      n:'④',t:'칼로 잘라 보기',     x:666,y:180,hi:'watch'},
+    {k:'idle',     n:'', t:'처음으로',           x:104,y:132,hi:'jar',ghost:1}],
+ 18:[{k:'water',   n:'①',t:'물에 통과시키기',    x:356,y:132,hi:'dish'},
+    {k:'phenol',   n:'②',t:'페놀프탈레인 넣기',  x:356,y:180,hi:'dish'},
+    {k:'discharge',n:'③',t:'방전 켜기',          x:668,y:132,hi:'tube'},
+    {k:'air',      n:'④',t:'공기 중에 두기',     x:668,y:180,hi:'hose'},
+    {k:'idle',     n:'', t:'처음으로',           x:88, y:132,hi:'cyl',ghost:1}]
 };
-const HOTHINT={water:'물에 넣어 반응을 관찰해요',phenol:'반응한 물의 성질을 확인해요',
-  air:'공기 중 산소와 만나면 어떻게 될까요',cut:'무른 정도를 확인해요',
-  discharge:'전류를 흘려 빛깔을 관찰해요'};
+const HOTHINT={
+ 1:{water:'물에 넣어 기포와 움직임을 관찰해요',phenol:'스포이트로 떨어뜨려 물의 성질을 확인해요',
+    air:'공기 중 산소와 만나면 광택이 어떻게 될까요',cut:'칼을 대어 무른 정도를 확인해요'},
+ 18:{water:'관으로 물속에 통과시켜 반응하는지 확인해요',phenol:'스포이트로 떨어뜨려 색이 변하는지 봐요',
+    discharge:'전류를 흘려 방전관의 빛깔을 관찰해요',air:'관 끝에서 나오는 기체를 모형으로 관찰해요'}};
 function expDone(){ return (ST.exp&&ST.exp[ST.el])||{} }
 function hotRender(){
   const box=$('#labHot'); if(!ST.el){box.innerHTML='';return}
@@ -2701,7 +2972,10 @@ function hotRender(){
       const k=b.dataset.k;
       if(k==='phenol'){
         if(LC.mode!=='water'){toast('먼저 ① 물에 넣기를 눌러 반응을 일으켜 보세요','no');return}
-        LC.phenol=!LC.phenol;sfx('pour');markExp('phenol');LCread();hotRender();return;
+        LC.phenol=!LC.phenol;
+        /* 금속이 물에 들어간 뒤에 떨어뜨리도록 조금 기다린다 */
+        LC.phenT=LC.phenol?Math.max(LC.t,.95):-9; LC.pink=0;
+        sfx('pour');markExp('phenol');LCread();hotRender();LCwake();return;
       }
       LCrun(k); if(k!=='idle')markExp(k);
     };
@@ -2738,32 +3012,43 @@ function hotLayout(){
 function markExp(k){
   if(!ST.el)return;
   ST.exp=ST.exp||{}; (ST.exp[ST.el]=ST.exp[ST.el]||{})[k]=true;
-  S.set('exp',ST.exp); hotRender();
+  S.set('exp',ST.exp); hotRender(); ctrlBar();
 }
 
 /* ── 관찰 기록 칩 ── */
 function LCread(){
   const box=$('#labReadout'); if(!ST.el){box.innerHTML='';return}
   const e=byId[ST.el],chips=[];
-  const add=(t,b)=>chips.push('<span class="rd">'+t+(b?' <b>'+b+'</b>':'')+'</span>');
+  /* tone — react: 반응함(주황 원) · calm: 반응 없음(파란 사각) · 기본: 중립 자료 */
+  const add=(t,b,tone)=>chips.push('<span class="rd'+(tone?' '+tone:'')+'">'+
+    (tone?'<i class="dot"></i>':'')+t+(b?' <b>'+b+'</b>':'')+'</span>');
   add('실온(20 ℃)에서',e.phase);
   if(LC.mode==='water'){
     if(e.grp===1){
-      add('물과의 반응',e.react===1?'기포가 서서히 발생':e.react===2?'격렬하게 반응 · 불꽃':'매우 격렬 · 즉시 발화');
-      add('발생 기체','수소(H₂)');
-      if(LC.phenol)add('페놀프탈레인','붉게 변함 → 염기성');
+      add('물과의 반응',e.react===1?'기포가 서서히 발생':e.react===2?'격렬하게 반응 · 불꽃':'매우 격렬 · 즉시 발화','react');
+      add('발생 기체','수소 H₂ · 원자 2개가 결합','react');
+      if(LC.phenol)add('페놀프탈레인','붉게 변함 → 염기성','react');
       if(LC.done)add('반응 끝','금속이 모두 반응해 사라짐');
-    }else{ add('물과의 반응','변화 없음 · 기포가 그대로 빠져나감');
-      if(LC.phenol)add('페놀프탈레인','색 변화 없음'); }
+    }else{ add('물과의 반응','반응하지 않음 · 기포가 그대로 빠져나감','calm');
+      if(LC.phenol)add('페놀프탈레인','색 변화 없음','calm'); }
   }else if(LC.mode==='air'){
-    add('공기 중에서',e.grp===1?'산소와 반응해 광택을 잃음':'변화 없음');
+    if(e.grp===1){
+      add('공기 중에서','산소와 반응해 광택을 잃음','react');
+      add('남은 금속 광택',Math.round((1-LC.tarnish)*100)+' %');
+    }else{
+      add('공기 중에서','반응하지 않음 · 변화 없음','calm');
+      add('관 끝에서 나온 기체',e.sym+' 원자 1개 · 단원자 분자','calm');
+      add('밀도',e.dens+(parseFloat(e.dens)<1.29?' · 공기보다 가벼움':' · 공기보다 무거움'));
+    }
   }else if(LC.mode==='cut'){
-    add('무른 정도','칼로 잘림'); add('자른 면','은백색 광택');
+    add('무른 정도','칼로 잘림','react'); add('자른 면','은백색 광택');
   }else if(LC.mode==='discharge'){
-    add('방전관 빛',e.sym==='He'?'연한 분홍빛':e.sym==='Ne'?'붉은 주황빛':'연보랏빛');
-    add('공기 중 비율',e.air);
+    add('방전관 빛',e.sym==='He'?'연한 분홍빛':e.sym==='Ne'?'붉은 주황빛':'연보랏빛','react');
+    add('공기 중 부피 비율',e.air);
+    add('빛이 나도','새로운 물질이 되지는 않아요','calm');
   }else{
     add('보관',e.grp===1?'석유(등유) 속':'기체 용기');
+    add('녹는점 · 끓는점',e.mp+' ℃ · '+e.bp+' ℃');
     add('밀도',e.dens);
   }
   box.innerHTML=chips.join('');
@@ -2781,7 +3066,7 @@ const GPROP={
   {k:'soft',t:'다른 금속보다 <b>무르다</b> — 칼로 자를 수 있다.',how:'[칼로 잘라 보기]를 눌러 보세요.',by:['cut']},
   {k:'dens',t:'다른 금속보다 <b>밀도가 작아</b> 물 위에 떠서 반응한다.',how:'[밀도 비교]를 누르거나 물에 넣어 보세요.',by:['compare','water']},
   {k:'react',t:'물과 <b>격렬하게 반응</b>하며 <b>수소 기체</b>가 발생한다.',how:'[세 원소 물에 넣기]를 눌러 보세요.',by:['water']},
-  {k:'base',t:'반응 후 물이 <b>염기성</b>이 되어 <b>페놀프탈레인을 붉게</b> 변화시킨다.',how:'물에 넣은 뒤 [페놀프탈레인]을 누르세요.',by:['phenol']}
+  {k:'base',t:'반응 후 물이 <b>염기성</b>이 되어 <b>페놀프탈레인을 붉게</b> 변화시킨다.',how:'물에 넣은 뒤 [페놀프탈레인 넣기]를 누르세요.',by:['phenol']}
  ]},
 18:{name:'비활성 기체',title:'18족 원소의 공통 성질',
  sum:'18족 원소는 <b>비활성 기체</b>라고 불러요. 아래 여섯 가지를 실험으로 하나씩 확인해 보세요.',
@@ -2913,6 +3198,13 @@ function GLmetal(){
     c.textAlign='center';
     c.fillStyle=k.fg;c.font='700 20px Hahmlet, serif';c.fillText(e.sym,dx,H*.17);
     c.fillStyle=k.fg3;c.font='400 11px IBM Plex Sans KR, sans-serif';c.fillText(e.kr.split('(')[0],dx,H*.205);
+    if(GL.mode==='water'&&GL.t>.8){
+      const lab=['기포가 서서히 발생','격렬하게 반응 · 불꽃','매우 격렬 · 즉시 발화'][e.react-1];
+      c.fillStyle='#D9A441';c.font='600 12px IBM Plex Sans KR, sans-serif';
+      c.fillText(lab,dx,H*.255);
+      c.fillStyle=k.fg3;c.font='400 11px IBM Plex Sans KR, sans-serif';
+      c.fillText(e.react===1?'불꽃은 생기지 않아요':'불꽃 색 '+e.flameKr,dx,H*.292);
+    }
     /* 물 그릇 */
     c.save();
     c.fillStyle='rgba(0,0,0,.18)';c.beginPath();c.ellipse(dx,dy+dh+H*.010,rx,ry*.45,0,0,7);c.fill();
@@ -2967,9 +3259,37 @@ function GLmetal(){
   });
   c.textAlign='center';c.fillStyle=k.fg3;c.font='400 10.5px IBM Plex Sans KR, sans-serif';
   if(GL.mode==='water')c.fillText(GL.phenol?'물 + 페놀프탈레인 용액':'물',W*.5,H*.78);
+  if(GL.mode==='water'&&GL.t>1.0)GLmodelBadge('H2');
 }
 function rr2(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);
   c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
+/* 족 실험실용 기체 모형 배지 — 왼쪽 위 모서리 */
+function GLmodelBadge(kind,e){
+  const c=GL.ctx,W=GSCN.w,H=GSCN.h,k=C();
+  const x=W*.020,y=H*.030,w=W*.172,h=H*.108;
+  c.save();
+  rr2(c,x,y,w,h,8);
+  c.fillStyle=ST.theme==='light'?'rgba(255,255,255,.88)':'rgba(14,20,38,.82)';c.fill();
+  c.strokeStyle=k.line;c.lineWidth=1;c.stroke();
+  c.textAlign='left';c.fillStyle=k.fg3;c.font='500 9.5px IBM Plex Sans KR, sans-serif';
+  c.fillText('기체 모형',x+10,y+15);
+  const my=y+h*.60;
+  if(kind==='H2'){
+    const bx=x+w*.20,r=6.4,bob=Math.sin(GL.t*2.2)*2.2;
+    c.strokeStyle='rgba(150,170,200,.7)';c.lineWidth=3.0;
+    c.beginPath();c.moveTo(bx-r*.5,my+bob);c.lineTo(bx+r*.5,my+bob);c.stroke();
+    drawAtomBall(c,bx-r*.86,my+bob,r,'#DDE4EF','#94A3BB','H');
+    drawAtomBall(c,bx+r*.86,my+bob,r,'#DDE4EF','#94A3BB','H');
+    c.textAlign='left';c.fillStyle=k.fg;c.font='600 11.5px IBM Plex Sans KR, sans-serif';
+    c.fillText('수소 H₂ · 원자 2개',x+w*.34,my+4);
+  }else{
+    const bx=x+w*.18,bob=Math.sin(GL.t*2.0)*2.2;
+    drawAtomBall(c,bx,my+bob,8,hexa(e.glow,.5),e.glow,e.sym);
+    c.textAlign='left';c.fillStyle=k.fg;c.font='600 11.5px IBM Plex Sans KR, sans-serif';
+    c.fillText('단원자 · 원자 1개',x+w*.32,my+4);
+  }
+  c.restore();c.textAlign='left';
+}
 function GLchunk(cx,cy,sz,tarnish,fresh){
   const c=GL.ctx,k=C();
   c.save();
@@ -2983,6 +3303,15 @@ function GLchunk(cx,cy,sz,tarnish,fresh){
   c.beginPath();c.moveTo(cx-sz*.55,cy-sz*.5);c.lineTo(cx+sz*.62,cy-sz*.62);
   c.lineTo(cx+sz*.30,cy-sz*.16);c.lineTo(cx-sz*.72,cy-sz*.06);c.closePath();
   c.fillStyle=fresh?'#EEF3F9':mix('#D8DEE8','#8E96A4',tarnish);c.fill();
+  if(tarnish>.1){
+    c.save();c.clip();c.globalAlpha=Math.min(.7,tarnish*.85);
+    [[-.30,-.34,.26],[.06,-.42,.20],[.34,-.36,.16]].forEach(p=>{
+      const g2=c.createRadialGradient(cx+sz*p[0],cy+sz*p[1],0,cx+sz*p[0],cy+sz*p[1],sz*p[2]*(.6+tarnish));
+      g2.addColorStop(0,'rgba(126,134,148,.95)');g2.addColorStop(1,'rgba(126,134,148,0)');
+      c.fillStyle=g2;c.beginPath();c.arc(cx+sz*p[0],cy+sz*p[1],sz*p[2]*(.6+tarnish),0,7);c.fill();
+    });
+    c.restore();
+  }
   c.strokeStyle=mix('#6E7A8E','#454B57',tarnish);c.lineWidth=1;c.stroke();
   if(fresh){c.strokeStyle='rgba(255,255,255,.85)';c.lineWidth=1.5;
     c.beginPath();c.moveTo(cx-sz*.5,cy-sz*.34);c.lineTo(cx+sz*.34,cy-sz*.44);c.stroke()}
@@ -3026,7 +3355,10 @@ function GLgas(){
       c.ellipse(dx,dy+dh,rx,ry*.7,0,Math.PI,0,true);c.lineTo(dx+rx,dy);
       c.fillStyle=k.glass;c.fill();c.strokeStyle=k.glassEdge;c.lineWidth=1.3;c.stroke();
       c.beginPath();c.ellipse(dx,dy,rx,ry,0,0,7);c.stroke();
-      c.strokeStyle=k.glassEdge;c.lineWidth=2.4;c.lineCap='round';
+      /* 방전관 아래 → 고무관 → 유리 도관 → 물속 */
+      c.strokeStyle=ST.theme==='light'?'#4E5666':'#39414F';c.lineWidth=5.2;c.lineCap='round';
+      c.beginPath();c.moveTo(dx,ty+th*.6);c.lineTo(dx,dy-H*.10);c.stroke();
+      c.strokeStyle=k.glassEdge;c.lineWidth=2.6;
       c.beginPath();c.moveTo(dx,dy-H*.10);c.lineTo(dx,dy+dh*.7);c.stroke();c.restore();
       c.fillStyle=k.fg3;c.font='400 10.5px IBM Plex Sans KR, sans-serif';c.textAlign='center';
       c.fillText('변화 없음',dx,dy+dh+H*.05);
@@ -3035,6 +3367,7 @@ function GLgas(){
       c.fillText('공기 중에서도 변화 없음',dx,H*.70);
     }
   });
+  if(GL.mode==='water'||GL.mode==='air')GLmodelBadge('MONO',byId[G18EL[0]]);
   if(GL.mode==='discharge'){
     const px=GSCN.w*.42,py=GSCN.h*.84,pw=GSCN.w*.16,ph=GSCN.h*.10;
     c.save();c.fillStyle=ST.theme==='light'?'#D6DDE8':'#1C2438';rr2(c,px,py,pw,ph,5);c.fill();
@@ -3044,48 +3377,135 @@ function GLgas(){
     c.fillText('전원 장치 ON',px+pw*.3,py+ph*.6);c.restore();
   }
 }
+/* ── 비교 그래프 ──
+   밀도는 0에서 시작하는 비율 척도라 막대그래프,
+   온도는 음수가 있는 간격 척도라 수직선(number line)으로 그린다. */
 function GLchart(){
   const c=GL.ctx,W=GSCN.w,H=GSCN.h,k=C();
-  const g1=GL.grp===1;
-  const rows=g1
-    ?[{l:'리튬 Li',v:0.534,s:'0.534'},{l:'칼륨 K',v:0.862,s:'0.862'},{l:'나트륨 Na',v:0.968,s:'0.968'},
-      {l:'물',v:1.000,s:'1.000',ref:true},{l:'알루미늄 Al',v:2.70,s:'2.70',other:true},{l:'철 Fe',v:7.87,s:'7.87',other:true}]
-    :[{l:'헬륨 He',v:-268.9,s:'-268.9'},{l:'네온 Ne',v:-246.1,s:'-246.1'},{l:'아르곤 Ar',v:-185.8,s:'-185.8'},
-      {l:'실온',v:20,s:'20',ref:true},{l:'물',v:100,s:'100',other:true}];
-  const x0=W*.24,x1=W*.90,top=H*.22,rowH=Math.min(H*.10,(H*.56)/rows.length);
-  c.textAlign='center';c.fillStyle=k.fg;c.font='600 15px IBM Plex Sans KR, sans-serif';
-  c.fillText(g1?'밀도 비교 (g/cm³) — 1족 금속은 물보다 가볍다':'끓는점 비교 (℃) — 18족은 실온보다 훨씬 낮다',W/2,H*.14);
-  const mn=g1?0:-300, mx=g1?8.4:120;
-  const sx=v=>x0+(x1-x0)*((v-mn)/(mx-mn));
+  if(GL.grp===1)GLchartDensity(c,W,H,k); else GLchartBoiling(c,W,H,k);
+}
+function chartHead(c,W,H,k,t,sub){
+  c.textAlign='center';
+  c.fillStyle=k.fg;c.font='600 16px IBM Plex Sans KR, sans-serif';
+  c.fillText(t,W/2,H*.098);
+  c.fillStyle=k.fg3;c.font='400 12px IBM Plex Sans KR, sans-serif';
+  c.fillText(sub,W/2,H*.146);
+}
+function chartFoot(c,W,H,k,txt){
+  const bw=Math.min(W*.80,txt.length*13+56), bx=W/2-bw/2, by=H*.875, bh=H*.072;
+  rr2(c,bx,by,bw,bh,8);
+  c.fillStyle=ST.theme==='light'?'rgba(15,111,184,.07)':'rgba(138,182,255,.10)';c.fill();
+  c.strokeStyle=ST.theme==='light'?'rgba(15,111,184,.28)':'rgba(138,182,255,.30)';c.lineWidth=1;c.stroke();
+  c.textAlign='center';c.fillStyle=k.fg2;c.font='500 12.5px IBM Plex Sans KR, sans-serif';
+  c.fillText(txt,W/2,by+bh*.63);
+}
+/* 1족 — 밀도 막대그래프 (0 기준 비율 척도) */
+function GLchartDensity(c,W,H,k){
+  const rows=[{l:'리튬 Li',v:0.534,s:'0.534',me:1},{l:'칼륨 K',v:0.862,s:'0.862',me:1},
+              {l:'나트륨 Na',v:0.968,s:'0.968',me:1},{l:'물',v:1.000,s:'1.000',ref:1},
+              {l:'알루미늄 Al',v:2.70,s:'2.70'},{l:'철 Fe',v:7.87,s:'7.87'}];
+  const x0=W*.215,x1=W*.93,top=H*.225,bot=H*.795,mx=8.4;
+  const rowH=(bot-top)/rows.length;
+  const sx=v=>x0+(x1-x0)*(v/mx);
+  chartHead(c,W,H,k,'밀도 비교 (g/cm³)','같은 부피일 때 얼마나 무거운지 — 물보다 작으면 물 위에 뜬다');
+  /* 물보다 가벼운 영역 */
+  c.fillStyle=ST.theme==='light'?'rgba(138,182,255,.18)':'rgba(138,182,255,.13)';
+  c.fillRect(x0,top-H*.02,sx(1.0)-x0,bot-top+H*.03);
+  /* 눈금 · 격자 */
+  c.textAlign='center';
+  for(let v=0;v<=8;v++){
+    c.strokeStyle=k.line;c.lineWidth=1;c.globalAlpha=v===0?1:.45;
+    c.beginPath();c.moveTo(sx(v),top-H*.02);c.lineTo(sx(v),bot+6);c.stroke();c.globalAlpha=1;
+    c.fillStyle=k.fg3;c.font='500 11px IBM Plex Mono, monospace';
+    c.fillText(String(v),sx(v),bot+H*.048);
+  }
+  c.fillStyle=k.fg3;c.font='400 11px IBM Plex Sans KR, sans-serif';
+  c.textAlign='left';c.fillText('g/cm³',x1+8,bot+H*.048);
+  /* 막대 */
   rows.forEach((r,i)=>{
-    const y=top+i*rowH;
-    c.textAlign='right';c.fillStyle=r.other?k.fg3:k.fg2;
-    c.font='400 12px IBM Plex Sans KR, sans-serif';c.fillText(r.l,x0-10,y+rowH*.42);
-    const col=r.ref?'#8AB6FF':r.other?(ST.theme==='light'?'#B9C2D2':'#39435C'):(g1?'#D9A441':'#FF6B3D');
-    const bw=Math.max(3,sx(r.v)-sx(g1?0:mn));
-    c.fillStyle=col;rr2(c,sx(g1?0:mn),y+rowH*.12,bw,rowH*.44,3);c.fill();
-    c.textAlign='left';c.fillStyle=k.fg2;c.font='500 12px IBM Plex Mono, monospace';
-    c.fillText(r.s,sx(g1?0:mn)+bw+8,y+rowH*.42);
+    const y=top+i*rowH, bh=rowH*.46, by=y+(rowH-bh)/2;
+    c.textAlign='right';
+    c.fillStyle=r.me?k.fg:r.ref?'#8AB6FF':k.fg3;
+    c.font=(r.me?'600 ':'400 ')+'12.5px IBM Plex Sans KR, sans-serif';
+    c.fillText(r.l,x0-12,by+bh*.78);
+    const col=r.ref?'#8AB6FF':r.me?'#D9A441':(ST.theme==='light'?'#AEB8C8':'#3D4759');
+    const bw=Math.max(3,sx(r.v)-x0);
+    rr2(c,x0,by,bw,bh,4);c.fillStyle=col;c.fill();
+    if(r.me){ c.fillStyle='rgba(255,255,255,.22)';rr2(c,x0,by,bw,bh*.38,4);c.fill(); }
+    c.textAlign='left';
+    c.fillStyle=r.me?k.fg:k.fg2;c.font=(r.me?'600 ':'500 ')+'12.5px IBM Plex Mono, monospace';
+    c.fillText(r.s,x0+bw+9,by+bh*.80);
   });
-  const refv=g1?1.0:20, rxp=sx(refv);
-  c.strokeStyle='#8AB6FF';c.lineWidth=1.6;c.setLineDash([5,5]);
-  c.beginPath();c.moveTo(rxp,top-8);c.lineTo(rxp,top+rows.length*rowH);c.stroke();c.setLineDash([]);
-  c.textAlign='center';c.fillStyle='#8AB6FF';c.font='500 11px IBM Plex Sans KR, sans-serif';
-  c.fillText(g1?'물의 밀도 1.00':'실온 20 ℃',rxp,top-14);
-  c.textAlign='center';c.fillStyle=k.fg3;c.font='400 11.5px IBM Plex Sans KR, sans-serif';
-  c.fillText(g1?'점선보다 왼쪽 = 물에 뜬다 → 1족 금속 세 가지가 모두 물 위에 뜬다'
-               :'점선보다 왼쪽 = 실온에서 이미 기체 → 세 가지 모두 실온에서 기체다',W/2,H*.88);
+  /* 기준선 */
+  const rxp=sx(1.0);
+  c.strokeStyle='#8AB6FF';c.lineWidth=1.8;c.setLineDash([6,5]);
+  c.beginPath();c.moveTo(rxp,top-H*.028);c.lineTo(rxp,bot+H*.008);c.stroke();c.setLineDash([]);
+  c.textAlign='center';c.fillStyle='#8AB6FF';c.font='600 11px IBM Plex Sans KR, sans-serif';
+  c.fillText('물 1.00',rxp,top-H*.040);
+  chartFoot(c,W,H,k,'Li·Na·K는 모두 1.00보다 작다 → 세 원소 다 물 위에 뜬다');
+}
+/* 18족 — 끓는점 수직선 (음수가 있는 간격 척도) */
+function GLchartBoiling(c,W,H,k){
+  const x0=W*.09,x1=W*.945,mn=-300,mx=120,ay=H*.575;
+  const sx=v=>x0+(x1-x0)*((v-mn)/(mx-mn));
+  chartHead(c,W,H,k,'끓는점 비교 (℃)','끓는점이 실온보다 낮으면 실온에서 이미 기체 상태다');
+  /* 실온보다 낮은 구간 */
+  c.fillStyle=ST.theme==='light'?'rgba(138,182,255,.15)':'rgba(138,182,255,.10)';
+  c.fillRect(x0,ay-H*.052,sx(20)-x0,H*.104);
+  c.textAlign='center';c.fillStyle='#8AB6FF';c.font='600 11.5px IBM Plex Sans KR, sans-serif';
+  c.fillText('◀ 이 구간은 실온 20 ℃보다 낮다 → 실온에서 기체',(x0+sx(-30))/2,ay+H*.140);
+  /* 수직선 + 눈금 */
+  c.strokeStyle=k.fg3;c.lineWidth=1.6;c.lineCap='round';
+  c.beginPath();c.moveTo(x0,ay);c.lineTo(x1,ay);c.stroke();
+  c.beginPath();c.moveTo(x1-9,ay-5);c.lineTo(x1,ay);c.lineTo(x1-9,ay+5);c.stroke();
+  for(let v=-300;v<=100;v+=50){
+    const big=(v%100===0);
+    c.strokeStyle=k.fg3;c.lineWidth=big?1.5:1;c.globalAlpha=big?1:.55;
+    c.beginPath();c.moveTo(sx(v),ay);c.lineTo(sx(v),ay+(big?9:5));c.stroke();c.globalAlpha=1;
+    if(big){c.fillStyle=k.fg3;c.font='500 11px IBM Plex Mono, monospace';
+      c.fillText(String(v),sx(v),ay+H*.052);}
+  }
+  c.textAlign='left';c.fillStyle=k.fg3;c.font='400 11px IBM Plex Sans KR, sans-serif';
+  c.fillText('℃',x1-2,ay-H*.026);
+  /* 0 ℃ 표시 */
+  c.strokeStyle=k.line;c.lineWidth=1;c.setLineDash([3,4]);
+  c.beginPath();c.moveTo(sx(0),ay-H*.048);c.lineTo(sx(0),ay);c.stroke();c.setLineDash([]);
+  /* 눈금점 — 라벨 높이를 층으로 나눠 겹침을 막는다 */
+  const lt=ST.theme==='light';
+  const pts=[
+    {l:'헬륨 He',   v:-268.9,s:'−268.9',col:lt?'#B4622F':'#FFC2A6',lv:3},
+    {l:'네온 Ne',   v:-246.1,s:'−246.1',col:lt?'#D2481B':'#FF6B3D',lv:2},
+    {l:'아르곤 Ar', v:-185.8,s:'−185.8',col:lt?'#2C68C8':'#8AB6FF',lv:1},
+    {l:'실온',      v:20,    s:'20',    col:lt?'#2C68C8':'#8AB6FF',lv:1,down:1,ref:1},
+    {l:'물이 끓는 온도',v:100,s:'100',   col:lt?'#7A87A2':'#6E7C96',lv:2,down:1}
+  ];
+  pts.forEach(p=>{
+    const x=sx(p.v), ly=p.down?ay+H*.105+ (p.lv-1)*H*.058 : ay-H*.098-(p.lv-1)*H*.062;
+    c.strokeStyle=p.col;c.lineWidth=1.2;c.globalAlpha=.6;
+    c.beginPath();c.moveTo(x,ay);c.lineTo(x,p.down?ly-H*.030:ly+H*.018);c.stroke();c.globalAlpha=1;
+    c.fillStyle=p.col;c.beginPath();c.arc(x,ay,p.ref?5:6,0,7);c.fill();
+    c.fillStyle=ST.theme==='light'?'#FFFFFF':'#0B1020';
+    c.beginPath();c.arc(x,ay,p.ref?2:2.4,0,7);c.fill();
+    c.textAlign='center';
+    c.fillStyle=k.fg;c.font='600 12.5px IBM Plex Sans KR, sans-serif';
+    c.fillText(p.l,x,ly);
+    c.fillStyle=p.col;c.font='600 13px IBM Plex Mono, monospace';
+    c.fillText(p.s+' ℃',x,ly+H*.036);
+  });
+  chartFoot(c,W,H,k,'He·Ne·Ar의 끓는점은 모두 실온 20 ℃보다 훨씬 낮다 → 세 원소 다 기체');
 }
 function GLread(){
   const box=$('#glReadout'),g1=GL.grp===1;
-  const add=(t,b)=>'<span class="rd">'+t+(b?' <b>'+b+'</b>':'')+'</span>';
+  const add=(t,b,tone)=>'<span class="rd'+(tone?' '+tone:'')+'">'+
+    (tone?'<i class="dot"></i>':'')+t+(b?' <b>'+b+'</b>':'')+'</span>';
   let h='';
-  if(GL.mode==='water')h=g1?add('반응 세기 순서','Li &lt; Na &lt; K')+add('발생 기체','수소(H₂)')+(GL.phenol?add('페놀프탈레인','붉게 변함 → 염기성'):'')
-                          :add('물과의 반응','세 기체 모두 변화 없음');
-  else if(GL.mode==='air')h=g1?add('공기 중에서','산소와 반응 → 광택 사라짐'):add('공기 중에서','세 기체 모두 변화 없음');
-  else if(GL.mode==='cut')h=add('무른 정도','세 원소 모두 칼로 잘림')+add('자른 면','은백색 광택');
-  else if(GL.mode==='discharge')h=add('He','연한 분홍빛')+add('Ne','붉은 주황빛')+add('Ar','연보랏빛');
-  else if(GL.mode==='compare')h=g1?add('세 원소 모두','밀도 &lt; 1.00 → 물에 뜸'):add('세 원소 모두','끓는점 &lt; 실온 → 기체');
+  if(GL.mode==='water')h=g1?add('반응 세기 순서','Li &lt; Na &lt; K','react')+add('발생 기체','수소 H₂ · 원자 2개가 결합','react')+(GL.phenol?add('페놀프탈레인','세 그릇 모두 붉게 변함 → 염기성','react'):'')
+                          :add('물과의 반응','세 기체 모두 반응 없음','calm')+add('기체 모형','원자 1개 · 단원자 분자','calm');
+  else if(GL.mode==='air')h=g1?add('공기 중에서','산소와 반응 → 광택 사라짐','react')+add('남은 금속 광택',Math.round((1-GL.tarnish)*100)+' %')
+                            :add('공기 중에서','세 기체 모두 변화 없음','calm');
+  else if(GL.mode==='cut')h=add('무른 정도','세 원소 모두 칼로 잘림','react')+add('자른 면','은백색 광택');
+  else if(GL.mode==='discharge')h=add('He','연한 분홍빛','react')+add('Ne','붉은 주황빛','react')+add('Ar','연보랏빛','react');
+  else if(GL.mode==='compare')h=g1?add('세 원소 모두','밀도 &lt; 1.00 g/cm³ → 물에 뜸'):add('세 원소 모두','끓는점 &lt; 실온 20 ℃ → 기체');
   else h=g1?add('실온에서','고체 · 은백색 금속')+add('보관','석유(등유) 속'):add('실온에서','기체 · 무색 무취')+add('보관','기체 용기');
   box.innerHTML=h;
 }
@@ -3766,8 +4186,16 @@ function drawCard(){
   c.fillText(e.kr,232,110);
   c.fillStyle=acc;c.font='600 19px "IBM Plex Sans KR", sans-serif';
   c.fillText(e.grp===1?'1족 · 알칼리 금속':'18족 · 비활성 기체',232,146);
-  c.fillStyle='#5B6880';c.font='500 15px "IBM Plex Mono", monospace';
-  c.fillText('원자량 '+e.mass+'   ·   녹는점 '+e.mp+' ℃   ·   끓는점 '+e.bp+' ℃   ·   밀도 '+e.dens,232,180);
+  c.fillStyle='#5B6880';
+  const fA='원자량 '+e.mass+'   ·   녹는점 '+e.mp+' ℃',
+        fB='끓는점 '+e.bp+' ℃   ·   밀도 '+e.dens,
+        fAll=fA+'   ·   '+fB, avail=W-232-44;
+  let fs=15;
+  c.font='500 '+fs+'px "IBM Plex Mono", monospace';
+  if(c.measureText(fAll).width>avail){fs=13;c.font='500 13px "IBM Plex Mono", monospace';}
+  if(c.measureText(fAll).width<=avail){c.fillText(fAll,232,180);}
+  else{c.font='500 14px "IBM Plex Mono", monospace';
+       c.fillText(fA,232,172);c.fillText(fB,232,198);}
   /* 항목 */
   let y=292;
   Q7.forEach((q,i)=>{
