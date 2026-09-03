@@ -7,7 +7,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='34' y='6' width='22' height='52' rx='11' fill='%23FF6B3D'/%3E%3Crect x='41' y='15' width='8' height='34' rx='4' fill='%23FFE0D2'/%3E%3Ccircle cx='16' cy='42' r='13' fill='%23E9EEF4'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@600;700&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* ══════════ 토큰 ══════════ */
 :root{
@@ -26,11 +26,15 @@
   --t1:.16s;--t2:.25s;--t3:.4s;
   --ease:cubic-bezier(.2,.7,.3,1);
   --spring:cubic-bezier(.34,1.56,.64,1);
-  --h-header:60px; --h-tabs:44px; --h-ctrl:56px; --w-side:378px;
-  --f-title:'Hahmlet',"Nanum Myeongjo",serif;
-  --f-body:'IBM Plex Sans KR',system-ui,-apple-system,"Apple SD Gothic Neo",sans-serif;
-  --f-num:'IBM Plex Mono',ui-monospace,monospace;
-  --fs-h1:26px; --fs-h2:19px; --fs-body:15px; --fs-label:13px; --fs-num:26px;
+  --h-header:60px; --h-tabs:44px; --w-side:378px;
+  --h-dock:46px;        /* 조작 독 높이 (지침 §3.1) */
+  --dock-clear:60px;    /* 스테이지가 독에게 비워 주는 예약 영역 */
+  /* 고운 돋움은 400 한 가지 굵기뿐 — 제목 위계는 굵기가 아니라 크기·자간·대비로 만든다 */
+  --f-title:'Gowun Dodum','Noto Sans KR',system-ui,sans-serif;
+  --f-body:'Noto Sans KR',system-ui,-apple-system,"Apple SD Gothic Neo",sans-serif;
+  --f-sym:'Noto Sans KR',system-ui,sans-serif;   /* 원소 기호 — 작은 칸에서도 굵기가 필요 */
+  --f-num:'Noto Sans Mono',ui-monospace,monospace;
+  --fs-h1:27px; --fs-h2:20px; --fs-body:15px; --fs-label:13px; --fs-num:25px;
 }
 body.light .logo{background:rgba(15,111,184,.10);border-color:rgba(15,111,184,.35);color:#0F6FB8}
 body.light{
@@ -45,10 +49,11 @@ body.light{
   --sh3:0 24px 64px rgba(20,30,50,.18);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:2px solid var(--neon);outline-offset:2px;border-radius:var(--r1)}
 html,body{margin:0;padding:0}
 body{
   height:100dvh;overflow:hidden;background:var(--ink-0);color:var(--fg);
-  font-family:var(--f-body);font-size:var(--fs-body);line-height:1.55;
+  font-family:var(--f-body);font-size:var(--fs-body);line-height:1.6;letter-spacing:-.006em;
   font-variant-numeric:tabular-nums;
   transition:background var(--t2) var(--ease),color var(--t2) var(--ease);
 }
@@ -64,7 +69,7 @@ button{cursor:pointer;border:none;background:none}
 /* ══════════ 골격 ══════════ */
 #app{
   height:100dvh;display:grid;
-  grid-template-rows:var(--h-header) var(--h-tabs) 1fr var(--h-ctrl);
+  grid-template-rows:var(--h-header) var(--h-tabs) 1fr;
   overflow:hidden;
 }
 :fullscreen #app,:-webkit-full-screen #app{height:100vh}
@@ -82,13 +87,13 @@ header.top{
   background:color-mix(in srgb,var(--brand-blue) 22%,transparent);
   background:rgba(15,111,184,.22);
   border:1px solid rgba(255,183,178,.32);
-  font-family:var(--f-title);font-weight:700;font-size:13px;letter-spacing:.02em;
+  font-family:var(--f-body);font-weight:700;font-size:12.5px;letter-spacing:.01em;
   color:var(--brand-pink);white-space:nowrap;
 }
 .logo svg{flex-shrink:0}
 h1.title{
-  margin:0;font-family:var(--f-title);font-weight:700;font-size:var(--fs-h1);
-  letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;
+  margin:0;font-family:var(--f-title);font-weight:400;font-size:var(--fs-h1);
+  letter-spacing:-.015em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;
 }
 h1.title em{font-style:normal;color:var(--neon)}
 .title-sub{font-size:var(--fs-label);color:var(--fg-3);white-space:nowrap;flex-shrink:0}
@@ -139,21 +144,53 @@ nav.tabs::-webkit-scrollbar{display:none}
 
 /* ── 스테이지 ── */
 main.stage{position:relative;overflow:hidden;background:var(--ink-0)}
-.panel{position:absolute;inset:0;display:none;overflow:hidden}
+.panel{position:absolute;top:0;left:0;right:0;bottom:var(--dock-clear);display:none;overflow:hidden}
 .panel.active{display:block}
 .scrollable{overflow-y:auto;overscroll-behavior:contain}
 
-/* ── 컨트롤 바 ── */
-footer.ctrl{
-  display:flex;align-items:center;gap:var(--s2);padding:0 var(--s4);
-  border-top:1px solid var(--line);background:var(--ink-1);overflow:hidden;
+/* ── 조작 독 — 실험 화면 안에 떠 있다 (지침 §3.1) ── */
+.dock,.dock-save{
+  position:absolute;bottom:var(--s3);z-index:24;height:var(--h-dock);
+  display:flex;align-items:center;gap:6px;border-radius:var(--r3);
+  background:rgba(19,26,44,.74);border:1px solid var(--line-2);
+  -webkit-backdrop-filter:blur(14px) saturate(1.3);backdrop-filter:blur(14px) saturate(1.3);
+  box-shadow:var(--sh2),inset 0 1px 0 rgba(255,255,255,.05);
 }
-#ctrlLeft{flex-shrink:0}
-.ctrl-hint{flex:1 1 0;font-size:12px;color:var(--fg-3);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ctrl-right{margin-left:auto;display:flex;align-items:center;gap:var(--s2);flex-shrink:0}
+.dock{left:var(--s4);padding:0 var(--s3) 0 6px;max-width:calc(100% - 300px);min-width:0}
+.dock:empty,.dock-save:empty{display:none}
+.dock-save{right:var(--s4);padding:0 6px 0 var(--s2)}
+@supports not ((backdrop-filter:blur(2px)) or (-webkit-backdrop-filter:blur(2px))){
+  .dock,.dock-save{background:var(--ink-1)}
+}
+body.light .dock,body.light .dock-save{
+  background:rgba(255,255,255,.82);box-shadow:var(--sh2),inset 0 1px 0 rgba(255,255,255,.9)
+}
+#ctrlLeft{display:flex;gap:6px;align-items:center;min-width:0;flex-shrink:0}
+.dock-hint{
+  flex:0 1 auto;font-size:12px;color:var(--fg-3);min-width:0;max-width:44ch;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  padding-left:var(--s2);margin-left:2px;border-left:1px solid var(--line)
+}
+#ctrlLeft:empty + .dock-more + .dock-hint{border-left:0;padding-left:6px;margin-left:0}
+
+.dock-more{
+  width:34px;height:34px;flex-shrink:0;border-radius:var(--r2);color:var(--fg-2);
+  border:1px solid var(--line);background:var(--ink-2);font-size:17px;line-height:1;
+  display:none;place-items:center;transition:color var(--t1),border-color var(--t1)
+}
+.dock-more.show{display:grid}
+.dock-more:hover,.dock-more[aria-expanded="true"]{color:var(--fg);border-color:var(--line-2)}
+.dock-pop{
+  position:absolute;z-index:26;bottom:calc(var(--h-dock) + var(--s4));left:var(--s4);transform:translateY(6px);
+  display:none;flex-direction:column;gap:6px;padding:7px;border-radius:var(--r3);
+  background:var(--ink-1);border:1px solid var(--line-2);box-shadow:var(--sh3);
+  opacity:0;transition:opacity var(--t1) var(--ease),transform var(--t1) var(--ease)
+}
+.dock-pop.open{display:flex;opacity:1;transform:translateY(0)}
+.dock-pop .btn{width:100%;justify-content:flex-start}
 .foot-brand{
   font-size:11px;color:var(--fg-3);white-space:nowrap;cursor:pointer;
-  padding:4px 8px;border-radius:var(--r1);
+  padding:5px 9px;border-radius:var(--r2);transition:color var(--t1),background var(--t1)
 }
 .foot-brand:hover{background:var(--ink-2);color:var(--fg-2)}
 
@@ -195,7 +232,7 @@ footer.ctrl{
   display:block;width:100%;
 }
 .el-tile:active{transform:scale(.96)}
-.el-tile .sym{font-family:var(--f-title);font-weight:700;font-size:27px;line-height:1;letter-spacing:-.02em}
+.el-tile .sym{font-family:var(--f-sym);font-weight:700;font-size:26px;line-height:1;letter-spacing:-.03em}
 .el-tile .kr{font-size:11px;color:var(--fg-2);margin-top:3px;display:block}
 .el-tile .z{
   position:absolute;top:5px;left:6px;font-family:var(--f-num);font-size:10px;color:var(--fg-3)
@@ -230,7 +267,7 @@ footer.ctrl{
 .lab-head{
   display:flex;align-items:baseline;gap:var(--s3);padding:var(--s3) var(--s5) 0;flex-wrap:wrap;min-height:0
 }
-.lab-head h2{margin:0;font-family:var(--f-title);font-size:var(--fs-h2);font-weight:600;letter-spacing:-.01em}
+.lab-head h2{margin:0;font-family:var(--f-title);font-size:var(--fs-h2);font-weight:400;letter-spacing:-.01em;color:var(--fg)}
 .grp-chip{
   font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px;letter-spacing:.02em;
 }
@@ -359,7 +396,7 @@ body.light .hot{background:rgba(255,255,255,.9)}
 }
 .seg button[aria-pressed="true"]{background:var(--ink-3);color:var(--fg)}
 .cls-head{display:flex;align-items:center;gap:var(--s3);flex-wrap:wrap}
-.cls-head h2{margin:0;font-family:var(--f-title);font-size:var(--fs-h2);font-weight:600}
+.cls-head h2{margin:0;font-family:var(--f-title);font-size:var(--fs-h2);font-weight:400;letter-spacing:-.01em;color:var(--fg)}
 .cls-head .lead{font-size:12.5px;color:var(--fg-3)}
 .cls-flow{
   flex:1;display:flex;flex-direction:column;align-items:center;gap:0;min-height:0;position:relative;
@@ -375,8 +412,8 @@ body.light .hot{background:rgba(255,255,255,.9)}
 body.light .pool{background:rgba(44,104,200,.10);border-color:rgba(44,104,200,.28)}
 .pool.empty::after{content:"모든 원소를 아래로 옮겼어요";font-size:12.5px;color:var(--fg-3)}
 .echip{
-  position:relative;padding:6px 15px;border-radius:var(--r2);font-family:var(--f-title);font-weight:700;
-  font-size:20px;letter-spacing:-.01em;cursor:grab;touch-action:none;user-select:none;
+  position:relative;padding:6px 15px;border-radius:var(--r2);font-family:var(--f-sym);font-weight:700;
+  font-size:19px;letter-spacing:-.02em;cursor:grab;touch-action:none;user-select:none;
   border:1px solid var(--line-2);background:var(--ink-2);color:var(--fg);
   transition:transform var(--t1) var(--ease),box-shadow var(--t1);box-shadow:var(--sh1);
 }
@@ -403,7 +440,7 @@ body.light .pool{background:rgba(44,104,200,.10);border-color:rgba(44,104,200,.2
   width:min(880px,100%);border:2px solid var(--argon);border-radius:var(--r3);
   padding:var(--s3) var(--s4);background:var(--ink-1);display:flex;align-items:center;gap:var(--s3)
 }
-.crit label{font-family:var(--f-title);font-weight:600;font-size:16px;flex-shrink:0}
+.crit label{font-family:var(--f-title);font-weight:400;font-size:16px;color:var(--fg);flex-shrink:0}
 .crit input{flex:1;background:transparent;border:none;font-size:15px;padding:4px 0}
 .crit input:focus{outline:none}
 .crit input::placeholder{color:var(--fg-3)}
@@ -462,7 +499,7 @@ body.light .bin-h .cnt{background:rgba(20,30,50,.08)}
 }
 .cmp[hidden]{display:none}
 .cmp-h{display:flex;align-items:baseline;gap:var(--s2);flex-wrap:wrap;margin-bottom:var(--s2)}
-.cmp-h b{font-family:var(--f-title);font-size:14.5px;font-weight:600}
+.cmp-h b{font-family:var(--f-body);font-size:14px;font-weight:600;letter-spacing:-.01em}
 .cmp-h .crit-echo{font-size:12px;color:var(--fg-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:44%}
 .cmp-h .rate{
   margin-left:auto;font-family:var(--f-num);font-size:12.5px;font-weight:600;
@@ -475,7 +512,7 @@ body.light .bin-h .cnt{background:rgba(20,30,50,.08)}
   display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:99px;
   border:1px solid var(--line);background:var(--ink-2);font-size:12px;color:var(--fg-2)
 }
-.cmp-el b{font-family:var(--f-title);font-size:13.5px;color:var(--fg);font-weight:700}
+.cmp-el b{font-family:var(--f-sym);font-size:13.5px;color:var(--fg);font-weight:700;letter-spacing:-.02em}
 .cmp-el .mk{font-size:12px;font-weight:700}
 .cmp-el.same{border-color:var(--ok);color:var(--ok)}
 .cmp-el.same .mk{color:var(--ok)}
@@ -494,7 +531,7 @@ body.light .bin-h .cnt{background:rgba(20,30,50,.08)}
 #p-ptable{display:none;flex-direction:column;min-height:0;padding:var(--s3) var(--s4) 0}
 #p-ptable.active{display:flex}
 .pt-head{display:flex;align-items:center;gap:var(--s3);flex-wrap:wrap;flex-shrink:0;margin-bottom:var(--s2)}
-.pt-head h2{margin:0;font-family:var(--f-title);font-size:var(--fs-h2);font-weight:600}
+.pt-head h2{margin:0;font-family:var(--f-title);font-size:var(--fs-h2);font-weight:400;letter-spacing:-.01em;color:var(--fg)}
 .pt-head .lead{font-size:12.5px;color:var(--fg-3)}
 .pt-head .prog{margin-left:auto;font-family:var(--f-num);font-size:13px;color:var(--fg-2)}
 .pt-wrap{
@@ -516,7 +553,7 @@ body.light .bin-h .cnt{background:rgba(20,30,50,.08)}
 .pt-gap{grid-column:span 1}
 .cell{
   border-radius:var(--r1);position:relative;display:grid;place-items:center;overflow:hidden;
-  font-family:var(--f-title);
+  font-family:var(--f-sym);
 }
 /* 참고 셀 (21번 이상) */
 .cell.ref{background:var(--ink-1);border:1px solid var(--line);color:var(--fg-3);opacity:.62}
@@ -561,7 +598,7 @@ body.light .bin-h .cnt{background:rgba(20,30,50,.08)}
 .face.front.m1{background:linear-gradient(148deg,#8C97AA,#D8DEE8 36%,#9AA5B8 62%,#C3CBD8 82%,#7E8A9E);color:#131A2C;border-color:#7E8A9E}
 .face.front.g18f{background:var(--ink-2);border-color:var(--argon);box-shadow:inset 0 0 18px -6px var(--argon),var(--sh1)}
 .face.front{justify-content:center;padding:calc(var(--ch)*.15) 3px calc(var(--ch)*.24)}
-.face.front .sym{font-family:var(--f-title);font-weight:700;font-size:calc(var(--ch)*.33);line-height:1;letter-spacing:-.01em}
+.face.front .sym{font-family:var(--f-sym);font-weight:700;font-size:calc(var(--ch)*.32);line-height:1;letter-spacing:-.03em}
 .face.front .nm{
   position:absolute;left:2px;right:2px;bottom:calc(var(--ch)*.055);
   font-size:calc(var(--ch)*.115);color:var(--fg-3);line-height:1.15;text-align:center;
@@ -580,7 +617,7 @@ body.light .bin-h .cnt{background:rgba(20,30,50,.08)}
   font-size:calc(var(--ch)*.125);line-height:1.15;text-align:left
 }
 .face.back .bsym{
-  font-family:var(--f-title);font-weight:700;font-size:calc(var(--ch)*.17);
+  font-family:var(--f-sym);font-weight:700;font-size:calc(var(--ch)*.17);letter-spacing:-.02em;
   color:var(--argon);text-align:center;line-height:1;margin-bottom:calc(var(--ch)*.02)
 }
 .face.back .brow{display:flex;justify-content:space-between;gap:3px;align-items:baseline;color:var(--fg-3)}
@@ -595,7 +632,7 @@ body.light .bin-h .cnt{background:rgba(20,30,50,.08)}
 }
 #cardTip.show{opacity:1}
 #cardTip .th{display:flex;align-items:baseline;gap:7px;margin-bottom:7px;flex-wrap:wrap}
-#cardTip .th b{font-family:var(--f-title);font-size:17px;color:var(--fg);font-weight:700}
+#cardTip .th b{font-family:var(--f-body);font-size:16px;color:var(--fg);font-weight:700;letter-spacing:-.01em}
 #cardTip .th span{font-size:12.5px;color:var(--fg-2)}
 #cardTip .th i{font-style:normal;font-family:var(--f-num);font-size:11px;color:var(--fg-3);margin-left:auto}
 #cardTip .nums{
@@ -638,7 +675,7 @@ body.light .bin-h .cnt{background:rgba(20,30,50,.08)}
 .quiz-top .pips{margin-left:auto;display:flex;gap:4px}
 .qpip{width:18px;height:4px;border-radius:99px;background:var(--line)}
 .qpip.on{background:var(--neon)}.qpip.ok{background:var(--ok)}.qpip.no{background:var(--bad)}
-.quiz-q{font-family:var(--f-title);font-size:var(--fs-h2);font-weight:600;line-height:1.45;margin:0;flex-shrink:0}
+.quiz-q{font-family:var(--f-title);font-size:calc(var(--fs-h2) + 1px);font-weight:400;color:var(--fg);line-height:1.5;letter-spacing:-.01em;margin:0;flex-shrink:0}
 .quiz-opts{display:flex;flex-direction:column;gap:var(--s2);overflow-y:auto;overscroll-behavior:contain;min-height:0}
 .opt{
   text-align:left;padding:11px 14px;border-radius:var(--r2);border:1px solid var(--line);
@@ -674,7 +711,7 @@ body.light .bin-h .cnt{background:rgba(20,30,50,.08)}
   padding:var(--s3) var(--s5);border-bottom:1px solid var(--line);display:flex;align-items:center;
   gap:var(--s3);flex-wrap:wrap;flex-shrink:0
 }
-.inq-head h2{margin:0;font-family:var(--f-title);font-size:var(--fs-h2);font-weight:600}
+.inq-head h2{margin:0;font-family:var(--f-title);font-size:var(--fs-h2);font-weight:400;letter-spacing:-.01em;color:var(--fg)}
 .inq-head .cnt{font-family:var(--f-num);font-size:13px;color:var(--fg-2)}
 .inq-head .note{margin-left:auto;font-size:12px;color:var(--fg-3)}
 .inq-list{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:var(--s4) var(--s5) var(--s7)}
@@ -723,7 +760,7 @@ body.light .pane.model mark{background:rgba(30,140,99,.18)}
 .gl-main{display:flex;flex-direction:column;min-width:0;position:relative;
   background:radial-gradient(ellipse 70% 50% at 40% 0%,rgba(138,182,255,.06),transparent 70%),var(--ink-0)}
 .gl-head{display:flex;align-items:center;gap:var(--s3);padding:var(--s3) var(--s5) 0;flex-wrap:wrap}
-.gl-head h2{margin:0;font-family:var(--f-title);font-size:var(--fs-h2);font-weight:600}
+.gl-head h2{margin:0;font-family:var(--f-title);font-size:var(--fs-h2);font-weight:400;letter-spacing:-.01em;color:var(--fg)}
 .gl-head .sub{font-size:12.5px;color:var(--fg-3)}
 #glCanvasWrap{flex:1;position:relative;min-height:0;padding:var(--s2) var(--s4) 0}
 #glCanvas{position:absolute;inset:var(--s2) var(--s4) 0;width:calc(100% - var(--s4)*2);height:calc(100% - var(--s2))}
@@ -781,7 +818,7 @@ body.light .pane.model mark{background:rgba(30,140,99,.18)}
 body.light .drawer{background:rgba(255,255,255,.95)}
 .drawer.open{transform:none}
 .dr-h{display:flex;align-items:center;gap:var(--s2);padding:var(--s4);border-bottom:1px solid var(--line);flex-shrink:0}
-.dr-h h2{margin:0;font-family:var(--f-title);font-size:17px;font-weight:600}
+.dr-h h2{margin:0;font-family:var(--f-title);font-size:17.5px;font-weight:400;color:var(--fg)}
 .dr-h .cpage{margin-left:auto;font-family:var(--f-num);font-size:12px;color:var(--fg-3)}
 .dr-tabs{display:flex;gap:4px;padding:var(--s2) var(--s4);border-bottom:1px solid var(--line);overflow-x:auto;flex-shrink:0}
 .dr-tabs button{
@@ -795,7 +832,7 @@ body.light .drawer{background:rgba(255,255,255,.95)}
   padding:var(--s3);margin-bottom:var(--s3)
 }
 .tcard .fig svg{width:100%;height:auto;display:block}
-.tcard h3{margin:0 0 6px;font-family:var(--f-title);font-size:17px;font-weight:600;line-height:1.4}
+.tcard h3{margin:0 0 6px;font-family:var(--f-title);font-size:17.5px;font-weight:400;color:var(--fg);line-height:1.45}
 .tcard .def{
   font-size:13.5px;color:var(--fg);background:var(--ink-2);border-left:3px solid var(--neon);
   padding:9px 12px;border-radius:0 var(--r2) var(--r2) 0;margin-bottom:var(--s3);line-height:1.5
@@ -833,7 +870,7 @@ body.light .drawer{background:rgba(255,255,255,.95)}
 .modal.narrow{width:min(440px,calc(100% - 32px))}
 .modal.wide{width:min(900px,calc(100% - 32px))}
 .md-h{display:flex;align-items:center;gap:var(--s2);padding:var(--s4) var(--s5);border-bottom:1px solid var(--line);flex-shrink:0}
-.md-h h2{margin:0;font-family:var(--f-title);font-size:18px;font-weight:600}
+.md-h h2{margin:0;font-family:var(--f-title);font-size:18.5px;font-weight:400;color:var(--fg)}
 .md-h .x{margin-left:auto;width:32px;height:32px;border-radius:var(--r2);display:grid;place-items:center;color:var(--fg-3)}
 .md-h .x:hover{background:var(--ink-2);color:var(--fg)}
 .md-b{padding:var(--s5);overflow-y:auto;overscroll-behavior:contain;flex:1}
@@ -876,7 +913,7 @@ input[type=range]::-webkit-slider-thumb{
 input[type=range]::-moz-range-thumb{width:16px;height:16px;border:none;border-radius:99px;background:var(--neon);cursor:pointer}
 .vol-n{font-family:var(--f-num);font-size:12px;color:var(--fg-3);width:34px;text-align:right}
 /* 토스트 */
-#toasts{position:fixed;left:50%;bottom:calc(var(--h-ctrl) + 14px);transform:translateX(-50%);z-index:95;
+#toasts{position:fixed;left:50%;bottom:calc(var(--dock-clear) + var(--h-dock) + 6px);transform:translateX(-50%);z-index:95;
   display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
 .toast{
   padding:9px 16px;border-radius:99px;background:var(--ink-3);border:1px solid var(--line-2);
@@ -897,7 +934,15 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border:none;border-ra
 .seg-lang .lbl{font-size:12.5px;color:var(--fg-3)}
 
 /* ══════════ 반응형 ══════════ */
-@media (max-width:1180px){ :root{--w-side:330px;--fs-h1:22px} }
+/* 헤더 높이 예산을 지키는 순서: 부제 → SNS 글자 → SNS 자체 (지침 §4.1) */
+@media (max-width:1240px){ .title-sub{display:none} }
+@media (max-width:1120px){ .step-bar #stepTxt{display:none} }
+@media (max-width:1080px){
+  .sns{font-size:0;gap:0;width:34px;padding:0;justify-content:center}
+  .sns .badge{width:19px;height:19px}
+}
+@media (max-width:900px){ .hdr-icons .sns,.hdr-sep.s2{display:none} }
+@media (max-width:1180px){ :root{--w-side:330px;--fs-h1:23px} }
 @media (max-width:1000px){
   #p-survey{grid-template-columns:96px 1fr}
   .note{
@@ -917,12 +962,12 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border:none;border-ra
   #p-survey{grid-template-columns:80px 1fr}
   .el-tile .sym{font-size:22px}
   .bins{gap:var(--s3)}
-  .ctrl-hint{display:none}
+  .dock-hint{display:none}
   .foot-brand{display:none}
+  .dock{left:var(--s2);right:var(--s2);padding-left:var(--s2)}
 }
 @media (max-width:480px){
-  .hdr-icons .sns{display:none}
-  .hdr-sep.s2{display:none}
+  :root{--dock-clear:56px}
   .bins{grid-template-columns:1fr;gap:var(--s2)}
   .modal{width:calc(100% - 16px)}
 }
@@ -1025,7 +1070,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border:none;border-ra
 
     <div class="lab">
       <div class="lab-head">
-        <h2 id="labName">원소를 골라 주세요</h2>
+        <h2 id="labName">원소 조사</h2>
         <span class="grp-chip" id="labGrp" style="display:none"></span>
         <div class="lab-facts" id="labFacts"></div>
         <button class="btn sm note-toggle" id="btnNote" style="display:none;margin-left:auto">조사 노트</button>
@@ -1103,8 +1148,8 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border:none;border-ra
         <svg viewBox="0 0 880 34" preserveAspectRatio="none">
           <path d="M220 0 L220 34" stroke="#6E7C96" stroke-width="2" stroke-dasharray="5 5" fill="none"/>
           <path d="M660 0 L660 34" stroke="#6E7C96" stroke-width="2" stroke-dasharray="5 5" fill="none"/>
-          <text x="228" y="15" fill="#A8B4C8" font-size="13" font-family="IBM Plex Sans KR,sans-serif" id="lblYes">예</text>
-          <text x="668" y="15" fill="#A8B4C8" font-size="13" font-family="IBM Plex Sans KR,sans-serif" id="lblNo">아니요</text>
+          <text x="228" y="15" fill="#A8B4C8" font-size="13" font-family="Noto Sans KR,sans-serif" id="lblYes">예</text>
+          <text x="668" y="15" fill="#A8B4C8" font-size="13" font-family="Noto Sans KR,sans-serif" id="lblNo">아니요</text>
         </svg>
       </div>
 
@@ -1192,20 +1237,21 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border:none;border-ra
     <div class="inq-list scrollable" id="inqList"></div>
   </section>
 
-</main>
-
-<!-- ══════ 컨트롤 바 ══════ -->
-<footer class="ctrl">
-  <div id="ctrlLeft" style="display:flex;gap:var(--s2);align-items:center;min-width:0"></div>
-  <span class="ctrl-hint" id="ctrlHint"></span>
-  <div class="ctrl-right">
+  <!-- ══════ 조작 독 — 실험 화면 안 (지침 §3.1) ══════ -->
+  <div class="dock-pop" id="dockPop" role="group" aria-label="추가 조작"></div>
+  <div class="dock" id="dock">
+    <div id="ctrlLeft"></div>
+    <button class="dock-more" id="dockMore" aria-label="조작 더 보기" title="조작 더 보기" aria-expanded="false">⋯</button>
+    <span class="dock-hint" id="ctrlHint"></span>
+  </div>
+  <div class="dock-save">
     <button class="foot-brand" id="btnInfo" title="제작 정보">🧪 송쌤과학 ⓒ 2026 송세호</button>
     <button class="btn save" id="btnSaveMain">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
       결과 저장
     </button>
   </div>
-</footer>
+</main>
 </div>
 
 <!-- ══════ 오버레이 ══════ -->
@@ -1336,7 +1382,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border:none;border-ra
 <div class="modal narrow" id="mdInfo" role="dialog" aria-label="제작 정보">
   <div class="md-h"><h2>제작 정보</h2><button class="x" data-close aria-label="닫기"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
   <div class="md-b" style="text-align:center;line-height:2">
-    <div style="font-family:var(--f-title);font-size:19px;font-weight:700">🧪 송쌤과학 (Song Ssaem Science)</div>
+    <div style="font-family:var(--f-title);font-size:20px;font-weight:400;color:var(--fg)">🧪 송쌤과학 (Song Ssaem Science)</div>
     <div style="color:var(--fg-2);font-size:14px">ⓒ 2026 송세호 | 아주중학교</div>
     <div style="color:var(--fg-2);font-size:13px">📺 YouTube: @songsamscience &nbsp; 📷 Instagram: @songsamscience</div>
     <div style="color:var(--kero);font-size:12.5px">⚠ 무단 복제·상업적 이용 금지</div>
@@ -1552,16 +1598,16 @@ const THEORY=[
 {g:'기본',t:'주기율표 — 가로줄은 주기, 세로줄은 족',
  fig:`<svg viewBox="0 0 380 150"><rect x="14" y="26" width="352" height="108" rx="6" fill="none" stroke="{LINE2}"/>
  ${[0,1,2,3,4,5,6,7].map(i=>`<rect x="${20+i*43}" y="32" width="38" height="96" rx="3" fill="${i===0?'{KERO}33':i===7?'{ARGON}33':'{PANEL}'}" stroke="${i===0?'{KERO}':i===7?'{ARGON}':'{LINE}'}"/>`).join('')}
- <text x="39" y="24" fill="{KERO}" font-size="11" text-anchor="middle" font-family="IBM Plex Mono">1족</text>
- <text x="340" y="24" fill="{ARGON}" font-size="11" text-anchor="middle" font-family="IBM Plex Mono">18족</text>
+ <text x="39" y="24" fill="{KERO}" font-size="11" text-anchor="middle" font-family="Noto Sans Mono">1족</text>
+ <text x="340" y="24" fill="{ARGON}" font-size="11" text-anchor="middle" font-family="Noto Sans Mono">18족</text>
  <path d="M8 56 L372 56" stroke="{NEON}" stroke-width="1.5" stroke-dasharray="4 4"/>
- <text x="6" y="52" fill="{NEON}" font-size="10" font-family="IBM Plex Mono">주기</text>
- <text x="39" y="62" fill="{FG}" font-size="13" text-anchor="middle" font-family="Hahmlet">Li</text>
- <text x="39" y="92" fill="{FG}" font-size="13" text-anchor="middle" font-family="Hahmlet">Na</text>
- <text x="39" y="122" fill="{FG}" font-size="13" text-anchor="middle" font-family="Hahmlet">K</text>
- <text x="340" y="62" fill="{FG}" font-size="13" text-anchor="middle" font-family="Hahmlet">Ne</text>
- <text x="340" y="92" fill="{FG}" font-size="13" text-anchor="middle" font-family="Hahmlet">Ar</text>
- <text x="340" y="122" fill="{FG}" font-size="13" text-anchor="middle" font-family="Hahmlet">Kr</text></svg>`,
+ <text x="6" y="52" fill="{NEON}" font-size="10" font-family="Noto Sans Mono">주기</text>
+ <text x="39" y="62" fill="{FG}" font-size="13" text-anchor="middle" font-family="Noto Sans KR">Li</text>
+ <text x="39" y="92" fill="{FG}" font-size="13" text-anchor="middle" font-family="Noto Sans KR">Na</text>
+ <text x="39" y="122" fill="{FG}" font-size="13" text-anchor="middle" font-family="Noto Sans KR">K</text>
+ <text x="340" y="62" fill="{FG}" font-size="13" text-anchor="middle" font-family="Noto Sans KR">Ne</text>
+ <text x="340" y="92" fill="{FG}" font-size="13" text-anchor="middle" font-family="Noto Sans KR">Ar</text>
+ <text x="340" y="122" fill="{FG}" font-size="13" text-anchor="middle" font-family="Noto Sans KR">Kr</text></svg>`,
  def:'주기율표는 원소의 성질이 규칙적으로 나타나도록 원소들을 배열한 표예요.',
  p:['원소들을 <b>원자 번호 순서</b>로 나열하다가, 성질이 비슷한 원소가 <b>같은 세로줄</b>에 오도록 줄을 바꾸어 배치했어요.',
     '<b>가로줄은 주기</b>, <b>세로줄은 족</b>이라고 부릅니다.',
@@ -1574,27 +1620,27 @@ const THEORY=[
  <circle cx="95" cy="84" r="56" fill="none" stroke="{LINE}"/>
  <circle cx="95" cy="84" r="38" fill="none" stroke="{LINE}"/>
  <circle cx="95" cy="84" r="22" fill="none" stroke="{LINE}"/>
- <circle cx="95" cy="84" r="12" fill="{KERO}"/><text x="95" y="89" fill="{ONCOL}" font-size="11" text-anchor="middle" font-family="IBM Plex Mono">+11</text>
+ <circle cx="95" cy="84" r="12" fill="{KERO}"/><text x="95" y="89" fill="{ONCOL}" font-size="11" text-anchor="middle" font-family="Noto Sans Mono">+11</text>
  <circle cx="95" cy="62" r="4.2" fill="{FG2}"/><circle cx="95" cy="106" r="4.2" fill="{FG2}"/>
  <circle cx="95" cy="46" r="4.2" fill="{FG2}"/><circle cx="122" cy="57" r="4.2" fill="{FG2}"/>
  <circle cx="133" cy="84" r="4.2" fill="{FG2}"/><circle cx="122" cy="111" r="4.2" fill="{FG2}"/>
  <circle cx="95" cy="122" r="4.2" fill="{FG2}"/><circle cx="68" cy="111" r="4.2" fill="{FG2}"/>
  <circle cx="57" cy="84" r="4.2" fill="{FG2}"/><circle cx="68" cy="57" r="4.2" fill="{FG2}"/>
  <circle cx="95" cy="28" r="6.4" fill="{NEON}"/>
- <text x="95" y="156" fill="{FG2}" font-size="11" text-anchor="middle" font-family="IBM Plex Sans KR">나트륨 Na</text>
- <text x="95" y="171" fill="{FG3}" font-size="10" text-anchor="middle" font-family="IBM Plex Mono">2 · 8 · 1</text>
+ <text x="95" y="156" fill="{FG2}" font-size="11" text-anchor="middle" font-family="Noto Sans KR">나트륨 Na</text>
+ <text x="95" y="171" fill="{FG3}" font-size="10" text-anchor="middle" font-family="Noto Sans Mono">2 · 8 · 1</text>
  <circle cx="275" cy="84" r="50" fill="none" stroke="{LINE}"/>
  <circle cx="275" cy="84" r="26" fill="none" stroke="{LINE}"/>
- <circle cx="275" cy="84" r="12" fill="{ARGON}"/><text x="275" y="89" fill="{ONCOL}" font-size="11" text-anchor="middle" font-family="IBM Plex Mono">+10</text>
+ <circle cx="275" cy="84" r="12" fill="{ARGON}"/><text x="275" y="89" fill="{ONCOL}" font-size="11" text-anchor="middle" font-family="Noto Sans Mono">+10</text>
  <circle cx="275" cy="58" r="4.2" fill="{FG2}"/><circle cx="275" cy="110" r="4.2" fill="{FG2}"/>
  <circle cx="275" cy="34" r="5.6" fill="{ARGON}"/><circle cx="310" cy="49" r="5.6" fill="{ARGON}"/>
  <circle cx="325" cy="84" r="5.6" fill="{ARGON}"/><circle cx="310" cy="119" r="5.6" fill="{ARGON}"/>
  <circle cx="275" cy="134" r="5.6" fill="{ARGON}"/><circle cx="240" cy="119" r="5.6" fill="{ARGON}"/>
  <circle cx="225" cy="84" r="5.6" fill="{ARGON}"/><circle cx="240" cy="49" r="5.6" fill="{ARGON}"/>
- <text x="275" y="156" fill="{FG2}" font-size="11" text-anchor="middle" font-family="IBM Plex Sans KR">네온 Ne</text>
- <text x="275" y="171" fill="{FG3}" font-size="10" text-anchor="middle" font-family="IBM Plex Mono">2 · 8</text>
- <text x="95" y="13" fill="{NEON}" font-size="10" text-anchor="middle" font-family="IBM Plex Sans KR">가장 바깥 전자 1개</text>
- <text x="275" y="13" fill="{ARGON}" font-size="10" text-anchor="middle" font-family="IBM Plex Sans KR">가장 바깥 전자 8개(꽉 참)</text></svg>`,
+ <text x="275" y="156" fill="{FG2}" font-size="11" text-anchor="middle" font-family="Noto Sans KR">네온 Ne</text>
+ <text x="275" y="171" fill="{FG3}" font-size="10" text-anchor="middle" font-family="Noto Sans Mono">2 · 8</text>
+ <text x="95" y="13" fill="{NEON}" font-size="10" text-anchor="middle" font-family="Noto Sans KR">가장 바깥 전자 1개</text>
+ <text x="275" y="13" fill="{ARGON}" font-size="10" text-anchor="middle" font-family="Noto Sans KR">가장 바깥 전자 8개(꽉 참)</text></svg>`,
  def:'같은 족 원소는 가장 바깥 전자 껍질의 전자 수가 같아요.',
  p:['전자는 안쪽 껍질부터 채워집니다 — 나트륨은 <b>2 · 8 · 1</b>, 네온은 <b>2 · 8</b>이에요.',
     '1족은 가장 바깥 전자가 <b>1개</b>여서 그 전자를 잃기 쉽습니다. 그래서 물·산소와 잘 반응해요.',
@@ -1605,13 +1651,13 @@ const THEORY=[
 
 {g:'1족',t:'1족 원소의 성질 (단, 수소 제외)',
  fig:`<svg viewBox="0 0 380 164">
- <text x="190" y="14" fill="{KERO}" font-size="12" text-anchor="middle" font-family="Hahmlet,serif" font-weight="700">Li · Na · K</text>
+ <text x="190" y="14" fill="{KERO}" font-size="12" text-anchor="middle" font-family="Noto Sans KR,sans-serif" font-weight="700">Li · Na · K</text>
  <rect x="14" y="24" width="104" height="86" rx="6" fill="{BG}" stroke="{LINE}"/>
  <path d="M42 84 L64 58 L98 58 L98 84 Z" fill="#C3CBD8"/><path d="M42 84 L64 58 L64 84 Z" fill="#8C97AA"/>
  <path d="M30 62 L62 42" stroke="#9AA5B8" stroke-width="4" stroke-linecap="round"/>
  <path d="M30 62 L62 42" stroke="#E4E9F0" stroke-width="1.4" stroke-linecap="round"/>
- <text x="66" y="132" fill="{FG2}" font-size="10" text-anchor="middle" font-family="IBM Plex Sans KR,sans-serif">칼로 잘릴 만큼</text>
- <text x="66" y="146" fill="{FG2}" font-size="10" text-anchor="middle" font-family="IBM Plex Sans KR,sans-serif">무른 금속</text>
+ <text x="66" y="132" fill="{FG2}" font-size="10" text-anchor="middle" font-family="Noto Sans KR,sans-serif">칼로 잘릴 만큼</text>
+ <text x="66" y="146" fill="{FG2}" font-size="10" text-anchor="middle" font-family="Noto Sans KR,sans-serif">무른 금속</text>
  <rect x="138" y="24" width="104" height="86" rx="6" fill="{BG}" stroke="{LINE}"/>
  <ellipse cx="190" cy="84" rx="40" ry="12" fill="{PANEL}" stroke="{LINE2}"/>
  <ellipse cx="190" cy="82" rx="36" ry="9" fill="#2E5A8C" opacity=".55"/>
@@ -1619,8 +1665,8 @@ const THEORY=[
  <path d="M190 71 q-7 -16 0 -25 q7 9 0 25" fill="#FFD34D" opacity=".92"/>
  <circle cx="176" cy="77" r="2.4" fill="#DCEBFF"/><circle cx="203" cy="76" r="1.8" fill="#DCEBFF"/>
  <circle cx="197" cy="70" r="1.6" fill="#DCEBFF"/>
- <text x="190" y="132" fill="{FG2}" font-size="10" text-anchor="middle" font-family="IBM Plex Sans KR,sans-serif">물과 격렬히 반응</text>
- <text x="190" y="146" fill="{FG2}" font-size="10" text-anchor="middle" font-family="IBM Plex Sans KR,sans-serif">수소 기체 발생</text>
+ <text x="190" y="132" fill="{FG2}" font-size="10" text-anchor="middle" font-family="Noto Sans KR,sans-serif">물과 격렬히 반응</text>
+ <text x="190" y="146" fill="{FG2}" font-size="10" text-anchor="middle" font-family="Noto Sans KR,sans-serif">수소 기체 발생</text>
  <rect x="262" y="24" width="104" height="86" rx="6" fill="{BG}" stroke="{LINE}"/>
  <rect x="300" y="36" width="28" height="7" rx="2" fill="#8B95A6"/>
  <path d="M294 46 h40 v50 a6 6 0 0 1-6 6 h-28 a6 6 0 0 1-6-6 Z" fill="{KERO}44" stroke="{KERO}"/>
@@ -1628,9 +1674,9 @@ const THEORY=[
  <ellipse cx="306" cy="88" rx="5" ry="3.4" fill="#9AA5B8"/><ellipse cx="318" cy="91" rx="6" ry="4" fill="#B6BEC9"/>
  <ellipse cx="326" cy="85" rx="4" ry="2.8" fill="#9AA5B8"/>
  <rect x="299" y="64" width="30" height="10" rx="2" fill="#F2F5FA"/>
- <text x="314" y="72" fill="#1B2233" font-size="7" text-anchor="middle" font-family="IBM Plex Sans KR,sans-serif">나트륨</text>
- <text x="314" y="132" fill="{FG2}" font-size="10" text-anchor="middle" font-family="IBM Plex Sans KR,sans-serif">석유(등유) 속에</text>
- <text x="314" y="146" fill="{FG2}" font-size="10" text-anchor="middle" font-family="IBM Plex Sans KR,sans-serif">넣어 보관</text></svg>`,
+ <text x="314" y="72" fill="#1B2233" font-size="7" text-anchor="middle" font-family="Noto Sans KR,sans-serif">나트륨</text>
+ <text x="314" y="132" fill="{FG2}" font-size="10" text-anchor="middle" font-family="Noto Sans KR,sans-serif">석유(등유) 속에</text>
+ <text x="314" y="146" fill="{FG2}" font-size="10" text-anchor="middle" font-family="Noto Sans KR,sans-serif">넣어 보관</text></svg>`,
  def:'1족 원소에는 리튬(Li), 나트륨(Na), 칼륨(K) 등이 있어요.',
  p:['수소를 제외한 1족 원소는 모두 <b>은백색 광택이 있는 금속</b>이고, 실온에서 <b>고체</b> 상태입니다.',
     '다른 금속보다 <b>밀도가 작고</b>, <b>칼로 쉽게 자를 수 있을 만큼 무릅니다.</b>',
@@ -1641,28 +1687,28 @@ const THEORY=[
 
 {g:'18족',t:'18족 원소의 성질',
  fig:`<svg viewBox="0 0 380 164">
- <text x="190" y="14" fill="{ARGON}" font-size="12" text-anchor="middle" font-family="Hahmlet,serif" font-weight="700">He · Ne · Ar</text>
+ <text x="190" y="14" fill="{ARGON}" font-size="12" text-anchor="middle" font-family="Noto Sans KR,sans-serif" font-weight="700">He · Ne · Ar</text>
  <rect x="14" y="24" width="104" height="86" rx="6" fill="{BG}" stroke="{LINE}"/>
  <path d="M54 46 h22 v14 l13 30 a8 8 0 0 1-7 12 h-34 a8 8 0 0 1-7-12 l13 -30 Z" fill="{ARGON}22" stroke="{ARGON}"/>
  <rect x="56" y="39" width="18" height="8" rx="2" fill="#5FB4D8"/>
  <path d="M60 74 h10" stroke="{ARGON}" stroke-width="1" opacity=".5"/>
- <text x="66" y="132" fill="{FG2}" font-size="10" text-anchor="middle" font-family="IBM Plex Sans KR,sans-serif">실온에서</text>
- <text x="66" y="146" fill="{FG2}" font-size="10" text-anchor="middle" font-family="IBM Plex Sans KR,sans-serif">기체 상태</text>
+ <text x="66" y="132" fill="{FG2}" font-size="10" text-anchor="middle" font-family="Noto Sans KR,sans-serif">실온에서</text>
+ <text x="66" y="146" fill="{FG2}" font-size="10" text-anchor="middle" font-family="Noto Sans KR,sans-serif">기체 상태</text>
  <rect x="138" y="24" width="104" height="86" rx="6" fill="#0C1120" stroke="{LINE}"/>
  <ellipse cx="190" cy="67" rx="46" ry="20" fill="{NEON}" opacity=".22"/>
  <rect x="154" y="58" width="72" height="18" rx="9" fill="{NEON}" opacity=".9"/>
  <rect x="160" y="62" width="60" height="10" rx="5" fill="#FFE3D4"/>
  <rect x="149" y="61" width="8" height="12" rx="2" fill="#9AA5B8"/><rect x="223" y="61" width="8" height="12" rx="2" fill="#9AA5B8"/>
  <path d="M153 73 L166 88 M227 73 L214 88" stroke="#C8721F" stroke-width="1.6" fill="none"/>
- <text x="190" y="132" fill="{FG2}" font-size="10" text-anchor="middle" font-family="IBM Plex Sans KR,sans-serif">전류를 흘리면</text>
- <text x="190" y="146" fill="{FG2}" font-size="10" text-anchor="middle" font-family="IBM Plex Sans KR,sans-serif">저마다 다른 빛을 냄</text>
+ <text x="190" y="132" fill="{FG2}" font-size="10" text-anchor="middle" font-family="Noto Sans KR,sans-serif">전류를 흘리면</text>
+ <text x="190" y="146" fill="{FG2}" font-size="10" text-anchor="middle" font-family="Noto Sans KR,sans-serif">저마다 다른 빛을 냄</text>
  <rect x="262" y="24" width="104" height="86" rx="6" fill="{BG}" stroke="{LINE}"/>
  <ellipse cx="316" cy="58" rx="34" ry="15" fill="#DCE9F7"/>
  <path d="M282 58 a34 15 0 0 1 34 -15 v30 a34 15 0 0 1 -34 -15 Z" fill="#2F6FD0"/>
  <ellipse cx="316" cy="58" rx="34" ry="15" fill="none" stroke="{LINE2}"/>
  <path d="M316 73 v11" stroke="#8B95A6" stroke-width="2"/><rect x="305" y="83" width="22" height="8" rx="2" fill="#8B95A6"/>
- <text x="314" y="132" fill="{FG2}" font-size="10" text-anchor="middle" font-family="IBM Plex Sans KR,sans-serif">헬륨은 비행선·풍선</text>
- <text x="314" y="146" fill="{FG2}" font-size="10" text-anchor="middle" font-family="IBM Plex Sans KR,sans-serif">을 띄우는 데 이용</text></svg>`,
+ <text x="314" y="132" fill="{FG2}" font-size="10" text-anchor="middle" font-family="Noto Sans KR,sans-serif">헬륨은 비행선·풍선</text>
+ <text x="314" y="146" fill="{FG2}" font-size="10" text-anchor="middle" font-family="Noto Sans KR,sans-serif">을 띄우는 데 이용</text></svg>`,
  def:'18족 원소에는 헬륨(He), 네온(Ne), 아르곤(Ar) 등이 있어요.',
  p:['실온에서 <b>기체 상태</b>이고, <b>무색·무취</b>입니다.',
     '다른 물질과 <b>화학적으로 거의 반응하지 않아</b> 매우 안정합니다.',
@@ -1674,8 +1720,8 @@ const THEORY=[
 {g:'참고',t:'참고 · 2족 원소 (알칼리 토금속)',
  fig:`<svg viewBox="0 0 380 118">
  <rect x="14" y="18" width="352" height="84" rx="6" fill="{BG}" stroke="{LINE}"/>
- ${['Be','Mg','Ca','Sr','Ba'].map((s,i)=>`<rect x="${34+i*66}" y="34" width="52" height="52" rx="5" fill="{PANEL}" stroke="{LINE2}"/><text x="${60+i*66}" y="62" fill="{FG}" font-size="17" text-anchor="middle" font-family="Hahmlet" font-weight="700">${s}</text><text x="${60+i*66}" y="77" fill="{FG3}" font-size="9" text-anchor="middle" font-family="IBM Plex Sans KR">${['베릴륨','마그네슘','칼슘','스트론튬','바륨'][i]}</text>`).join('')}
- <text x="190" y="13" fill="{FG2}" font-size="10" text-anchor="middle" font-family="IBM Plex Sans KR">가장 바깥 전자 2개</text></svg>`,
+ ${['Be','Mg','Ca','Sr','Ba'].map((s,i)=>`<rect x="${34+i*66}" y="34" width="52" height="52" rx="5" fill="{PANEL}" stroke="{LINE2}"/><text x="${60+i*66}" y="62" fill="{FG}" font-size="17" text-anchor="middle" font-family="Noto Sans KR" font-weight="700">${s}</text><text x="${60+i*66}" y="77" fill="{FG3}" font-size="9" text-anchor="middle" font-family="Noto Sans KR">${['베릴륨','마그네슘','칼슘','스트론튬','바륨'][i]}</text>`).join('')}
+ <text x="190" y="13" fill="{FG2}" font-size="10" text-anchor="middle" font-family="Noto Sans KR">가장 바깥 전자 2개</text></svg>`,
  def:'2족 원소는 가장 바깥 전자가 2개인 금속이에요.',
  p:['1족과 마찬가지로 <b>금속</b>이지만, <b>1족보다는 반응이 덜 격렬</b>합니다.',
     '마그네슘(Mg)은 밝은 흰빛을 내며 타고, 칼슘(Ca)은 <b>찬물과 천천히</b> 반응해 수소 기체를 냅니다.',
@@ -1686,8 +1732,8 @@ const THEORY=[
 {g:'참고',t:'참고 · 17족 원소 (할로젠)',
  fig:`<svg viewBox="0 0 380 118">
  <rect x="14" y="18" width="352" height="84" rx="6" fill="{BG}" stroke="{LINE}"/>
- ${[['F','플루오린','#DCE38A'],['Cl','염소','#B8D96B'],['Br','브로민','#B5603A'],['I','아이오딘','#6B5BA8']].map((a,i)=>`<rect x="${44+i*82}" y="34" width="60" height="52" rx="5" fill="${a[2]}33" stroke="${a[2]}"/><text x="${74+i*82}" y="62" fill="{FG}" font-size="17" text-anchor="middle" font-family="Hahmlet" font-weight="700">${a[0]}</text><text x="${74+i*82}" y="77" fill="{FG2}" font-size="9" text-anchor="middle" font-family="IBM Plex Sans KR">${a[1]}</text>`).join('')}
- <text x="190" y="13" fill="{FG2}" font-size="10" text-anchor="middle" font-family="IBM Plex Sans KR">가장 바깥 전자 7개 · 실온 상태가 기체→액체→고체로 변함</text></svg>`,
+ ${[['F','플루오린','#DCE38A'],['Cl','염소','#B8D96B'],['Br','브로민','#B5603A'],['I','아이오딘','#6B5BA8']].map((a,i)=>`<rect x="${44+i*82}" y="34" width="60" height="52" rx="5" fill="${a[2]}33" stroke="${a[2]}"/><text x="${74+i*82}" y="62" fill="{FG}" font-size="17" text-anchor="middle" font-family="Noto Sans KR" font-weight="700">${a[0]}</text><text x="${74+i*82}" y="77" fill="{FG2}" font-size="9" text-anchor="middle" font-family="Noto Sans KR">${a[1]}</text>`).join('')}
+ <text x="190" y="13" fill="{FG2}" font-size="10" text-anchor="middle" font-family="Noto Sans KR">가장 바깥 전자 7개 · 실온 상태가 기체→액체→고체로 변함</text></svg>`,
  def:'17족 원소는 가장 바깥 전자가 7개여서 전자 1개를 얻으려는 성질이 강해요.',
  p:['<b>반응성이 매우 큰</b> 비금속이고, 금속과 만나면 소금 같은 <b>염</b>을 만듭니다.',
     '실온에서 상태가 달라요 — 플루오린·염소는 <b>기체</b>, 브로민은 <b>액체</b>, 아이오딘은 <b>고체</b>입니다.',
@@ -1702,12 +1748,12 @@ const THEORY=[
  <circle cx="75" cy="68" r="7" fill="{NEON}"/><circle cx="89" cy="70" r="7" fill="{NEON}"/>
  <circle cx="80" cy="80" r="7" fill="{FG3}"/><circle cx="92" cy="80" r="7" fill="{FG3}"/>
  <circle cx="82" cy="26" r="5.5" fill="{FG2}"/><circle cx="128" cy="72" r="5.5" fill="{FG2}"/>
- <text x="82" y="140" fill="{FG2}" font-size="10.5" text-anchor="middle" font-family="IBM Plex Sans KR">원자의 구조</text>
- <rect x="152" y="26" width="30" height="14" rx="3" fill="{NEON}"/><text x="192" y="37" fill="{NEON}" font-size="11" font-family="IBM Plex Sans KR">양성자 → 원자 번호</text>
- <rect x="152" y="52" width="30" height="14" rx="3" fill="{FG3}"/><text x="192" y="63" fill="{FG3}" font-size="11" font-family="IBM Plex Sans KR">중성자 (원소마다 겹침)</text>
- <rect x="152" y="78" width="30" height="14" rx="3" fill="{FG2}"/><text x="192" y="89" fill="{FG2}" font-size="11" font-family="IBM Plex Sans KR">전자 (중성 원자에서만 같음)</text>
+ <text x="82" y="140" fill="{FG2}" font-size="10.5" text-anchor="middle" font-family="Noto Sans KR">원자의 구조</text>
+ <rect x="152" y="26" width="30" height="14" rx="3" fill="{NEON}"/><text x="192" y="37" fill="{NEON}" font-size="11" font-family="Noto Sans KR">양성자 → 원자 번호</text>
+ <rect x="152" y="52" width="30" height="14" rx="3" fill="{FG3}"/><text x="192" y="63" fill="{FG3}" font-size="11" font-family="Noto Sans KR">중성자 (원소마다 겹침)</text>
+ <rect x="152" y="78" width="30" height="14" rx="3" fill="{FG2}"/><text x="192" y="89" fill="{FG2}" font-size="11" font-family="Noto Sans KR">전자 (중성 원자에서만 같음)</text>
  <path d="M152 112 h212" stroke="{LINE}"/>
- <text x="152" y="130" fill="{FG}" font-size="12" font-family="IBM Plex Sans KR">기준 = <tspan fill="{NEON}" font-weight="600">양성자 수</tspan></text></svg>`,
+ <text x="152" y="130" fill="{FG}" font-size="12" font-family="Noto Sans KR">기준 = <tspan fill="{NEON}" font-weight="600">양성자 수</tspan></text></svg>`,
  def:'원자 번호는 원자의 양성자 수에 따라 원자마다 붙인 번호예요.',
  p:['주기율표는 원소를 <b>원자 번호(= 양성자 수) 순서</b>로 배열합니다.',
     '<b>양성자 수</b>는 원소마다 하나씩 정해지고 절대 겹치지 않아요. 그래서 순서를 정하는 기준이 됩니다.',
@@ -1719,13 +1765,13 @@ const THEORY=[
 {g:'기본',t:'한눈에 비교 — 1족과 18족',
  fig:`<svg viewBox="0 0 380 96">
  <rect x="14" y="12" width="168" height="72" rx="8" fill="{KERO}22" stroke="{KERO}"/>
- <text x="98" y="38" fill="{KERO}" font-size="15" text-anchor="middle" font-family="Hahmlet" font-weight="700">1족</text>
- <text x="98" y="58" fill="{FG}" font-size="12" text-anchor="middle" font-family="Hahmlet">Li  Na  K</text>
- <text x="98" y="74" fill="{FG2}" font-size="10" text-anchor="middle" font-family="IBM Plex Sans KR">고체 · 잘 반응 · 불안정</text>
+ <text x="98" y="38" fill="{KERO}" font-size="15" text-anchor="middle" font-family="Noto Sans KR" font-weight="700">1족</text>
+ <text x="98" y="58" fill="{FG}" font-size="12" text-anchor="middle" font-family="Noto Sans KR">Li  Na  K</text>
+ <text x="98" y="74" fill="{FG2}" font-size="10" text-anchor="middle" font-family="Noto Sans KR">고체 · 잘 반응 · 불안정</text>
  <rect x="198" y="12" width="168" height="72" rx="8" fill="{ARGON}22" stroke="{ARGON}"/>
- <text x="282" y="38" fill="{ARGON}" font-size="15" text-anchor="middle" font-family="Hahmlet" font-weight="700">18족</text>
- <text x="282" y="58" fill="{FG}" font-size="12" text-anchor="middle" font-family="Hahmlet">He  Ne  Ar</text>
- <text x="282" y="74" fill="{FG2}" font-size="10" text-anchor="middle" font-family="IBM Plex Sans KR">기체 · 반응 안 함 · 안정</text></svg>`,
+ <text x="282" y="38" fill="{ARGON}" font-size="15" text-anchor="middle" font-family="Noto Sans KR" font-weight="700">18족</text>
+ <text x="282" y="58" fill="{FG}" font-size="12" text-anchor="middle" font-family="Noto Sans KR">He  Ne  Ar</text>
+ <text x="282" y="74" fill="{FG2}" font-size="10" text-anchor="middle" font-family="Noto Sans KR">기체 · 반응 안 함 · 안정</text></svg>`,
  def:'성질을 모르는 원소라도 같은 족 원소의 성질을 알면 예측할 수 있어요.',
  p:['과학자들은 주기율표를 만들 때 <b>비슷한 성질을 가진 원소가 같은 족</b>에 오도록 배치했습니다.',
     '그래서 루비듐(Rb)이 K 아래 1족에 있다면 <b>물과 격렬히 반응하는 금속</b>일 것이라고 예상할 수 있어요.',
@@ -2066,7 +2112,36 @@ function ctrlBar(){
     hint='힌트는 답안을 잠그지 않아요. 모범 답안은 열람하면 그 문항이 잠깁니다.';
   }
   $('#ctrlHint').textContent=hint;
+  dockFold();
 }
+
+/* 독에 담기는 조작은 최대 4개 — 나머지는 ⋯ 더보기 팝오버로 접는다 (지침 §3.1) */
+function dockFold(){
+  const L=$('#ctrlLeft'), pop=$('#dockPop'), more=$('#dockMore');
+  if(!L||!pop||!more)return;
+  [...pop.children].forEach(b=>L.appendChild(b));      /* 먼저 전부 되돌린다 */
+  pop.classList.remove('open'); more.setAttribute('aria-expanded','false');
+  const w=window.innerWidth;
+  const max = w<640?1 : w<820?2 : w<1080?3 : 4;
+  const btns=[...L.children];
+  if(btns.length>max){
+    btns.slice(max).forEach(b=>pop.appendChild(b));
+    more.classList.add('show');
+  }else{
+    more.classList.remove('show');
+  }
+}
+window.addEventListener('resize',dockFold);
+document.addEventListener('click',e=>{
+  const pop=$('#dockPop'), more=$('#dockMore');
+  if(!pop||!more)return;
+  if(more.contains(e.target)){
+    const on=!pop.classList.contains('open');
+    pop.classList.toggle('open',on); more.setAttribute('aria-expanded',String(on));
+  }else if(!pop.contains(e.target)){
+    pop.classList.remove('open'); more.setAttribute('aria-expanded','false');
+  }
+});
 
 /* ═══════════════════════════════════════
    실험 스테이지 — Canvas
@@ -2219,7 +2294,7 @@ function LCdraw(){
   g.addColorStop(0,k.bg);g.addColorStop(1,k.bench);
   c.fillStyle=g;c.fillRect(0,0,LC.w,LC.h);
   if(!ST.el){
-    c.fillStyle=k.fg3;c.font='500 14px IBM Plex Sans KR, sans-serif';c.textAlign='center';
+    c.fillStyle=k.fg3;c.font='500 14px Noto Sans KR, sans-serif';c.textAlign='center';
     c.fillText('왼쪽 목록에서 원소를 골라 주세요',LC.w/2,LC.h/2);
     LCmark();return;
   }
@@ -2237,7 +2312,7 @@ function LCdraw(){
 }
 function LCmark(){
   const c=LC.ctx,k=C();
-  c.textAlign='right';c.font='500 10px IBM Plex Mono, monospace';
+  c.textAlign='right';c.font='500 10px Noto Sans Mono, monospace';
   c.fillStyle=ST.theme==='light'?'rgba(19,26,44,.22)':'rgba(233,238,244,.20)';
   c.fillText('© 송쌤과학',LC.w-10,LC.h-8);c.textAlign='left';
 }
@@ -2304,7 +2379,7 @@ function drawMetalScene(e){
     if(LC.mode==='air')drawLusterGauge(wx,wy-wr*1.02,wr*2.0,k);
   }
   drawDish(e);
-  c.fillStyle=k.fg3;c.font='400 10.5px IBM Plex Sans KR, sans-serif';c.textAlign='center';
+  c.fillStyle=k.fg3;c.font='400 10.5px Noto Sans KR, sans-serif';c.textAlign='center';
   c.fillText('시계 접시',wx,wy+H*.082);
   /* 물과 반응할 때 나오는 기체를 분자 모형으로 함께 보여 준다 */
   if(LC.mode==='water'&&LC.t>1.0)drawGasModel('H2',e,W*.405,H*.315,k,{x:W*POS.dish,y:H*.545});
@@ -2315,7 +2390,7 @@ function drawLusterGauge(cx,cy,w,k){
   const c=LC.ctx,H=SCN.h,v=1-LC.tarnish, h=8;
   c.save();
   c.textAlign='center';
-  c.fillStyle=k.fg2;c.font='500 11px IBM Plex Sans KR, sans-serif';
+  c.fillStyle=k.fg2;c.font='500 11px Noto Sans KR, sans-serif';
   c.fillText('금속 광택',cx,cy-H*.032);
   rr(cx-w/2,cy-H*.020,w,h,h/2);
   c.fillStyle=ST.theme==='light'?'rgba(20,30,50,.10)':'rgba(255,255,255,.10)';c.fill();
@@ -2323,10 +2398,10 @@ function drawLusterGauge(cx,cy,w,k){
   const g=c.createLinearGradient(cx-w/2,0,cx+w/2,0);
   g.addColorStop(0,'#E8EDF5');g.addColorStop(1,'#98A3B5');
   rr(cx-w/2,cy-H*.020,bw,h,h/2);c.fillStyle=g;c.fill();
-  c.fillStyle=k.fg3;c.font='500 10.5px IBM Plex Mono, monospace';
+  c.fillStyle=k.fg3;c.font='500 10.5px Noto Sans Mono, monospace';
   c.fillText(Math.round(v*100)+' %',cx,cy+H*.016);
   c.fillStyle=LC.tarnish>.78?k.fg2:k.fg3;
-  c.font='400 11px IBM Plex Sans KR, sans-serif';
+  c.font='400 11px Noto Sans KR, sans-serif';
   c.fillText(LC.tarnish>.78?'산소와 반응해 광택이 사라졌어요'
             :LC.tarnish>.06?'광택이 흐려지는 중…':'자른 면이 아직 반짝여요',cx,cy+H*.045);
   c.restore();
@@ -2341,8 +2416,8 @@ function drawGasModel(kind,e,cx,cy,k,src){
                          :e.sym+' — 원자 1개가 그대로 (단원자 분자)';
   c.save();
   /* 글자가 상자 밖으로 삐져나가지 않도록 폭을 글자에 맞춘다 */
-  c.font='600 12px IBM Plex Sans KR, sans-serif';const capW=c.measureText(cap).width;
-  c.font='500 10px IBM Plex Sans KR, sans-serif';const ttlW=c.measureText(ttl).width;
+  c.font='600 12px Noto Sans KR, sans-serif';const capW=c.measureText(cap).width;
+  c.font='500 10px Noto Sans KR, sans-serif';const ttlW=c.measureText(ttl).width;
   const w=Math.min(W*.34,Math.max(W*.25,Math.max(capW,ttlW)+30)),h=H*.16;
   cx=Math.max(w/2+10,Math.min(W-w/2-10,cx));
   if(src){
@@ -2355,7 +2430,7 @@ function drawGasModel(kind,e,cx,cy,k,src){
   c.fillStyle=ST.theme==='light'?'rgba(255,255,255,.86)':'rgba(14,20,38,.80)';c.fill();
   c.strokeStyle=k.line;c.lineWidth=1;c.stroke();
   c.textAlign='left';
-  c.fillStyle=k.fg3;c.font='500 10px IBM Plex Sans KR, sans-serif';
+  c.fillStyle=k.fg3;c.font='500 10px Noto Sans KR, sans-serif';
   c.fillText(ttl,cx-w/2+12,cy-h/2+15);
   const my=cy+H*.008;
   if(kind==='H2'){
@@ -2367,7 +2442,7 @@ function drawGasModel(kind,e,cx,cy,k,src){
       c.beginPath();c.moveTo(bx-r*.5,my+bob);c.lineTo(bx+r*.5,my+bob);c.stroke();
     }
     c.textAlign='center';
-    c.fillStyle=k.fg;c.font='600 12px IBM Plex Sans KR, sans-serif';
+    c.fillStyle=k.fg;c.font='600 12px Noto Sans KR, sans-serif';
     c.fillText(cap,cx,cy+h/2-10);
   }else{
     for(let i=0;i<3;i++){
@@ -2375,7 +2450,7 @@ function drawGasModel(kind,e,cx,cy,k,src){
       drawAtomBall(c,bx,my+bob,9,hexa(e.glow,.55),e.glow,e.sym);
     }
     c.textAlign='center';
-    c.fillStyle=k.fg;c.font='600 12px IBM Plex Sans KR, sans-serif';
+    c.fillStyle=k.fg;c.font='600 12px Noto Sans KR, sans-serif';
     c.fillText(cap,cx,cy+h/2-10);
   }
   c.restore();c.textAlign='left';
@@ -2385,7 +2460,7 @@ function drawAtomBall(c,x,y,r,fill,edge,label){
   g.addColorStop(0,'rgba(255,255,255,.95)');g.addColorStop(1,fill);
   c.fillStyle=g;c.beginPath();c.arc(x,y,r,0,7);c.fill();
   c.strokeStyle=edge;c.lineWidth=1.1;c.stroke();
-  c.fillStyle='#1B2233';c.font='600 '+Math.round(r*1.05)+'px IBM Plex Mono, monospace';
+  c.fillStyle='#1B2233';c.font='600 '+Math.round(r*1.05)+'px Noto Sans Mono, monospace';
   c.textAlign='center';c.textBaseline='middle';
   c.fillText(label,x,y+.5);c.textBaseline='alphabetic';
 }
@@ -2437,11 +2512,11 @@ function drawKeroseneJar(e,x,y,w,h,k){
   c.fillStyle=ST.theme==='light'?'rgba(255,255,255,.94)':'rgba(240,244,250,.90)';
   rr(x+w*.06,ly,w*.88,lh,3);c.fill();
   c.strokeStyle='rgba(0,0,0,.18)';c.lineWidth=1;c.stroke();
-  c.fillStyle='#1B2233';c.font='600 12px IBM Plex Sans KR, sans-serif';c.textAlign='center';
+  c.fillStyle='#1B2233';c.font='600 12px Noto Sans KR, sans-serif';c.textAlign='center';
   c.fillText(e.kr.split('(')[0],x+w/2,ly+lh*.46);
-  c.fillStyle='#6B7689';c.font='400 9px IBM Plex Sans KR, sans-serif';
+  c.fillStyle='#6B7689';c.font='400 9px Noto Sans KR, sans-serif';
   c.fillText('석유(등유) 속',x+w/2,ly+lh*.82);
-  c.fillStyle=k.fg3;c.font='400 10.5px IBM Plex Sans KR, sans-serif';
+  c.fillStyle=k.fg3;c.font='400 10.5px Noto Sans KR, sans-serif';
   c.fillText('보관 용기',x+w/2,y+h+H*.055);
 }
 /* 시계 접시 */
@@ -2496,7 +2571,7 @@ function drawCutScene(cx,cy,sz,k){
   c.fillStyle=hg;rr(cx-9,ky-H*.082,18,H*.085,4);c.fill();
   c.restore();
   if(LC.t>.9){
-    c.fillStyle=k.fg2;c.font='500 11.5px IBM Plex Sans KR, sans-serif';c.textAlign='center';
+    c.fillStyle=k.fg2;c.font='500 11.5px Noto Sans KR, sans-serif';c.textAlign='center';
     c.fillText('칼로 잘릴 만큼 무릅니다',cx,cy-sz*3.9);
   }
 }
@@ -2629,7 +2704,7 @@ function drawDish(e){
   }
   /* 스포이트로 페놀프탈레인 용액 떨어뜨리기 */
   if(LC.phenol)drawPipette(dx,dy,k);
-  c.fillStyle=k.fg3;c.font='400 10.5px IBM Plex Sans KR, sans-serif';c.textAlign='center';
+  c.fillStyle=k.fg3;c.font='400 10.5px Noto Sans KR, sans-serif';c.textAlign='center';
   c.fillText(LC.phenol?'물 + 페놀프탈레인 용액':'물',dx,dy+dh+H*.055);
 }
 
@@ -2686,7 +2761,7 @@ function drawPipette(dx,dy,k){
     c.strokeStyle='rgba(226,72,140,'+(.35*(1-q))+')';c.lineWidth=1.4;
     c.beginPath();c.ellipse(px,dy,W*.02+W*.10*q,H*.006+H*.028*q,0,0,7);c.stroke();
   }
-  c.fillStyle=k.fg3;c.font='400 10.5px IBM Plex Sans KR, sans-serif';c.textAlign='center';
+  c.fillStyle=k.fg3;c.font='400 10.5px Noto Sans KR, sans-serif';c.textAlign='center';
   c.fillText('스포이트',px,py-H*.088);
   c.restore();
 }
@@ -2741,7 +2816,7 @@ function drawGasLine(e,vx,vy,k){
     c.beginPath();c.moveTo(outX+1,outY+H*.055);c.lineTo(outX+1,outY);c.stroke();
     c.strokeStyle=k.glassEdge;c.lineWidth=5;
     c.beginPath();c.moveTo(outX,outY+H*.055);c.lineTo(outX,outY);c.stroke();
-    c.fillStyle=k.fg3;c.font='400 10.5px IBM Plex Sans KR, sans-serif';c.textAlign='center';
+    c.fillStyle=k.fg3;c.font='400 10.5px Noto Sans KR, sans-serif';c.textAlign='center';
     c.fillText('관 끝 (공기 중)',outX,outY-H*.028);
   }
   /* 조절 집게 */
@@ -2770,9 +2845,9 @@ function drawPuff(e,k){
   c.globalAlpha=1;
   const up=parseFloat(e.dens)<1.29;
   c.textAlign='left';
-  c.fillStyle=k.fg2;c.font='500 11.5px IBM Plex Sans KR, sans-serif';
+  c.fillStyle=k.fg2;c.font='500 11.5px Noto Sans KR, sans-serif';
   c.fillText('공기와 섞여도 반응하지 않아요',W*.30,H*.575);
-  c.fillStyle=k.fg3;c.font='400 11px IBM Plex Sans KR, sans-serif';
+  c.fillStyle=k.fg3;c.font='400 11px Noto Sans KR, sans-serif';
   c.fillText(e.dens+' — 공기(1.29 g/L)보다 '+(up?'가벼워 위로 퍼져요':'무거워 아래로 가라앉아요'),W*.30,H*.615);
   c.textAlign='center';
   c.restore();
@@ -2802,11 +2877,11 @@ function drawCylinder(e,x,y,w,h,k){
   const ly=y+h*.46,lh=H*.048;
   c.fillStyle=ST.theme==='light'?'rgba(255,255,255,.95)':'rgba(240,244,250,.92)';
   rr(x+w*.04,ly,w*.92,lh,3);c.fill();
-  c.fillStyle='#1B2233';c.font='700 13px Hahmlet, serif';c.textAlign='center';
+  c.fillStyle='#1B2233';c.font='700 13px Noto Sans KR, sans-serif';c.textAlign='center';
   c.fillText(e.sym,x+w/2,ly+lh*.50);
-  c.fillStyle='#6B7689';c.font='400 8.5px IBM Plex Sans KR, sans-serif';
+  c.fillStyle='#6B7689';c.font='400 8.5px Noto Sans KR, sans-serif';
   c.fillText('압축 기체',x+w/2,ly+lh*.86);
-  c.fillStyle=k.fg3;c.font='400 10.5px IBM Plex Sans KR, sans-serif';
+  c.fillStyle=k.fg3;c.font='400 10.5px Noto Sans KR, sans-serif';
   c.fillText('기체 용기',x+w/2,y+h+H*.052);
 }
 function drawTube(e,tx,ty,tw,th,glow,k){
@@ -2871,10 +2946,10 @@ function drawTube(e,tx,ty,tw,th,glow,k){
   c.fillStyle='rgba(255,255,255,.26)';
   rr(tx-tw/2+th*.5,ty-th*.36,tw-th,th*.11,3);c.fill();
   c.restore();
-  c.fillStyle=k.fg3;c.font='400 10.5px IBM Plex Sans KR, sans-serif';c.textAlign='center';
+  c.fillStyle=k.fg3;c.font='400 10.5px Noto Sans KR, sans-serif';c.textAlign='center';
   c.fillText('방전관',tx,ty+th*.5+H*.040);
   if(glow>0){
-    c.fillStyle=e.glow;c.font='600 12px IBM Plex Sans KR, sans-serif';
+    c.fillStyle=e.glow;c.font='600 12px Noto Sans KR, sans-serif';
     c.fillText(e.sym==='He'?'연한 분홍빛':e.sym==='Ne'?'붉은 주황빛':'연보랏빛',tx,ty+th*.5+H*.088);
   }
 }
@@ -2913,7 +2988,7 @@ function drawPSU(e,x,y,w,h,glow,k){
   c.strokeStyle=k.line;c.lineWidth=1;
   for(let i=0;i<4;i++){const vy=y+h*.66+i*3.4;
     c.beginPath();c.moveTo(x+w*.12,vy);c.lineTo(x+w*.38,vy);c.stroke();}
-  c.fillStyle=k.fg3;c.font='400 10px IBM Plex Sans KR, sans-serif';c.textAlign='center';
+  c.fillStyle=k.fg3;c.font='400 10px Noto Sans KR, sans-serif';c.textAlign='center';
   c.fillText(glow>0?'전원 장치 · 켜짐':'전원 장치',x+w/2,y+h+H*.034);
 }
 function hexa(h,a){
@@ -3202,7 +3277,7 @@ function GLdraw(){
     else{cx.globalAlpha=Math.max(0,p.life)*.9;cx.fillStyle=p.col;cx.beginPath();cx.arc(p.x,p.y,2.4*p.life+1,0,7);cx.fill()}
   });cx.restore();cx.globalAlpha=1;
   c.setTransform(GL.dpr,0,0,GL.dpr,0,0);
-  c.textAlign='right';c.font='500 10px IBM Plex Mono, monospace';
+  c.textAlign='right';c.font='500 10px Noto Sans Mono, monospace';
   c.fillStyle=ST.theme==='light'?'rgba(19,26,44,.22)':'rgba(233,238,244,.20)';
   c.fillText('© 송쌤과학',GL.w-10,GL.h-8);c.textAlign='left';
 }
@@ -3212,13 +3287,13 @@ function GLmetal(){
     const e=byId[sy],dx=W*(.20+i*.30),dy=H*.66,rx=W*.115,ry=H*.038,dh=H*.062;
     /* 라벨 */
     c.textAlign='center';
-    c.fillStyle=k.fg;c.font='700 20px Hahmlet, serif';c.fillText(e.sym,dx,H*.17);
-    c.fillStyle=k.fg3;c.font='400 11px IBM Plex Sans KR, sans-serif';c.fillText(e.kr.split('(')[0],dx,H*.205);
+    c.fillStyle=k.fg;c.font='700 20px Noto Sans KR, sans-serif';c.fillText(e.sym,dx,H*.17);
+    c.fillStyle=k.fg3;c.font='400 11px Noto Sans KR, sans-serif';c.fillText(e.kr.split('(')[0],dx,H*.205);
     if(GL.mode==='water'&&GL.t>.8){
       const lab=['기포가 서서히 발생','격렬하게 반응 · 불꽃','매우 격렬 · 즉시 발화'][e.react-1];
-      c.fillStyle='#D9A441';c.font='600 12px IBM Plex Sans KR, sans-serif';
+      c.fillStyle='#D9A441';c.font='600 12px Noto Sans KR, sans-serif';
       c.fillText(lab,dx,H*.255);
-      c.fillStyle=k.fg3;c.font='400 11px IBM Plex Sans KR, sans-serif';
+      c.fillStyle=k.fg3;c.font='400 11px Noto Sans KR, sans-serif';
       c.fillText(e.react===1?'불꽃은 생기지 않아요':'불꽃 색 '+e.flameKr,dx,H*.292);
     }
     /* 물 그릇 */
@@ -3268,12 +3343,12 @@ function GLmetal(){
       c.strokeStyle=k.glassEdge;c.lineWidth=1.1;c.stroke();c.restore();
       GLchunk(dx,y,sz,GL.mode==='air'?GL.tarnish:0,false);
       if(GL.mode==='air'&&GL.tarnish>.05){
-        c.fillStyle=k.fg3;c.font='400 10.5px IBM Plex Sans KR, sans-serif';c.textAlign='center';
+        c.fillStyle=k.fg3;c.font='400 10.5px Noto Sans KR, sans-serif';c.textAlign='center';
         c.fillText(GL.tarnish>.75?'광택이 사라짐':'광택이 흐려지는 중…',dx,y+sz*2.5);
       }
     }
   });
-  c.textAlign='center';c.fillStyle=k.fg3;c.font='400 10.5px IBM Plex Sans KR, sans-serif';
+  c.textAlign='center';c.fillStyle=k.fg3;c.font='400 10.5px Noto Sans KR, sans-serif';
   if(GL.mode==='water')c.fillText(GL.phenol?'물 + 페놀프탈레인 용액':'물',W*.5,H*.78);
   if(GL.mode==='water'&&GL.t>1.0)GLmodelBadge('H2');
 }
@@ -3287,7 +3362,7 @@ function GLmodelBadge(kind,e){
   rr2(c,x,y,w,h,8);
   c.fillStyle=ST.theme==='light'?'rgba(255,255,255,.88)':'rgba(14,20,38,.82)';c.fill();
   c.strokeStyle=k.line;c.lineWidth=1;c.stroke();
-  c.textAlign='left';c.fillStyle=k.fg3;c.font='500 9.5px IBM Plex Sans KR, sans-serif';
+  c.textAlign='left';c.fillStyle=k.fg3;c.font='500 9.5px Noto Sans KR, sans-serif';
   c.fillText('기체 모형',x+10,y+15);
   const my=y+h*.60;
   if(kind==='H2'){
@@ -3296,12 +3371,12 @@ function GLmodelBadge(kind,e){
     c.beginPath();c.moveTo(bx-r*.5,my+bob);c.lineTo(bx+r*.5,my+bob);c.stroke();
     drawAtomBall(c,bx-r*.86,my+bob,r,'#DDE4EF','#94A3BB','H');
     drawAtomBall(c,bx+r*.86,my+bob,r,'#DDE4EF','#94A3BB','H');
-    c.textAlign='left';c.fillStyle=k.fg;c.font='600 11.5px IBM Plex Sans KR, sans-serif';
+    c.textAlign='left';c.fillStyle=k.fg;c.font='600 11.5px Noto Sans KR, sans-serif';
     c.fillText('수소 H₂ · 원자 2개',x+w*.34,my+4);
   }else{
     const bx=x+w*.18,bob=Math.sin(GL.t*2.0)*2.2;
     drawAtomBall(c,bx,my+bob,8,hexa(e.glow,.5),e.glow,e.sym);
-    c.textAlign='left';c.fillStyle=k.fg;c.font='600 11.5px IBM Plex Sans KR, sans-serif';
+    c.textAlign='left';c.fillStyle=k.fg;c.font='600 11.5px Noto Sans KR, sans-serif';
     c.fillText('단원자 · 원자 1개',x+w*.32,my+4);
   }
   c.restore();c.textAlign='left';
@@ -3339,8 +3414,8 @@ function GLgas(){
     const e=byId[sy],dx=W*(.20+i*.30),ty=H*.40,tw=W*.21,th=H*.082;
     const on=GL.mode==='discharge'?Math.max(0,Math.min(1,(GL.t-i*.16)/.4)):0;
     c.textAlign='center';
-    c.fillStyle=k.fg;c.font='700 20px Hahmlet, serif';c.fillText(e.sym,dx,H*.16);
-    c.fillStyle=k.fg3;c.font='400 11px IBM Plex Sans KR, sans-serif';c.fillText(e.kr,dx,H*.195);
+    c.fillStyle=k.fg;c.font='700 20px Noto Sans KR, sans-serif';c.fillText(e.sym,dx,H*.16);
+    c.fillStyle=k.fg3;c.font='400 11px Noto Sans KR, sans-serif';c.fillText(e.kr,dx,H*.195);
     c.save();
     if(on>0){
       const fl=.88+Math.sin(GL.t*17+i)*.12;
@@ -3359,7 +3434,7 @@ function GLgas(){
     c.fillStyle=k.metal2;rr2(c,dx-tw/2-5,ty-th*.30,9,th*.60,2);c.fill();
     rr2(c,dx+tw/2-4,ty-th*.30,9,th*.60,2);c.fill();
     c.restore();
-    if(on>0){c.fillStyle=k.fg2;c.font='400 10.5px IBM Plex Sans KR, sans-serif';c.textAlign='center';
+    if(on>0){c.fillStyle=k.fg2;c.font='400 10.5px Noto Sans KR, sans-serif';c.textAlign='center';
       c.fillText(e.sym==='He'?'연한 분홍빛':e.sym==='Ne'?'붉은 주황빛':'연보랏빛',dx,ty+th*.9+H*.03)}
     /* 물 실험 */
     if(GL.mode==='water'){
@@ -3376,10 +3451,10 @@ function GLgas(){
       c.beginPath();c.moveTo(dx,ty+th*.6);c.lineTo(dx,dy-H*.10);c.stroke();
       c.strokeStyle=k.glassEdge;c.lineWidth=2.6;
       c.beginPath();c.moveTo(dx,dy-H*.10);c.lineTo(dx,dy+dh*.7);c.stroke();c.restore();
-      c.fillStyle=k.fg3;c.font='400 10.5px IBM Plex Sans KR, sans-serif';c.textAlign='center';
+      c.fillStyle=k.fg3;c.font='400 10.5px Noto Sans KR, sans-serif';c.textAlign='center';
       c.fillText('변화 없음',dx,dy+dh+H*.05);
     }else if(GL.mode==='air'){
-      c.fillStyle=k.fg3;c.font='400 10.5px IBM Plex Sans KR, sans-serif';c.textAlign='center';
+      c.fillStyle=k.fg3;c.font='400 10.5px Noto Sans KR, sans-serif';c.textAlign='center';
       c.fillText('공기 중에서도 변화 없음',dx,H*.70);
     }
   });
@@ -3389,7 +3464,7 @@ function GLgas(){
     c.save();c.fillStyle=ST.theme==='light'?'#D6DDE8':'#1C2438';rr2(c,px,py,pw,ph,5);c.fill();
     c.strokeStyle=k.line;c.lineWidth=1;c.stroke();
     c.fillStyle='#FF6B3D';c.beginPath();c.arc(px+pw*.16,py+ph*.5,Math.min(5,ph*.14),0,7);c.fill();
-    c.fillStyle=k.fg3;c.font='400 10px IBM Plex Sans KR, sans-serif';c.textAlign='left';
+    c.fillStyle=k.fg3;c.font='400 10px Noto Sans KR, sans-serif';c.textAlign='left';
     c.fillText('전원 장치 ON',px+pw*.3,py+ph*.6);c.restore();
   }
 }
@@ -3402,9 +3477,9 @@ function GLchart(){
 }
 function chartHead(c,W,H,k,t,sub){
   c.textAlign='center';
-  c.fillStyle=k.fg;c.font='600 16px IBM Plex Sans KR, sans-serif';
+  c.fillStyle=k.fg;c.font='600 16px Noto Sans KR, sans-serif';
   c.fillText(t,W/2,H*.098);
-  c.fillStyle=k.fg3;c.font='400 12px IBM Plex Sans KR, sans-serif';
+  c.fillStyle=k.fg3;c.font='400 12px Noto Sans KR, sans-serif';
   c.fillText(sub,W/2,H*.146);
 }
 function chartFoot(c,W,H,k,txt){
@@ -3412,7 +3487,7 @@ function chartFoot(c,W,H,k,txt){
   rr2(c,bx,by,bw,bh,8);
   c.fillStyle=ST.theme==='light'?'rgba(15,111,184,.07)':'rgba(138,182,255,.10)';c.fill();
   c.strokeStyle=ST.theme==='light'?'rgba(15,111,184,.28)':'rgba(138,182,255,.30)';c.lineWidth=1;c.stroke();
-  c.textAlign='center';c.fillStyle=k.fg2;c.font='500 12.5px IBM Plex Sans KR, sans-serif';
+  c.textAlign='center';c.fillStyle=k.fg2;c.font='500 12.5px Noto Sans KR, sans-serif';
   c.fillText(txt,W/2,by+bh*.63);
 }
 /* 1족 — 밀도 막대그래프 (0 기준 비율 척도) */
@@ -3432,31 +3507,31 @@ function GLchartDensity(c,W,H,k){
   for(let v=0;v<=8;v++){
     c.strokeStyle=k.line;c.lineWidth=1;c.globalAlpha=v===0?1:.45;
     c.beginPath();c.moveTo(sx(v),top-H*.02);c.lineTo(sx(v),bot+6);c.stroke();c.globalAlpha=1;
-    c.fillStyle=k.fg3;c.font='500 11px IBM Plex Mono, monospace';
+    c.fillStyle=k.fg3;c.font='500 11px Noto Sans Mono, monospace';
     c.fillText(String(v),sx(v),bot+H*.048);
   }
-  c.fillStyle=k.fg3;c.font='400 11px IBM Plex Sans KR, sans-serif';
+  c.fillStyle=k.fg3;c.font='400 11px Noto Sans KR, sans-serif';
   c.textAlign='left';c.fillText('g/cm³',x1+8,bot+H*.048);
   /* 막대 */
   rows.forEach((r,i)=>{
     const y=top+i*rowH, bh=rowH*.46, by=y+(rowH-bh)/2;
     c.textAlign='right';
     c.fillStyle=r.me?k.fg:r.ref?'#8AB6FF':k.fg3;
-    c.font=(r.me?'600 ':'400 ')+'12.5px IBM Plex Sans KR, sans-serif';
+    c.font=(r.me?'600 ':'400 ')+'12.5px Noto Sans KR, sans-serif';
     c.fillText(r.l,x0-12,by+bh*.78);
     const col=r.ref?'#8AB6FF':r.me?'#D9A441':(ST.theme==='light'?'#AEB8C8':'#3D4759');
     const bw=Math.max(3,sx(r.v)-x0);
     rr2(c,x0,by,bw,bh,4);c.fillStyle=col;c.fill();
     if(r.me){ c.fillStyle='rgba(255,255,255,.22)';rr2(c,x0,by,bw,bh*.38,4);c.fill(); }
     c.textAlign='left';
-    c.fillStyle=r.me?k.fg:k.fg2;c.font=(r.me?'600 ':'500 ')+'12.5px IBM Plex Mono, monospace';
+    c.fillStyle=r.me?k.fg:k.fg2;c.font=(r.me?'600 ':'500 ')+'12.5px Noto Sans Mono, monospace';
     c.fillText(r.s,x0+bw+9,by+bh*.80);
   });
   /* 기준선 */
   const rxp=sx(1.0);
   c.strokeStyle='#8AB6FF';c.lineWidth=1.8;c.setLineDash([6,5]);
   c.beginPath();c.moveTo(rxp,top-H*.028);c.lineTo(rxp,bot+H*.008);c.stroke();c.setLineDash([]);
-  c.textAlign='center';c.fillStyle='#8AB6FF';c.font='600 11px IBM Plex Sans KR, sans-serif';
+  c.textAlign='center';c.fillStyle='#8AB6FF';c.font='600 11px Noto Sans KR, sans-serif';
   c.fillText('물 1.00',rxp,top-H*.040);
   chartFoot(c,W,H,k,'Li·Na·K는 모두 1.00보다 작다 → 세 원소 다 물 위에 뜬다');
 }
@@ -3468,7 +3543,7 @@ function GLchartBoiling(c,W,H,k){
   /* 실온보다 낮은 구간 */
   c.fillStyle=ST.theme==='light'?'rgba(138,182,255,.15)':'rgba(138,182,255,.10)';
   c.fillRect(x0,ay-H*.052,sx(20)-x0,H*.104);
-  c.textAlign='center';c.fillStyle='#8AB6FF';c.font='600 11.5px IBM Plex Sans KR, sans-serif';
+  c.textAlign='center';c.fillStyle='#8AB6FF';c.font='600 11.5px Noto Sans KR, sans-serif';
   c.fillText('◀ 이 구간은 실온 20 ℃보다 낮다 → 실온에서 기체',(x0+sx(-30))/2,ay+H*.140);
   /* 수직선 + 눈금 */
   c.strokeStyle=k.fg3;c.lineWidth=1.6;c.lineCap='round';
@@ -3478,10 +3553,10 @@ function GLchartBoiling(c,W,H,k){
     const big=(v%100===0);
     c.strokeStyle=k.fg3;c.lineWidth=big?1.5:1;c.globalAlpha=big?1:.55;
     c.beginPath();c.moveTo(sx(v),ay);c.lineTo(sx(v),ay+(big?9:5));c.stroke();c.globalAlpha=1;
-    if(big){c.fillStyle=k.fg3;c.font='500 11px IBM Plex Mono, monospace';
+    if(big){c.fillStyle=k.fg3;c.font='500 11px Noto Sans Mono, monospace';
       c.fillText(String(v),sx(v),ay+H*.052);}
   }
-  c.textAlign='left';c.fillStyle=k.fg3;c.font='400 11px IBM Plex Sans KR, sans-serif';
+  c.textAlign='left';c.fillStyle=k.fg3;c.font='400 11px Noto Sans KR, sans-serif';
   c.fillText('℃',x1-2,ay-H*.026);
   /* 0 ℃ 표시 */
   c.strokeStyle=k.line;c.lineWidth=1;c.setLineDash([3,4]);
@@ -3503,9 +3578,9 @@ function GLchartBoiling(c,W,H,k){
     c.fillStyle=ST.theme==='light'?'#FFFFFF':'#0B1020';
     c.beginPath();c.arc(x,ay,p.ref?2:2.4,0,7);c.fill();
     c.textAlign='center';
-    c.fillStyle=k.fg;c.font='600 12.5px IBM Plex Sans KR, sans-serif';
+    c.fillStyle=k.fg;c.font='600 12.5px Noto Sans KR, sans-serif';
     c.fillText(p.l,x,ly);
-    c.fillStyle=p.col;c.font='600 13px IBM Plex Mono, monospace';
+    c.fillStyle=p.col;c.font='600 13px Noto Sans Mono, monospace';
     c.fillText(p.s+' ℃',x,ly+H*.036);
   });
   chartFoot(c,W,H,k,'He·Ne·Ar의 끓는점은 모두 실온 20 ℃보다 훨씬 낮다 → 세 원소 다 기체');
@@ -4164,7 +4239,7 @@ function drawCard(){
   const W=900,e=byId[ST.el],ans=ST.survey[ST.el]||{};
   /* 내용 높이 계산 → 카드 높이 결정 */
   c.setTransform(1,0,0,1,0,0);
-  c.font='400 17px "IBM Plex Sans KR", sans-serif';
+  c.font='400 17px "Noto Sans KR", sans-serif';
   let need=292;
   const lineCnt=Q7.map(q=>{
     const v=(ans[q.k]||'').trim()||'(아직 적지 않았어요)';
@@ -4193,48 +4268,48 @@ function drawCard(){
     c.fillStyle=gr;c.beginPath();c.roundRect?c.roundRect(tx,ty,tw,th,18):c.rect(tx,ty,tw,th);c.fill();
   }
   c.fillStyle=e.grp===1?'#131A2C':'#FFFFFF';
-  c.font='700 62px Hahmlet, serif';c.textAlign='center';c.textBaseline='middle';
+  c.font='700 62px Noto Sans KR, sans-serif';c.textAlign='center';c.textBaseline='middle';
   c.fillText(e.sym,tx+tw/2,ty+th/2+4);
-  c.font='500 15px "IBM Plex Mono", monospace';c.textAlign='left';c.textBaseline='alphabetic';
+  c.font='500 15px "Noto Sans Mono", monospace';c.textAlign='left';c.textBaseline='alphabetic';
   c.fillStyle=e.grp===1?'#3A465C':'#C9D6EE';c.fillText(e.z,tx+12,ty+26);
   /* 제목 */
-  c.fillStyle='#131A2C';c.font='700 44px Hahmlet, serif';
+  c.fillStyle='#131A2C';c.font='700 44px Noto Sans KR, sans-serif';
   c.fillText(e.kr,232,110);
-  c.fillStyle=acc;c.font='600 19px "IBM Plex Sans KR", sans-serif';
+  c.fillStyle=acc;c.font='600 19px "Noto Sans KR", sans-serif';
   c.fillText(e.grp===1?'1족 · 알칼리 금속':'18족 · 비활성 기체',232,146);
   c.fillStyle='#5B6880';
   const fA='원자량 '+e.mass+'   ·   녹는점 '+e.mp+' ℃',
         fB='끓는점 '+e.bp+' ℃   ·   밀도 '+e.dens,
         fAll=fA+'   ·   '+fB, avail=W-232-44;
   let fs=15;
-  c.font='500 '+fs+'px "IBM Plex Mono", monospace';
-  if(c.measureText(fAll).width>avail){fs=13;c.font='500 13px "IBM Plex Mono", monospace';}
+  c.font='500 '+fs+'px "Noto Sans Mono", monospace';
+  if(c.measureText(fAll).width>avail){fs=13;c.font='500 13px "Noto Sans Mono", monospace';}
   if(c.measureText(fAll).width<=avail){c.fillText(fAll,232,180);}
-  else{c.font='500 14px "IBM Plex Mono", monospace';
+  else{c.font='500 14px "Noto Sans Mono", monospace';
        c.fillText(fA,232,172);c.fillText(fB,232,198);}
   /* 항목 */
   let y=292;
   Q7.forEach((q,i)=>{
     c.fillStyle=acc;c.beginPath();c.arc(64,y-7,13,0,7);c.fill();
-    c.fillStyle='#FFFFFF';c.font='600 14px "IBM Plex Mono", monospace';c.textAlign='center';
+    c.fillStyle='#FFFFFF';c.font='600 14px "Noto Sans Mono", monospace';c.textAlign='center';
     c.fillText(i+1,64,y-2);c.textAlign='left';
-    c.fillStyle='#131A2C';c.font='600 19px "IBM Plex Sans KR", sans-serif';
+    c.fillStyle='#131A2C';c.font='600 19px "Noto Sans KR", sans-serif';
     c.fillText(q.t,90,y);
     const v=(ans[q.k]||'').trim();
-    c.fillStyle=v?'#2F3B52':'#A9B3C4';c.font='400 17px "IBM Plex Sans KR", sans-serif';
+    c.fillStyle=v?'#2F3B52':'#A9B3C4';c.font='400 17px "Noto Sans KR", sans-serif';
     wrapText(c,v||'(아직 적지 않았어요)',90,y+30,762,27,4);
     y+=30+lineCnt[i]*27+24;
     if(i<Q7.length-1){c.strokeStyle='#E7EBF2';c.lineWidth=1;c.beginPath();c.moveTo(52,y-13);c.lineTo(W-52,y-13);c.stroke()}
   });
   /* 푸터 */
   c.fillStyle='#F4F6FA';c.fillRect(0,H-118,W,118);
-  c.fillStyle='#131A2C';c.font='600 17px "IBM Plex Sans KR", sans-serif';
+  c.fillStyle='#131A2C';c.font='600 17px "Noto Sans KR", sans-serif';
   c.fillText((ST.sid||'학번')+'   '+(ST.nm||'이름'),52,H-70);
-  c.fillStyle='#6B7689';c.font='400 14px "IBM Plex Sans KR", sans-serif';
+  c.fillStyle='#6B7689';c.font='400 14px "Noto Sans KR", sans-serif';
   c.fillText(today()+' · 세로줄의 규칙 — 1족·18족 원소의 유사성',52,H-42);
   c.textAlign='right';
-  c.fillStyle=acc;c.font='700 17px Hahmlet, serif';c.fillText('🧪 송쌤과학 가상실험실',W-52,H-70);
-  c.fillStyle='#8A93A5';c.font='400 13px "IBM Plex Sans KR", sans-serif';
+  c.fillStyle=acc;c.font='700 17px Noto Sans KR, sans-serif';c.fillText('🧪 송쌤과학 가상실험실',W-52,H-70);
+  c.fillStyle='#8A93A5';c.font='400 13px "Noto Sans KR", sans-serif';
   c.fillText('ⓒ 2026 송세호 | 아주중학교 · 무단 복제 금지',W-52,H-42);
   c.textAlign='left';
 }
