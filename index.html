@@ -319,14 +319,14 @@ body.light .rd{background:rgba(255,255,255,.8)}
   border:1px solid var(--line);transition:all var(--t1)
 }
 .q-lab .peek:hover{color:var(--kero);border-color:var(--kero)}
-textarea.q-in,input.txt,textarea.txt{
+textarea.q-in,input.txt,textarea.txt,textarea.rtxt{
   width:100%;background:var(--ink-0);border:1px solid var(--line);border-radius:var(--r2);
   padding:8px 10px;font-size:var(--fs-body);line-height:1.5;resize:none;
   transition:border-color var(--t1);color:var(--fg);
 }
 textarea.q-in{min-height:48px}
-textarea.q-in:focus,input.txt:focus,textarea.txt:focus{outline:none;border-color:var(--argon)}
-textarea.q-in::placeholder,input.txt::placeholder{color:var(--fg-3)}
+textarea.q-in:focus,input.txt:focus,textarea.txt:focus,textarea.rtxt:focus{outline:none;border-color:var(--argon)}
+textarea.q-in::placeholder,input.txt::placeholder,textarea.rtxt::placeholder{color:var(--fg-3)}
 .peek-box{
   margin-top:5px;padding:8px 10px;border-radius:var(--r2);background:var(--kero-soft);
   border:1px solid var(--kero);font-size:12.5px;color:var(--fg-2);line-height:1.5;display:none
@@ -753,6 +753,16 @@ body.light .bin-h .cnt{background:rgba(20,30,50,.08)}
 .pane.model mark{background:rgba(63,191,143,.28);color:var(--fg);padding:0 3px;border-radius:3px}
 body.light .pane.model mark{background:rgba(30,140,99,.18)}
 .lockicon{display:inline-flex;vertical-align:-2px;margin-right:3px}
+
+/* 모범 답안을 보고 다시 쓰기 — 처음 답안은 잠긴 채 두고, 새 칸에 다시 정리한다 (§9) */
+.pane.rev{background:var(--argon-soft);border:1px solid var(--argon)}
+.pane.rev .ttl{color:var(--argon);font-weight:600;font-size:12.5px;margin-bottom:4px}
+.pane.rev .sub{font-size:11.5px;color:var(--fg-3);line-height:1.6;margin-bottom:8px}
+.pane.rev textarea{min-height:96px;line-height:1.6;width:100%;resize:vertical;background:var(--ink-1)}
+.pane.rev .rrow{display:flex;align-items:center;margin-top:6px;font-size:11.5px;color:var(--fg-3)}
+.pane.rev .rlen{font-family:var(--f-num);margin-left:auto}
+.pane.rev .rlen.ok{color:var(--argon)}
+.bdg.r{background:var(--argon-soft);border-color:var(--argon);color:var(--argon)}
 
 /* ══════════ 탭: 족 실험실 ══════════ */
 #p-group{display:none;grid-template-columns:1fr 336px;min-height:0}
@@ -1370,7 +1380,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border:none;border-ra
     <div class="help-sec">
       <h3>기록 지우기</h3>
       <div class="danger-zone">
-        <p>학번·이름, 조사 노트, 서술형 답안과 <b>모범 답안 열람 잠금</b>, 퀴즈 기록, 분류·배치 결과가 모두 지워져요. 되돌릴 수 없습니다.</p>
+        <p>학번·이름, 조사 노트, 서술형 답안·다시 쓴 답안과 <b>모범 답안 열람 잠금</b>, 퀴즈 기록, 분류·배치 결과가 모두 지워져요. 되돌릴 수 없습니다.</p>
         <button class="btn sm" id="btnReset" style="border-color:var(--bad);color:var(--bad)">모든 기록 지우기</button>
       </div>
     </div>
@@ -1838,16 +1848,16 @@ const QUIZ=[
 const INQ=[
 {t:'주기율표에서 <b>같은 족(세로줄)</b>에 있는 원소들의 성질은 어떠한지, 이번 실험에서 직접 관찰한 내용을 근거로 들어 설명하시오.',
  hint:'조사 탭에서 Li·Na·K를 차례로 [물에 넣기] 해 보고, 이어서 He·Ne·Ar도 똑같이 해 보세요. 여섯 번의 관찰 결과를 두 무리로 나누어 적어 보면 답이 보입니다.',
- model:'주기율표에서 <mark>같은 족에 있는 원소들은 성질이 비슷하다</mark>. 1족인 리튬·나트륨·칼륨은 모두 실온에서 고체인 무른 금속이고, 물에 넣었을 때 <mark>기포(수소 기체)를 내며 반응</mark>했다. 반면 18족인 헬륨·네온·아르곤은 모두 실온에서 기체이고 물에 넣어도 <mark>아무런 반응이 일어나지 않았다.</mark> 이처럼 같은 세로줄에 있는 원소끼리 관찰 결과가 서로 닮았다.'},
+ model:'주기율표에서 <mark>같은 족에 있는 원소들은 성질이 비슷하다</mark>. 1족인 리튬·나트륨·칼륨은 모두 실온에서 고체인 무른 금속이고, 물에 넣었을 때 <mark>기포(수소 기체)를 내며 반응</mark>했다. 다만 반응의 세기는 리튬 → 나트륨 → 칼륨으로 갈수록 격렬해졌다. 반면 18족인 헬륨·네온·아르곤은 모두 실온에서 기체이고 물에 넣어도 <mark>아무런 반응이 일어나지 않았다.</mark> 이처럼 같은 세로줄에 있는 원소끼리 관찰 결과가 서로 닮았다.'},
 {t:'원자의 구성 요소인 <b>양성자·중성자·전자</b> 중에서 주기율표에 원소를 배치할 때 <b>기준이 되는 것</b>은 무엇인가? 그렇게 생각한 까닭을 함께 쓰시오.',
  hint:'주기율표 배치 탭에서 Ar(18번)·K(19번)·Ca(20번) 카드를 뒤집어 세 값을 나란히 비교해 보세요. 셋 중에서 <b>원소마다 겹치지 않고 하나씩 정해지는 값</b>이 무엇인지 찾으면 됩니다.',
  model:'배치 기준이 되는 것은 <mark>양성자 수</mark>이다. 원자 번호는 양성자 수에 따라 붙인 번호이고, 주기율표는 이 <mark>원자 번호 순서대로</mark> 원소를 배열한다. 카드를 비교해 보면 칼륨과 칼슘은 <mark>중성자 수가 20개로 같아</mark> 중성자로는 순서를 정할 수 없고, 전자 수는 원자가 이온이 되면 달라진다. 그러나 양성자 수는 원소마다 하나씩 정해져 있고 변하지 않으므로 기준이 될 수 있다.'},
 {t:'<b>루비듐(Rb, 37번)·세슘(Cs, 55번)·프랑슘(Fr, 87번)</b>은 어느 족 원소와 성질이 비슷할지 예상하고, 그렇게 생각한 까닭과 예상되는 성질을 구체적으로 쓰시오.',
- hint:'이론 책자(B)의 마지막 쪽에 있는 주기율표 그림에서 K 아래쪽 세로줄을 손가락으로 따라 내려가 보세요. 세 원소가 어느 줄에 있는지 확인하면 됩니다.',
+ hint:'이론 책자(B)의 마지막 쪽 <b>「한눈에 비교 — 1족과 18족」</b>을 펼쳐 보세요. <b>루비듐(Rb)이 칼륨(K) 바로 아래 1족에 있다</b>는 설명과 함께, 1족 원소의 상태·물과의 반응·보관 방법이 표로 정리되어 있어요. 세슘·프랑슘도 같은 세로줄을 따라 아래로 이어집니다.',
  model:'세 원소는 모두 <mark>1족 원소</mark>와 성질이 비슷할 것이다. 주기율표에서 리튬·나트륨·칼륨과 <mark>같은 세로줄(1족)</mark>에 있고, 같은 족 원소는 성질이 비슷하기 때문이다. 따라서 <mark>실온에서 고체인 무른 은백색 금속</mark>이고, <mark>물과 격렬하게 반응하여 수소 기체를 발생</mark>시키며, 산소·물과 쉽게 반응하므로 <mark>기름 속에 넣어 보관</mark>해야 할 것이다.'},
 {t:'<b>크립톤(Kr, 36번)·제논(Xe, 54번)·라돈(Rn, 86번)</b>은 어느 족 원소와 성질이 비슷할지 예상하고, 그렇게 생각한 까닭과 예상되는 성질을 구체적으로 쓰시오.',
- hint:'이번에는 Ar 아래쪽 세로줄, 즉 주기율표의 가장 오른쪽 줄을 따라 내려가 보세요.',
- model:'세 원소는 모두 <mark>18족 원소</mark>와 성질이 비슷할 것이다. 헬륨·네온·아르곤과 <mark>같은 세로줄(18족)</mark>에 있기 때문이다. 따라서 <mark>실온에서 무색·무취의 기체</mark>이고, 다른 물질과 <mark>거의 반응하지 않아 매우 안정</mark>할 것이며, 물에 넣어도 반응하지 않을 것이다. 방전관에 넣어 전류를 흘리면 저마다 다른 색의 빛을 낼 것이다.'},
+ hint:'이론 책자(B) <b>첫 쪽 주기율표 그림</b>에서 가장 오른쪽 세로줄(18족)을 보면 Ne·Ar 아래로 <b>Kr</b>이 이어집니다. 제논·라돈도 이 줄을 따라 더 아래에 있어요. 같은 책자의 <b>「18족 원소의 성질」</b> 쪽에서 이 줄에 놓인 원소들의 공통점을 확인해 보세요.',
+ model:'세 원소는 모두 <mark>18족 원소</mark>와 성질이 비슷할 것이다. 헬륨·네온·아르곤과 <mark>같은 세로줄(18족)</mark>에 있기 때문이다. 따라서 <mark>실온에서 무색·무취의 기체</mark>이고, 다른 물질과 <mark>거의 반응하지 않아 매우 안정</mark>할 것이며, 물에 넣어도 반응하지 않을 것이다. 방전관에 넣어 전류를 흘리면 저마다 다른 색의 빛을 낼 것이다. (다만 라돈은 <mark>방사성 원소</mark>여서 실제로는 다루기 어렵다.)'},
 {t:'1족 금속은 <b>기름(석유) 속</b>에 넣어 보관하지만, 18족 기체는 그냥 용기에 담아 둔다. 두 족의 <b>반응성</b>과 연결 지어 보관 방법이 다른 까닭을 설명하시오.',
  hint:'조사 탭에서 같은 원소를 두고 [물에 넣기]와 [공기 중에 두기]를 모두 눌러 보세요. 1족 금속의 자른 면이 공기 중에서 어떻게 변하는지가 열쇠입니다.',
  model:'1족 원소는 <mark>공기 중의 산소·수증기와 쉽게 반응</mark>해서 금속 광택을 빠르게 잃고, 물과도 격렬하게 반응한다. 그대로 두면 변질되거나 위험하므로 <mark>산소·물과 닿지 않도록 기름 속에 넣어</mark> 보관한다. 반면 18족 원소는 <mark>다른 물질과 거의 반응하지 않아 매우 안정</mark>하므로, 공기나 물과 닿아도 변하지 않는다. 그래서 특별한 처리 없이 기체 용기에 담아 두면 된다.'},
@@ -1856,7 +1866,7 @@ const INQ=[
  model:'내가 세운 기준(예: 실온에서 고체인가, 물과 반응하는가)으로 나눈 결과가 <mark>1족·18족 분류와 거의 같았다.</mark> 이는 <mark>성질이 비슷한 원소끼리 같은 족에 모여 있기</mark> 때문이다. 과학자들은 원소를 원자 번호 순서로 늘어놓다가 <mark>성질이 비슷한 원소가 같은 세로줄에 오도록</mark> 배치했다. 그래서 족만 알면 그 원소의 성질을 예측할 수 있고, 아직 성질을 모르는 원소도 같은 족 원소를 통해 짐작할 수 있다.'},
 {t:'나트륨을 넣은 물에 <b>페놀프탈레인 용액</b>을 떨어뜨렸더니 붉게 변했다. 이때 <b>발생한 기체가 무엇인지</b>와 <b>물의 성질이 어떻게 변했는지</b>를 실험 결과와 함께 쓰시오.',
  hint:'[물에 넣기]로 반응을 일으킨 뒤 [페놀프탈레인]을 눌러 보세요. 화면 아래 관찰 기록 칩에 나타나는 문장도 함께 읽어 보면 좋아요.',
- model:'나트륨이 물과 반응할 때 발생한 기체는 <mark>수소 기체</mark>이다. 조각 주위에서 기포가 계속 올라오는 것으로 확인할 수 있다. 또 페놀프탈레인 용액을 떨어뜨렸을 때 물이 붉게 변한 것으로 보아, 반응이 끝난 물은 <mark>염기성</mark>으로 변했음을 알 수 있다.'}
+ model:'나트륨이 물과 반응할 때 발생한 기체는 <mark>수소 기체</mark>이다. 조각 주위에서 기포가 계속 올라오는 것으로 확인할 수 있다. 또 페놀프탈레인 용액은 <mark>염기성에서 붉게 변하는 지시약</mark>인데 실제로 물이 붉게 변했으므로, 반응이 끝난 물은 <mark>염기성</mark>으로 변했음을 알 수 있다.'}
 ];
 
 /* ═══════════ 상태 ═══════════ */
@@ -1866,7 +1876,7 @@ const ST={
   crit:S.get('crit',''), binName:S.get('binName',['','']),
   clsA:S.get('clsA',{1:[],2:[]}), clsB:S.get('clsB',{1:[],2:[]}), clsStage:'A',
   pt:S.get('pt',{}), quiz:S.get('quiz',{}), qi:0,
-  inq:S.get('inq',{}), inqLock:S.get('inqLock',{}), inqHint:S.get('inqHint',{}),
+  inq:S.get('inq',{}), inqRev:S.get('inqRev',{}), inqLock:S.get('inqLock',{}), inqHint:S.get('inqHint',{}),
   sid:S.get('sid',''), nm:S.get('nm',''),
   theme:S.get('theme','dark'), snd:S.get('snd',false), vol:S.get('vol',60),
   drIdx:S.get('drIdx',0), drFilter:'전체', tab:'survey'
@@ -2109,7 +2119,7 @@ function ctrlBar(){
   }else if(ST.tab==='quiz'){
     hint='한 문항씩 풀어요. 틀려도 해설을 보고 다시 살펴보면 됩니다.';
   }else{
-    hint='힌트는 답안을 잠그지 않아요. 모범 답안은 열람하면 그 문항이 잠깁니다.';
+    hint='힌트는 답안을 잠그지 않아요. 모범 답안을 열면 처음 답안이 잠기고, 그 아래 ✏️ 다시 쓰기 칸이 열립니다.';
   }
   $('#ctrlHint').textContent=hint;
   dockFold();
@@ -4095,19 +4105,20 @@ $('#qNext').addEventListener('click',()=>{
 /* ═══════════ 탭 · 탐구 질문 ═══════════ */
 function inqRender(){
   $('#inqList').innerHTML=INQ.map((q,i)=>{
-    const v=ST.inq[i]||'',lock=ST.inqLock[i],hint=ST.inqHint[i];
-    const written=v.trim().length>=20;
+    const v=ST.inq[i]||'',lock=ST.inqLock[i],hint=ST.inqHint[i],rv=ST.inqRev[i]||'';
+    const written=v.trim().length>=20,revd=rv.trim().length>=5;
     return '<div class="acard'+(written?' written':'')+'" data-i="'+i+'">'+
       '<button class="acard-h"><span class="qn">'+(i+1)+'</span><span class="qt">'+q.t+'</span>'+
       '<span class="badges">'+(written?'<span class="bdg w">작성함</span>':'')+
       (hint?'<span class="bdg h">힌트 봄</span>':'')+
-      (lock?'<span class="bdg l">모범 답안 열람 · 수정 잠김</span>':'')+'</span>'+
+      (lock?'<span class="bdg l">처음 답안 잠김</span>':'')+
+      (revd?'<span class="bdg r">다시 씀</span>':'')+'</span>'+
       '<svg class="caret" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></button>'+
       '<div class="acard-b">'+
         '<textarea class="txt" data-i="'+i+'" '+(lock?'readonly':'')+
         ' placeholder="관찰한 내용을 바탕으로 내 문장으로 설명해 보세요. (두세 문장이면 충분합니다)">'+
         v.replace(/</g,'&lt;')+'</textarea>'+
-        '<div class="lockrow">'+(lock?'<span class="lockicon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>모범 답안을 본 문항이라 답안은 그대로 남겨 두었어요.':'20자 이상 쓰면 모범 답안을 열 수 있어요.')+
+        '<div class="lockrow">'+(lock?'<span class="lockicon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>처음 답안은 그대로 남겨 두었어요. 아래 다시 쓰기 칸에 새로 정리해 보세요.':'20자 이상 쓰면 모범 답안을 열 수 있어요.')+
         '<span class="len'+(v.trim().length>=20?' ok':'')+'" data-len="'+i+'">'+v.length+'자</span></div>'+
         '<div class="abtns">'+
           '<button class="btn sm warn" data-act="hint">💡 힌트 보기</button>'+
@@ -4116,15 +4127,37 @@ function inqRender(){
         '<div class="pane hint'+(hint?' open':'')+'"><div class="ttl">힌트 · 어디를 보면 될까요</div>'+q.hint+
           '<div class="free">힌트는 답안을 잠그지 않아요. 몇 번이든 열어 봐도 됩니다.</div></div>'+
         '<div class="pane model'+(lock?' open':'')+'"><div class="ttl">모범 답안 · 이렇게 쓰면 좋아요</div>'+q.model+'</div>'+
+        '<div class="pane rev'+(lock?' open':'')+'"><div class="ttl">✏️ 모범 답안을 보고 다시 쓰기</div>'+
+          '<div class="sub">처음 쓴 답안은 그대로 남습니다. 모범 답안과 견주어 빠뜨린 내용을 채워 <b>내 문장으로 다시</b> 정리해 보세요.</div>'+
+          '<textarea class="rtxt" data-r="'+i+'" placeholder="모범 답안에서 새로 알게 된 내용을 넣어 다시 써 보세요.">'+rv.replace(/</g,'&lt;')+'</textarea>'+
+          '<div class="rrow"><span class="rlen'+(revd?' ok':'')+'" data-rlen="'+i+'">'+rv.length+'자</span></div>'+
+        '</div>'+
       '</div></div>';
   }).join('');
   bindInq();inqCount();
+}
+/* 카드 머리의 상태 배지를 현재 상태대로 다시 그린다 */
+function paintBadges(card,i){
+  const v=ST.inq[i]||'',rv=ST.inqRev[i]||'';
+  $('.badges',card).innerHTML=
+    (v.trim().length>=20?'<span class="bdg w">작성함</span>':'')+
+    (ST.inqHint[i]?'<span class="bdg h">힌트 봄</span>':'')+
+    (ST.inqLock[i]?'<span class="bdg l">처음 답안 잠김</span>':'')+
+    (rv.trim().length>=5?'<span class="bdg r">다시 씀</span>':'');
 }
 function bindInq(){
   $$('.acard').forEach(card=>{
     const i=+card.dataset.i;
     $('.acard-h',card).onclick=()=>{card.classList.toggle('open');sfx('click')};
-    const ta=$('textarea',card);
+    const ta=$('textarea.txt',card);
+    const rta=$('textarea.rtxt',card);
+    if(rta) rta.addEventListener('input',()=>{
+      ST.inqRev[i]=rta.value;S.set('inqRev',ST.inqRev);
+      const rl=$('[data-rlen="'+i+'"]',card);
+      rl.textContent=rta.value.length+'자';
+      rl.classList.toggle('ok',rta.value.trim().length>=5);
+      paintBadges(card,i);
+    });
     ta.addEventListener('input',()=>{
       ST.inq[i]=ta.value;S.set('inq',ST.inq);
       $('[data-len="'+i+'"]',card).textContent=ta.value.length+'자';
@@ -4132,16 +4165,12 @@ function bindInq(){
       card.classList.toggle('written',ta.value.trim().length>=20);
       const mb=$('[data-act="model"]',card);
       if(!ST.inqLock[i])mb.disabled=ta.value.trim().length<20;
-      const bg=$('.badges',card);
-      bg.innerHTML=(ta.value.trim().length>=20?'<span class="bdg w">작성함</span>':'')+
-        (ST.inqHint[i]?'<span class="bdg h">힌트 봄</span>':'')+
-        (ST.inqLock[i]?'<span class="bdg l">모범 답안 열람 · 수정 잠김</span>':'');
+      paintBadges(card,i);
       inqCount();updSteps();
     });
     $('[data-act="hint"]',card).onclick=()=>{
       const p=$('.pane.hint',card),o=p.classList.toggle('open');
-      if(o&&!ST.inqHint[i]){ST.inqHint[i]=true;S.set('inqHint',ST.inqHint);
-        $('.badges',card).insertAdjacentHTML('beforeend','<span class="bdg h">힌트 봄</span>')}
+      if(o&&!ST.inqHint[i]){ST.inqHint[i]=true;S.set('inqHint',ST.inqHint);paintBadges(card,i)}
       sfx('click');
     };
     $('[data-act="model"]',card).onclick=()=>{
@@ -4156,7 +4185,8 @@ function confirmLock(i,card){
   m.className='modal narrow open';m.style.zIndex='90';
   m.innerHTML='<div class="md-h"><h2>모범 답안을 볼까요?</h2></div>'+
     '<div class="md-b"><p style="margin:0;font-size:14px;line-height:1.7;color:var(--fg-2)">'+
-    '모범 답안을 보면 <b style="color:var(--fg)">이 문항의 내 답안은 더 이상 고칠 수 없어요.</b><br>지금 볼까요?</p></div>'+
+    '모범 답안을 보면 <b style="color:var(--fg)">지금까지 쓴 이 문항의 답안은 더 이상 고칠 수 없어요.</b><br>'+
+    '대신 모범 답안 아래에 <b style="color:var(--fg)">✏️ 다시 쓰기 칸</b>이 열려요. 처음 답안과 다시 쓴 답안이 모두 리포트에 인쇄됩니다.<br>지금 볼까요?</p></div>'+
     '<div class="md-f"><button class="btn" data-x>조금 더 써 볼게요</button>'+
     '<button class="btn okc" data-y>모범 답안 보고 잠그기</button></div>';
   document.body.appendChild(m);$('#scrim').classList.add('show');
@@ -4167,7 +4197,11 @@ function confirmLock(i,card){
     close();sfx('ok');inqRender();
     const c=$('.acard[data-i="'+i+'"]');c.classList.add('open');
     $('.pane.model',c).classList.add('open');
+    $('.pane.rev',c).classList.add('open');
     c.scrollIntoView({block:'nearest',behavior:'smooth'});
+    const rt=$('textarea.rtxt',c);
+    if(rt) setTimeout(()=>rt.focus(),200);
+    toast('모범 답안을 열었어요. 아래 ‘다시 쓰기’ 칸에 새로 정리해 보세요');
   };
 }
 function inqCount(){
@@ -4389,7 +4423,7 @@ $('#promptCopy').addEventListener('click',async()=>{
 /* ═══════════ 학습 리포트 · 학습지 ═══════════ */
 let repKind='report';
 const REPDESC={
-  report:'학생이 쓴 답안과 모범 답안을 나란히 싣고, 퀴즈 결과·오답 해설까지 정리해 인쇄합니다.',
+  report:'학생이 쓴 답안·모범 답안·다시 쓴 답안을 나란히 싣고, 퀴즈 결과·오답 해설까지 정리해 인쇄합니다.',
   wrong:'퀴즈에서 틀린 문항만 모아 직접 다시 써 보는 문제로 바꿔 인쇄합니다. 정답과 해설은 맨 끝에 실려요.',
   blank:'답안이 비어 있는 학습지예요. 수업 전 배포나 복습용으로 쓸 수 있고, 아무것도 입력하지 않아도 인쇄됩니다.'};
 $$('#repKind button').forEach(b=>b.onclick=()=>{
@@ -4482,13 +4516,15 @@ function pvReport(){
   if($('#opInq').checked){
     h+='<div class="pv-sec pv-break"><h2>6. 탐구 질문 서술형</h2>';
     INQ.forEach((q,i)=>{
-      const v=(ST.inq[i]||'').trim();
-      const tags=[ST.inqLock[i]?'모범 답안 열람함':(v?'열람 전 스스로 작성':'미작성'),ST.inqHint[i]?'힌트 봄':''].filter(Boolean).join(' · ');
+      const v=(ST.inq[i]||'').trim(),rv=(ST.inqRev[i]||'').trim();
+      const tags=[ST.inqLock[i]?'모범 답안 열람함':(v?'열람 전 스스로 작성':'미작성'),ST.inqHint[i]?'힌트 봄':'',rv?'모범 답안 보고 다시 씀':''].filter(Boolean).join(' · ');
+      const lb=rv?'처음 쓴 답안':'내가 쓴 답안';
       h+='<div class="pv-q"><div class="qh"><span>'+(i+1)+'.</span><span>'+stripTag(q.t)+'</span><span class="tags">'+tags+'</span></div>';
       if($('#opModel').checked){
-        h+='<div class="pv-two"><div class="pv-box"><div class="bt">내가 쓴 답안</div>'+(esc(v)||'—')+'</div>'+
+        h+='<div class="pv-two"><div class="pv-box"><div class="bt">'+lb+'</div>'+(esc(v)||'—')+'</div>'+
           '<div class="pv-box"><div class="bt">모범 답안</div>'+stripTag(q.model)+'</div></div>';
-      }else h+='<div class="pv-box"><div class="bt">내가 쓴 답안</div>'+(esc(v)||'—')+'</div>';
+      }else h+='<div class="pv-box"><div class="bt">'+lb+'</div>'+(esc(v)||'—')+'</div>';
+      if(rv) h+='<div class="pv-box" style="margin-top:2mm"><div class="bt">모범 답안을 보고 다시 쓴 답안</div>'+esc(rv)+'</div>';
       h+='</div>';
     });
     h+='</div>';
@@ -4517,7 +4553,9 @@ function pvBlank(){
   let h='<div class="pv-sec"><h2>탐구 질문 (서술형)</h2>';
   INQ.forEach((q,i)=>{
     h+='<div class="pv-q"><div class="qh"><span>'+(i+1)+'.</span><span>'+stripTag(q.t)+'</span></div>'+
-      '<div class="pv-lines"><div></div><div></div><div></div><div></div><div></div></div></div>';
+      '<div class="pv-lines"><div></div><div></div><div></div><div></div><div></div></div>'+
+      '<div class="bt" style="margin-top:2mm;font-size:8.5pt">모범 답안을 보고 다시 쓴 답안</div>'+
+      '<div class="pv-lines"><div></div><div></div><div></div></div></div>';
   });
   h+='</div><div class="pv-sec pv-break"><h2>확인 문제 (4지선다)</h2>';
   QUIZ.forEach((q,i)=>{
@@ -4592,7 +4630,7 @@ function updSoundIcon(){
   $('#btnSound').setAttribute('aria-pressed',String(ST.snd));
 }
 $('#btnReset').addEventListener('click',()=>{
-  if(!confirm('학번·이름, 조사 노트, 서술형 답안과 모범 답안 열람 잠금, 퀴즈 기록, 분류·배치 결과가 모두 지워져요. 되돌릴 수 없습니다. 지울까요?'))return;
+  if(!confirm('학번·이름, 조사 노트, 서술형 답안·다시 쓴 답안과 모범 답안 열람 잠금, 퀴즈 기록, 분류·배치 결과가 모두 지워져요. 되돌릴 수 없습니다. 지울까요?'))return;
   S.clear();location.reload();
 });
 
