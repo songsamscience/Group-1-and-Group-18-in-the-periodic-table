@@ -47,6 +47,8 @@
   --metal-1:#5A616A; --metal-2:#D7DDE5; --metal-3:#8E96A1; --metal-4:#454B54;
   --rubber-1:#454B54; --rubber-2:#2C3138;
   --bench:#1A2331; --bench-top:#212C3C;
+  --wall-1:#0C1119; --wall-2:#141C28; --refl-c:#FFFFFF;
+  --bench-1:#2A3141; --bench-2:#1D2431; --bench-3:#262E3D;
 
   /* 간격·반지름 — 스케일에 없는 값을 즉흥으로 만들지 않는다 */
   --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:24px; --s7:32px; --s8:40px; --s9:48px;
@@ -89,6 +91,8 @@
   --metal-1:#8C949E; --metal-2:#F2F5F9; --metal-3:#AEB6C0; --metal-4:#6D757F;
   --rubber-1:#6D757F; --rubber-2:#4A5058;
   --bench:#E3E9F1; --bench-top:#EDF1F7;
+  --wall-1:#EAEFF6; --wall-2:#F6F8FB; --refl-c:#5A6678;
+  --bench-1:#C9D2DE; --bench-2:#DCE3EC; --bench-3:#CFD7E2;
   --shadow-float:0 6px 20px -8px rgba(30,44,64,.22);
   --shadow-modal:0 24px 64px -18px rgba(30,44,64,.30);
 }
@@ -1404,6 +1408,25 @@ textarea.field{min-height:100px}
     <stop offset="0" stop-color="#000" stop-opacity=".34"/>
     <stop offset="1" stop-color="#000" stop-opacity="0"/>
   </radialGradient>
+  <!-- 실험실 뒷벽 · 위가 어둡고 아래로 갈수록 조금 밝다 -->
+  <linearGradient id="wallG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0"   stop-color="var(--wall-1)"/>
+    <stop offset="1"   stop-color="var(--wall-2)"/>
+  </linearGradient>
+  <!-- 실험대 상판 · 검은 페놀 수지. 앞으로 올수록 반사가 늘어난다 -->
+  <linearGradient id="benchG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0"    stop-color="var(--bench-1)"/>
+    <stop offset=".22"  stop-color="var(--bench-2)"/>
+    <stop offset="1"    stop-color="var(--bench-3)"/>
+  </linearGradient>
+  <!-- 상판에 비치는 기구의 흐릿한 반사 -->
+  <linearGradient id="reflG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="var(--refl-c)" stop-opacity=".18"/>
+    <stop offset="1" stop-color="var(--refl-c)" stop-opacity="0"/>
+  </linearGradient>
+  <filter id="fFlame" x="-90%" y="-40%" width="280%" height="180%">
+    <feGaussianBlur stdDeviation="2.6"/>
+  </filter>
   <filter id="fGlow" x="-70%" y="-30%" width="240%" height="160%">
     <feGaussianBlur stdDeviation="5"/>
   </filter>
@@ -1450,15 +1473,15 @@ const Learn={
    ═══════════════════════════════════════════════════════════════ */
 const EL={
   Li:{sym:'Li',kr:'리튬',z:3,period:2,grp:1,mass:'6.94',phase:'고체(금속)',mp:'180.5',bp:'1342',
-      dens:'0.534 g/cm³',react:1,flame:'#E8434F',flameKr:'빨간색',
+      dens:'0.534 g/cm³',react:1,flame:'#E5334A',flameKr:'진한 빨간색',
       facts:['모든 금속 중 가장 가벼워요','물 위에 뜬 채로 천천히 반응해요','칼로 자를 수 있을 만큼 무릅니다'],
       use:'리튬 이온 전지, 윤활유'},
   Na:{sym:'Na',kr:'나트륨(소듐)',z:11,period:3,grp:1,mass:'22.990',phase:'고체(금속)',mp:'97.8',bp:'883',
-      dens:'0.968 g/cm³',react:2,flame:'#FFD34D',flameKr:'노란색',
+      dens:'0.968 g/cm³',react:2,flame:'#FFC21A',flameKr:'진한 노란색',
       facts:['자른 단면이 은백색으로 반짝이다 곧 흐려져요','물보다 살짝 가벼워 물에 뜹니다','소금(염화 나트륨)의 성분'],
       use:'가로등(나트륨 램프), 소금·비누 원료'},
   K:{sym:'K',kr:'칼륨(포타슘)',z:19,period:4,grp:1,mass:'39.098',phase:'고체(금속)',mp:'63.5',bp:'759',
-      dens:'0.862 g/cm³',react:3,flame:'#C08BE8',flameKr:'보라색',
+      dens:'0.862 g/cm³',react:3,flame:'#B674DE',flameKr:'연보라색',
       facts:['물과 반응할 때 스스로 불이 붙어요','녹는점이 63.5 ℃로 매우 낮아요','식물의 3대 영양소 중 하나'],
       use:'칼륨 비료, 화약·성냥'},
   He:{sym:'He',kr:'헬륨',z:2,period:1,grp:18,mass:'4.0026',phase:'기체',mp:'-272.2',bp:'-268.9',
@@ -1500,7 +1523,8 @@ function obsText(sym,op){
              :'반응이 매우 <b>격렬해 녹아 공 모양</b>이 되고, <b>스스로 불이 붙습니다.</b>'),
       phenol:'반응이 끝난 물에 페놀프탈레인을 떨어뜨리자 <b>붉게</b> 변했어요. 물이 <b>염기성</b>이 되었습니다.',
       air:'칼로 자른 단면은 <b>은백색 광택</b>이 있지만, 공기 중에 두자 <b>몇 초 만에 흐려집니다.</b> 산소와 반응한 거예요.',
-      light:'이 원소가 들어 있는 시료를 백금선에 묻혀 <b>겉불꽃</b>에 넣으니 <b>'+e.flameKr+'</b> 불꽃이 나타났어요. (불꽃 반응)'
+      light:'이 원소가 들어 있는 시료를 백금선에 묻혀 <b>겉불꽃</b>에 넣으니 불꽃 전체가 <b>'+e.flameKr+'</b>으로 물들었어요. (불꽃 반응)'+
+            (e.sym==='K'?' 칼륨의 연보라는 나트륨의 노란빛에 <b>가려지기 쉬워</b> 코발트 유리를 통해 봅니다.':'')
     }[op]||'';
   }
   return {
@@ -1532,7 +1556,7 @@ const Q7=[
    m1:'리튬 — 리튬 이온 전지 / 나트륨 — 가로등·소금 원료 / 칼륨 — 비료·성냥',
    m18:'헬륨 — 풍선·비행선 / 네온 — 네온사인 / 아르곤 — 형광등·용접 보호 기체'},
   {k:'etc',t:'그 밖의 특징',
-   m1:'<b>칼로 자를 수 있을 만큼 무르고</b> 밀도가 작아요. 반응이 끝난 물에 페놀프탈레인을 넣으면 <b>붉게</b> 변하고, 불꽃 반응 색은 Li 빨강 · Na 노랑 · K 보라입니다.',
+   m1:'<b>칼로 자를 수 있을 만큼 무르고</b> 밀도가 작아요. 반응이 끝난 물에 페놀프탈레인을 넣으면 <b>붉게</b> 변하고, 불꽃 반응 색은 Li 진한 빨강 · Na 진한 노랑 · K 연보라입니다.',
    m18:'<b>무색이고 냄새가 나지 않아요.</b> 방전시키면 He 연한 분홍 · Ne 붉은 주황 · Ar 연보랏빛을 냅니다.'}
 ];
 
@@ -2062,11 +2086,25 @@ function setAttrs(n,o){for(const k in o)n.setAttribute(k,o[k])}
 function svg1(u){return `
 <svg viewBox="0 0 260 200" preserveAspectRatio="xMidYMax meet" role="img" aria-labelledby="t${u} d${u}">
  <title id="t${u}">1족 원소 실험대</title>
- <desc id="d${u}">왼쪽에 등유가 든 갈색 시약병(몸통 지름 66 mm · 전체 높이 110 mm), 가운데에 물을 담은 페트리 접시 아래 접시(지름 90 mm · 높이 15 mm), 오른쪽에 시계 접시(지름 60 mm)가 놓인 실험대.</desc>
- <g><rect x="-20" y="172" width="300" height="40" fill="var(--bench-top)"/>
-    <line x1="-20" y1="172" x2="280" y2="172" stroke="var(--line-2)" stroke-width=".9"/></g>
- <g fill="url(#mContact)"><ellipse cx="44" cy="173.5" rx="38" ry="4.2"/>
-    <ellipse cx="131" cy="174" rx="52" ry="3.6"/><ellipse cx="220" cy="174" rx="36" ry="3.4"/></g>
+ <desc id="d${u}">왼쪽에 등유가 든 무색 투명 시약병(몸통 지름 66 mm · 전체 높이 110 mm), 가운데에 물을 담은 페트리 접시 아래 접시(지름 90 mm · 높이 15 mm), 오른쪽에 시계 접시(지름 60 mm)가 놓인 실험대.</desc>
+ <g>
+   <rect x="-20" y="-14" width="300" height="186" fill="url(#wallG)"/>
+   <rect x="-20" y="172" width="300" height="44" fill="url(#benchG)"/>
+   <line x1="-20" y1="172" x2="280" y2="172" stroke="var(--line-2)" stroke-width=".9"/>
+   <line x1="-20" y1="173.3" x2="280" y2="173.3" stroke="var(--refl-c)" stroke-width=".8" opacity=".16"/>
+ </g>
+ <!-- 상판에 비치는 흐린 반사 + 접촉 그림자(넓고 옅은 층 + 좁고 진한 층) -->
+ <g>
+   <rect x="14" y="172" width="56" height="16" fill="url(#reflG)" opacity=".55"/>
+   <rect x="90" y="172" width="82" height="10" fill="url(#reflG)" opacity=".45"/>
+   <rect x="194" y="172" width="52" height="9" fill="url(#reflG)" opacity=".4"/>
+ </g>
+ <g><ellipse cx="44" cy="174" rx="40" ry="4.6" fill="url(#mContact)"/>
+    <ellipse cx="42" cy="172.8" rx="26" ry="2" fill="#000" opacity=".30"/>
+    <ellipse cx="131" cy="174.4" rx="54" ry="4" fill="url(#mContact)"/>
+    <ellipse cx="131" cy="172.8" rx="40" ry="1.7" fill="#000" opacity=".28"/>
+    <ellipse cx="220" cy="174" rx="38" ry="3.6" fill="url(#mContact)"/>
+    <ellipse cx="220" cy="172.6" rx="26" ry="1.5" fill="#000" opacity=".24"/></g>
 
  <g><clipPath id="cj${u}"><path d="M31 82 H53 V99 L72 117 V163 q0 6 -6 6 H18 q-6 0 -6 -6 V117 L31 99 Z"/></clipPath>
    <g clip-path="url(#cj${u})">
@@ -2104,12 +2142,17 @@ function svg1(u){return `
    <path d="M86 157 H176 V166 q0 6 -6 6 H92 q-6 0 -6 -6 Z"
          fill="url(#mGlassA)" stroke="var(--ap-line)" stroke-width="1.3" stroke-linejoin="round"/>
    <ellipse cx="131" cy="157" rx="45" ry="6.2" fill="none" stroke="var(--ap-line)" stroke-width="1.3"/>
+   <path d="M88.4 160.4 Q90.4 157.4 94.2 158.2 M173.6 160.4 Q171.6 157.4 167.8 158.2"
+         fill="none" stroke="var(--glassy)" stroke-width="1.1" opacity=".55" stroke-linecap="round"/>
    <path d="M92 160 V168" stroke="var(--ap-hi)" stroke-width="1.8" stroke-linecap="round" opacity=".3"/>
+   <path d="M96 158.6 L120 158" stroke="var(--ap-hi)" stroke-width=".9" stroke-linecap="round" opacity=".22"/>
    <g id="b${u}-dropper" opacity="0">
      <path d="M-3 -34 h6 v56 l-2 6 h-2 l-2 -6 Z" fill="url(#mGlassA)" stroke="var(--ap-line)" stroke-width=".9" stroke-linejoin="round"/>
      <path d="M0 -60 c5.4 0 7 6.4 7 13 0 6.6 -2.8 12 -7 12 -4.2 0 -7 -5.4 -7 -12 0 -6.6 1.6 -13 7 -13 Z"
            fill="url(#mRubberA)" stroke="var(--rubber-2)" stroke-width=".8"/>
-     <circle id="b${u}-drop" cx="0" cy="30" r="2.6" fill="var(--phenol)" opacity="0"/></g></g>
+     <circle id="b${u}-drop" cx="0" cy="28" r="2.5" fill="var(--phenol)" opacity="0"/></g>
+   <ellipse id="b${u}-ripple" cx="152" cy="160" rx="3" ry="1" fill="none"
+            stroke="var(--phenol)" stroke-width="1" opacity="0"/></g>
 
  <g id="b${u}-molL" opacity="0">
    <path d="M131 150 V112" stroke="var(--line-2)" stroke-width=".8" stroke-dasharray="3 3" fill="none"/>
@@ -2123,13 +2166,47 @@ function svg1(u){return `
    <path d="M190 162 H250" stroke="var(--ap-line)" stroke-width="1" opacity=".55"/>
    <path d="M196 164.5 Q205 169 212 170.4" fill="none" stroke="var(--ap-hi)" stroke-width="1.6" stroke-linecap="round" opacity=".32"/>
    <g id="b${u}-cut" opacity="0">
-     <path id="b${u}-cutBody" d="M212 160 L228 159 L229.6 168 L213.6 169.2 Z" fill="#79828F"
-           stroke="#5D6672" stroke-width=".6" stroke-linejoin="round"/>
-     <path id="b${u}-cutFace" d="M212 160 L228 159 L229.6 168 L213.6 169.2 Z" fill="url(#mPiece)" opacity="1"/>
-     <path id="b${u}-cutHi" d="M213 161.4 L226.6 160.6" stroke="#FFFFFF" stroke-width="1.2" opacity=".7" stroke-linecap="round"/></g>
+     <!-- 자르기 전 덩어리 (약 16 mm) — 겉면은 이미 산화되어 흐리다 -->
+     <g id="b${u}-lump">
+       <ellipse cx="220" cy="169.1" rx="8.4" ry="1.5" fill="#000" opacity=".26"/>
+       <path d="M212.4 164.2 C213.1 161.6 215.6 160.6 219.8 160.8 C224.4 161 227.4 162 227.8 164.4
+                C228.2 167 226.2 168.4 222.6 168.6 C217.8 168.9 213.6 168.6 212.6 167.2
+                C211.8 166.2 211.9 165 212.4 164.2 Z"
+             fill="#79828F" stroke="#5D6672" stroke-width=".55" stroke-linejoin="round"/>
+       <path d="M214.6 163.4 C216.4 162 219 161.7 221.8 161.9" stroke="#9AA4B0" stroke-width=".9"
+             fill="none" opacity=".5" stroke-linecap="round"/>
+     </g>
+     <!-- 자른 뒤 왼쪽 조각 — 새로 드러난 단면이 은백색으로 반짝인다 -->
+     <g id="b${u}-pieceL" opacity="0">
+       <path d="M212.4 164.2 C213.1 161.6 215.6 160.6 219.7 160.82 L219.7 168.78
+                C216.4 168.88 213.6 168.6 212.6 167.2 C211.8 166.2 211.9 165 212.4 164.2 Z"
+             fill="#79828F" stroke="#5D6672" stroke-width=".55" stroke-linejoin="round"/>
+       <g id="b${u}-faceL">
+         <path d="M219.7 160.82 L219.7 168.78 L217.1 168.6 L217.3 161 Z" fill="url(#mPiece)"/>
+         <path d="M218.9 162 L218.9 167.6" stroke="#FFFFFF" stroke-width="1" opacity=".8" stroke-linecap="round"/>
+       </g>
+     </g>
+     <!-- 자른 뒤 오른쪽 조각 -->
+     <g id="b${u}-pieceR" opacity="0">
+       <path d="M220.3 160.82 C224.4 161 227.4 162 227.8 164.4 C228.2 167 226.2 168.4 222.6 168.6
+                L220.3 168.78 Z"
+             fill="#79828F" stroke="#5D6672" stroke-width=".55" stroke-linejoin="round"/>
+       <g id="b${u}-faceR">
+         <path d="M220.3 160.82 L220.3 168.78 L222.9 168.6 L222.7 161 Z" fill="url(#mPiece)"/>
+         <path d="M221.6 162 L221.6 167.4" stroke="#FFFFFF" stroke-width=".9" opacity=".75" stroke-linecap="round"/>
+       </g>
+     </g>
+   </g>
+   <!-- 칼(스패출러) — 금속 날 · 사면 · 고무 손잡이 -->
    <g id="b${u}-knife" opacity="0">
-     <rect x="205" y="130" width="4" height="26" rx="1" fill="url(#mMetalA)" stroke="var(--metal-4)" stroke-width=".5"/>
-     <rect x="203" y="112" width="8" height="20" rx="2.5" fill="url(#mRubberA)"/></g>
+     <g transform="rotate(-14 221 158)">
+       <rect x="216.6" y="98" width="9" height="26" rx="3.6" fill="url(#mRubberA)"/>
+       <rect x="218" y="122" width="6.2" height="4" rx="1" fill="var(--metal-4)"/>
+       <path d="M218.6 125 H223.8 L222.7 154 H219.7 Z" fill="url(#mMetalA)" stroke="var(--metal-4)" stroke-width=".4" stroke-linejoin="round"/>
+       <path d="M219.7 154 H222.7 L221.2 160.3 Z" fill="var(--metal-2)" stroke="var(--metal-4)" stroke-width=".3" stroke-linejoin="round"/>
+       <path d="M220.9 129 V152" stroke="var(--ap-hi)" stroke-width=".9" opacity=".45" stroke-linecap="round"/>
+     </g>
+   </g>
    <g id="b${u}-luster" opacity="0">
      <text x="220" y="130" text-anchor="middle" font-size="8.4" font-weight="600" fill="var(--text-2)">금속 광택</text>
      <rect x="190" y="134" width="60" height="6" rx="3" fill="var(--line-1)"/>
@@ -2139,11 +2216,26 @@ function svg1(u){return `
  <g id="b${u}-lamp" opacity="0">
    <ellipse cx="214" cy="173" rx="31" ry="3.6" fill="url(#mContact)"/>
    <g id="b${u}-lampFlame" opacity="0">
-     <path d="M213 64 C224 82 228 94 228 101 C228 108 222 112 213 112 C204 112 198 108 198 101 C198 94 202 82 213 64 Z"
-           fill="var(--fl-out,#7FB8EE)" opacity=".38"/>
-     <path d="M213 80 C220 90 223 97 223 102 C223 107 219 110 213 110 C207 110 203 107 203 102 C203 97 206 90 213 80 Z"
-           fill="var(--fl-mid,#CFE9FF)" opacity=".45"/>
-     <ellipse cx="213" cy="103" rx="4.4" ry="5.4" fill="var(--fl-core,#2C4A6B)" opacity=".6"/></g>
+     <!-- 겉불꽃(옅은 청색·가장 뜨겁다) / 속불꽃 / 불꽃심 -->
+     <ellipse cx="213" cy="92" rx="22" ry="30" fill="var(--fl-out,#7FB8EE)" opacity=".14" filter="url(#fGlow)"/>
+     <g id="b${u}-flOut"><path d="M213 62 C225 81 229 94 229 101.5 C229 109 222.5 113 213 113
+             C203.5 113 197 109 197 101.5 C197 94 201 81 213 62 Z"
+           fill="var(--fl-out,#7FB8EE)" opacity=".40" filter="url(#fFlame)"/></g>
+     <g id="b${u}-flMid"><path d="M213 79 C220.5 90 223.5 97 223.5 102 C223.5 107.5 219 111 213 111
+             C207 111 202.5 107.5 202.5 102 C202.5 97 205.5 90 213 79 Z"
+           fill="var(--fl-mid,#CFE9FF)" opacity=".46"/></g>
+     <ellipse id="b${u}-flCore" cx="213" cy="103.5" rx="4.4" ry="5.6" fill="var(--fl-core,#2C4A6B)" opacity=".62"/>
+     <!-- 불꽃 반응색 — 시료가 들어가면 불꽃 전체가 원소 고유의 색으로 물든다 -->
+     <g id="b${u}-flTint" opacity="0">
+       <ellipse cx="211" cy="80" rx="28" ry="38" fill="var(--flame,#FFC21A)" opacity=".20" filter="url(#fGlow)"/>
+       <path d="M211 38 C226 66 232 89 232 100 C232 111 223 117 212 117
+                C201 117 192 111 192 100 C192 89 199 64 211 38 Z"
+             fill="var(--flame,#FFC21A)" opacity=".46" filter="url(#fFlame)"/>
+       <path d="M211 56 C220 76 224.5 91 224.5 100 C224.5 108.5 219 113 211.5 113
+                C204 113 198.5 108.5 198.5 100 C198.5 91 203 76 211 56 Z"
+             fill="var(--flame,#FFC21A)" opacity=".78"/>
+       <ellipse cx="207" cy="75" rx="5" ry="5.6" fill="#FFFFFF" opacity=".55" filter="url(#fSoft)"/>
+     </g></g>
    <g id="b${u}-wire" opacity="0">
      <rect x="172" y="48" width="16" height="5.4" rx="2.7" fill="url(#mRubberA)"/>
      <path d="M187 51 L206 74" stroke="url(#mMetalA)" stroke-width="1.4" stroke-linecap="round"/>
@@ -2169,10 +2261,23 @@ function svg18(u,sym){return `
 <svg viewBox="0 0 260 200" preserveAspectRatio="xMidYMax meet" role="img" aria-labelledby="t${u} d${u}">
  <title id="t${u}">18족 원소 실험대</title>
  <desc id="d${u}">왼쪽에 기체가 든 실험용 가스 실린더(지름 44 mm · 높이 124 mm), 가운데에 1족 실험대와 똑같은 위치의 물을 담은 페트리 접시(지름 90 mm), 오른쪽에 받침 위에 세운 방전관(관 지름 14 mm · 길이 112 mm)이 놓인 실험대.</desc>
- <g><rect x="-20" y="172" width="300" height="40" fill="var(--bench-top)"/>
-    <line x1="-20" y1="172" x2="280" y2="172" stroke="var(--line-2)" stroke-width=".9"/></g>
- <g fill="url(#mContact)"><ellipse cx="42" cy="173.5" rx="30" ry="4"/>
-    <ellipse cx="131" cy="174" rx="52" ry="3.6"/><ellipse cx="220" cy="174" rx="30" ry="3.4"/></g>
+ <g>
+   <rect x="-20" y="-14" width="300" height="186" fill="url(#wallG)"/>
+   <rect x="-20" y="172" width="300" height="44" fill="url(#benchG)"/>
+   <line x1="-20" y1="172" x2="280" y2="172" stroke="var(--line-2)" stroke-width=".9"/>
+   <line x1="-20" y1="173.3" x2="280" y2="173.3" stroke="var(--refl-c)" stroke-width=".8" opacity=".16"/>
+ </g>
+ <g>
+   <rect x="20" y="172" width="44" height="16" fill="url(#reflG)" opacity=".55"/>
+   <rect x="90" y="172" width="82" height="10" fill="url(#reflG)" opacity=".45"/>
+   <rect x="200" y="172" width="42" height="12" fill="url(#reflG)" opacity=".45"/>
+ </g>
+ <g><ellipse cx="42" cy="174" rx="32" ry="4.4" fill="url(#mContact)"/>
+    <ellipse cx="42" cy="172.8" rx="23" ry="2" fill="#000" opacity=".30"/>
+    <ellipse cx="131" cy="174.4" rx="54" ry="4" fill="url(#mContact)"/>
+    <ellipse cx="131" cy="172.8" rx="40" ry="1.7" fill="#000" opacity=".28"/>
+    <ellipse cx="220" cy="174" rx="32" ry="3.6" fill="url(#mContact)"/>
+    <ellipse cx="220" cy="172.6" rx="22" ry="1.5" fill="#000" opacity=".26"/></g>
 
  <g><path d="M20 172 V88 C20 74 27 66 42 64 C57 66 64 74 64 88 V172 Z"
         fill="url(#mMetalA)" stroke="var(--metal-4)" stroke-width="1.4" stroke-linejoin="round"/>
@@ -2195,12 +2300,17 @@ function svg18(u,sym){return `
    <path d="M86 157 H176 V166 q0 6 -6 6 H92 q-6 0 -6 -6 Z"
          fill="url(#mGlassA)" stroke="var(--ap-line)" stroke-width="1.3" stroke-linejoin="round"/>
    <ellipse cx="131" cy="157" rx="45" ry="6.2" fill="none" stroke="var(--ap-line)" stroke-width="1.3"/>
+   <path d="M88.4 160.4 Q90.4 157.4 94.2 158.2 M173.6 160.4 Q171.6 157.4 167.8 158.2"
+         fill="none" stroke="var(--glassy)" stroke-width="1.1" opacity=".55" stroke-linecap="round"/>
    <path d="M92 160 V168" stroke="var(--ap-hi)" stroke-width="1.8" stroke-linecap="round" opacity=".3"/>
+   <path d="M96 158.6 L120 158" stroke="var(--ap-hi)" stroke-width=".9" stroke-linecap="round" opacity=".22"/>
    <g id="b${u}-dropper" opacity="0">
      <path d="M-3 -34 h6 v56 l-2 6 h-2 l-2 -6 Z" fill="url(#mGlassA)" stroke="var(--ap-line)" stroke-width=".9" stroke-linejoin="round"/>
      <path d="M0 -60 c5.4 0 7 6.4 7 13 0 6.6 -2.8 12 -7 12 -4.2 0 -7 -5.4 -7 -12 0 -6.6 1.6 -13 7 -13 Z"
            fill="url(#mRubberA)" stroke="var(--rubber-2)" stroke-width=".8"/>
-     <circle id="b${u}-drop" cx="0" cy="30" r="2.6" fill="var(--phenol)" opacity="0"/></g></g>
+     <circle id="b${u}-drop" cx="0" cy="28" r="2.5" fill="var(--phenol)" opacity="0"/></g>
+   <ellipse id="b${u}-ripple" cx="152" cy="160" rx="3" ry="1" fill="none"
+            stroke="var(--glassy)" stroke-width="1" opacity="0"/></g>
 
  <g id="b${u}-molL" opacity="0">
    <path id="b${u}-molLine" d="M131 150 V112" stroke="var(--line-2)" stroke-width=".8" stroke-dasharray="3 3" fill="none"/>
@@ -2312,10 +2422,12 @@ function resetScene(u){
   clearPool(u);
   if(s.kind===1){
     s.shrink=1;s.pink=0;s.tarnish=0;s.slot='watch';
-    ['piece','cut','knife','flame','dropper','lamp','lampFlame','wire','luster','molL','pieceBall']
-      .forEach(n=>{const e=B(u,n);if(e)e.setAttribute('opacity','0')});
-    ['watch','pieceBody','cutFace'].forEach(n=>{const e=B(u,n);if(e)e.setAttribute('opacity','1')});
-    const hi=B(u,'cutHi'); if(hi)hi.setAttribute('opacity','.7');
+    s.__cut=0;
+    ['piece','cut','knife','flame','dropper','lamp','lampFlame','wire','luster','molL','pieceBall',
+     'pieceL','pieceR','flTint','ripple'].forEach(n=>{const e=B(u,n);if(e)e.setAttribute('opacity','0')});
+    ['watch','pieceBody','lump','faceL','faceR'].forEach(n=>{const e=B(u,n);if(e)e.setAttribute('opacity','1')});
+    ['lump','pieceL','pieceR','knife','flOut','flMid','flTint'].forEach(n=>{
+      const e=B(u,n); if(e)e.removeAttribute('transform')});
     const sl=B(u,'slotLabel'); if(sl)sl.textContent='공기 중 관찰';
     const tt=document.querySelector('.bench[data-u="'+u+'"] .tool-tag'); if(tt)tt.textContent='시계 접시';
     const lb=B(u,'lusterBar'); if(lb)lb.setAttribute('width','60');
@@ -2411,7 +2523,7 @@ function setConcl(op){
       water:'같은 1족이라도 반응의 세기는 <b>Li &lt; Na &lt; K</b> — 아래로 갈수록 격렬해집니다. 그래도 <b>셋 다 수소 기체를 냈어요.</b>',
       phenol:'세 원소 모두 반응이 끝난 물이 <b>붉게</b> 변했어요. 셋 다 물을 <b>염기성</b>으로 바꿉니다.',
       air:'세 원소 모두 자른 면의 <b>광택이 사라졌어요.</b> 셋 다 산소와 잘 반응합니다.',
-      light:'불꽃 반응 색은 <b>Li 빨강 · Na 노랑 · K 보라</b>로 저마다 다릅니다. <b>색은 달라도 반응하는 방식은 같아요.</b>'
+      light:'불꽃 반응 색은 <b>Li 진한 빨강 · Na 진한 노랑 · K 연보라</b>로 저마다 다릅니다. <b>색은 달라도 반응하는 방식은 같아요.</b>'
     }:{
       water:'세 원소 모두 <b>반응하지 않았어요.</b> 기포가 물에 녹지 않고 그대로 빠져나갑니다.',
       phenol:'세 원소 모두 물이 <b>무색 그대로</b>예요. 물의 성질을 바꾸지 않습니다.',
@@ -2480,50 +2592,110 @@ function step1(u,s,dt){
   else if(s.mode==='phenol'){
     piece.setAttribute('opacity','0'); B(u,'flame').setAttribute('opacity','0');
     B(u,'molL').setAttribute('opacity',Math.max(0,1-t*1.6).toFixed(2)); hiss(false);
-    const d=B(u,'dropper'), drop=B(u,'drop'), k=ease(Math.min(1,t/.55));
-    d.setAttribute('opacity','1');
-    d.setAttribute('transform','translate(152,'+(74+(DISH.surf-40-74)*k).toFixed(1)+')');
-    if(t>.6&&t<1.05){drop.setAttribute('opacity','1');drop.setAttribute('cy',(30+(t-.6)*120).toFixed(1))}
-    else drop.setAttribute('opacity','0');
-    if(t>1.0){
-      if((ST.runs[s.sym]||{}).water)s.pink=Math.min(1,s.pink+dt*.85);
-      paintWater(u,s.pink);
-      if(t>1.1&&t<1.2)sfx('ok');
-    }
-    if(t>2.6)d.setAttribute('opacity',Math.max(0,1-(t-2.6)*2).toFixed(2));
-    if(t>3.2&&!s.done){s.done=true;d.setAttribute('opacity','0')}
+    dropperStep(u,s,t,dt,true);
   }
-  else if(s.mode==='air'){
-    const kn=B(u,'knife'), cut=B(u,'cut');
-    if(t<1.2){
-      const k=ease(Math.min(1,t/.5));
-      kn.setAttribute('opacity','1');
-      kn.setAttribute('transform','translate(14,'+(-46+46*k).toFixed(1)+')');
-      if(t>.5){cut.setAttribute('opacity','1');B(u,'luster').setAttribute('opacity','1')}
-    }else{
-      kn.setAttribute('opacity',Math.max(0,1-(t-1.2)*2.4).toFixed(2));
-      cut.setAttribute('opacity','1'); B(u,'luster').setAttribute('opacity','1');
-      s.tarnish=Math.min(1,(t-1.2)/4.2);
-      const v=1-s.tarnish;
-      B(u,'cutFace').setAttribute('opacity',v.toFixed(3));
-      B(u,'cutHi').setAttribute('opacity',(.7*v).toFixed(3));
-      B(u,'lusterBar').setAttribute('width',Math.max(2,60*v).toFixed(1));
-      B(u,'lusterVal').textContent=Math.round(v*100)+' %';
-      if(s.tarnish>=1&&!s.done){s.done=true;sfx('done');
-        setObs(+u,obsText(s.sym,'air')+' 지금 광택은 <b>0 %</b>예요.');updateLive()}
-    }
-  }
+  else if(s.mode==='air') cutStep(u,s,t);
   else if(s.mode==='light'){
-    B(u,'lampFlame').setAttribute('opacity',Math.min(1,t/.5).toFixed(2));
+    const fl=B(u,'lampFlame');
+    fl.setAttribute('opacity',Math.min(1,t/.5).toFixed(2));
+    /* 불꽃 흔들림 — 두 주파수를 섞어 규칙적으로 보이지 않게 한다 */
+    const f=Math.sin(t*9.2)*.5+Math.sin(t*5.7)*.32;
+    flick(B(u,'flOut'),f*1.0,1+f*.055,213,113);
+    flick(B(u,'flMid'),f*.6,1+f*.04,213,111);
+    B(u,'flCore').setAttribute('ry',(5.6+f*.5).toFixed(2));
     if(t>.6){
       const w=B(u,'wire'), k=ease(Math.min(1,(t-.6)/.7));
       w.setAttribute('opacity','1');
       w.setAttribute('transform','translate('+(-30+30*k).toFixed(1)+','+(-22+22*k).toFixed(1)+')');
-      if(t>1.3){const p=.72+Math.sin(t*7)*.14;
-        B(u,'bead').setAttribute('r',(3.2+p*1.6).toFixed(2));
-        B(u,'bead').setAttribute('opacity',p.toFixed(2))}
+      if(t>1.25){
+        /* 시료가 겉불꽃에 닿으면 불꽃 전체가 원소 고유의 색으로 물든다 */
+        const a=Math.min(1,(t-1.25)/.7), tint=B(u,'flTint');
+        tint.setAttribute('opacity',(a*(.80+f*.10)).toFixed(3));
+        flick(tint,f*1.3,1+f*.06,211,117);
+        const pz=.74+Math.sin(t*7)*.13;
+        B(u,'bead').setAttribute('r',(3.2+pz*1.5).toFixed(2));
+        B(u,'bead').setAttribute('opacity',pz.toFixed(2));
+      }
     }
-    if(t>5.5&&!s.done)s.done=true;
+    if(t>6&&!s.done)s.done=true;
+  }
+}
+/* 불꽃 요소를 밑동을 기준으로 흔든다 */
+function flick(el,dx,sy,ox,oy){
+  if(!el)return;
+  el.setAttribute('transform','translate('+(ox+dx).toFixed(2)+','+oy+') scale(1,'+sy.toFixed(3)+
+    ') translate('+(-ox)+','+(-oy)+')');
+}
+/* 스포이트 — 방울은 수면에서 멈추고 파문을 남긴다 */
+function dropperStep(u,s,t,dt,react){
+  const d=B(u,'dropper'), drop=B(u,'drop'), rip=B(u,'ripple');
+  const DY0=64, DY1=106, TIP=28, HIT=DISH.surf-DY1;   /* 방울이 닿는 지점(로컬 좌표) */
+  const k=ease(Math.min(1,t/.5));
+  d.setAttribute('opacity','1');
+  d.setAttribute('transform','translate(152,'+(DY0+(DY1-DY0)*k).toFixed(1)+')');
+  if(t>.55&&t<.9){
+    const q=(t-.55)/.35;
+    drop.setAttribute('opacity','1');
+    drop.setAttribute('cy',(TIP+(HIT-TIP)*q*q).toFixed(1));   /* 자유 낙하 가속 */
+    drop.setAttribute('r',(2.5+q*.6).toFixed(2));
+  }else drop.setAttribute('opacity','0');
+  if(t>=.9&&t<1.5){
+    const q=(t-.9)/.6;
+    rip.setAttribute('opacity',(1-q).toFixed(2));
+    rip.setAttribute('rx',(3+q*22).toFixed(1)); rip.setAttribute('ry',(1+q*3).toFixed(1));
+  }else rip.setAttribute('opacity','0');
+  if(t>.9){
+    if(react&&(ST.runs[s.sym]||{}).water)s.pink=Math.min(1,s.pink+dt*.9);
+    paintWater(u,s.pink);
+    if(t>.92&&t<1.02)sfx('ok');
+  }
+  if(t>2.4)d.setAttribute('opacity',Math.max(0,1-(t-2.4)*2).toFixed(2));
+  if(t>3.0&&!s.done){s.done=true;d.setAttribute('opacity','0')}
+}
+/* 자르기 — 덩어리를 올림 → 칼이 내려와 누름 → 두 조각으로 갈라짐 → 새 단면이 흐려짐 */
+function cutStep(u,s,t){
+  const kn=B(u,'knife'), cut=B(u,'cut'), lump=B(u,'lump'),
+        pL=B(u,'pieceL'), pR=B(u,'pieceR'), lus=B(u,'luster');
+  cut.setAttribute('opacity','1');
+  if(t<.55){                                  /* 등유병에서 꺼내 시계 접시에 올린다 */
+    const k=ease(Math.min(1,t/.45));
+    lump.setAttribute('opacity','1');
+    lump.setAttribute('transform','translate(0,'+(-24*(1-k)).toFixed(1)+')');
+    kn.setAttribute('opacity','0'); lus.setAttribute('opacity','0');
+  }else if(t<1.1){                            /* 칼이 비스듬히 내려온다 */
+    const k=ease((t-.55)/.55);
+    lump.removeAttribute('transform');
+    kn.setAttribute('opacity','1');
+    kn.setAttribute('transform','translate('+(9*(1-k)).toFixed(1)+','+(-44*(1-k)).toFixed(1)+')');
+  }else if(t<1.45){                           /* 눌러 자른다 */
+    const k=(t-1.1)/.35;
+    kn.setAttribute('transform','translate(0,'+(k*2.2).toFixed(2)+')');
+    lump.setAttribute('transform','translate(0,'+(k*.45).toFixed(2)+')');
+    if(!s.__cut&&k>.65){s.__cut=1;sfx('flip')}
+  }else if(t<1.95){                           /* 두 조각이 갈라지며 단면이 드러난다 */
+    /* 회전축은 접시에 닿아 있는 바깥쪽 밑 모서리(L 212.4/168.5 · R 227.8/168.5).
+       축은 제자리에 두고 안쪽(잘린 면)만 들리므로 조각이 접시를 뚫지 않는다.
+       옆으로 미끄러질 때는 오목면이 올라오는 만큼(약 0.11 mm/mm) 함께 올려 준다. */
+    const k=ease((t-1.45)/.5);
+    lump.setAttribute('opacity','0');
+    pL.setAttribute('opacity','1'); pR.setAttribute('opacity','1');
+    pL.setAttribute('transform','translate('+(-2.6*k).toFixed(2)+','+(-0.3*k).toFixed(2)+
+      ') rotate('+(-13*k).toFixed(1)+' 212.4 168.5)');
+    pR.setAttribute('transform','translate('+(2.4*k).toFixed(2)+','+(-0.28*k).toFixed(2)+
+      ') rotate('+(11*k).toFixed(1)+' 227.8 168.5)');
+    kn.setAttribute('transform','translate('+(3*k).toFixed(1)+','+(2.2-30*k).toFixed(1)+')');
+    kn.setAttribute('opacity',(1-k).toFixed(2));
+    lus.setAttribute('opacity',k.toFixed(2));
+  }else{                                      /* 산소와 반응해 광택이 사라진다 */
+    kn.setAttribute('opacity','0'); lus.setAttribute('opacity','1');
+    s.tarnish=Math.min(1,(t-1.95)/4.3);
+    const v=1-s.tarnish;
+    B(u,'faceL').setAttribute('opacity',v.toFixed(3));
+    B(u,'faceR').setAttribute('opacity',v.toFixed(3));
+    B(u,'lusterBar').setAttribute('width',Math.max(2,60*v).toFixed(1));
+    B(u,'lusterVal').textContent=Math.round(v*100)+' %';
+    if(s.tarnish>=1&&!s.done){s.done=true;sfx('done');
+      setObs(+u,obsText(s.sym,'air')+' 지금 광택은 <b>0 %</b>예요.');updateLive()}
   }
 }
 function spawnBubble(u,x){
@@ -2540,11 +2712,24 @@ function spawnMol1(u,x){
 function drawFlame(u,x,y,r,tt){
   const g=B(u,'flame'), e=EL[SC[u].sym];
   g.setAttribute('opacity','1');
-  const h=(r===3?16:10)+Math.sin(tt*9)*2.4, w=(r===3?7:4.6)+Math.sin(tt*11)*.7;
-  g.innerHTML='<ellipse cx="'+x.toFixed(1)+'" cy="'+(y-h*.55).toFixed(1)+'" rx="'+w.toFixed(1)+
-    '" ry="'+h.toFixed(1)+'" fill="'+e.flame+'" opacity=".42" filter="url(#fSoft)"/>'+
-    '<ellipse cx="'+x.toFixed(1)+'" cy="'+(y-h*.42).toFixed(1)+'" rx="'+(w*.5).toFixed(1)+
-    '" ry="'+(h*.62).toFixed(1)+'" fill="'+e.flame+'" opacity=".7"/>';
+  const f=Math.sin(tt*10.5)*.5+Math.sin(tt*6.3)*.34;
+  const h=(r===3?20:12)+f*3, w=(r===3?7.6:5)+f*.9, sway=Math.sin(tt*4.8)*1.6;
+  const tear=(ww,hh,sw)=>'M'+(x+sw).toFixed(1)+' '+(y-hh).toFixed(1)+
+    ' C'+(x+ww*.95).toFixed(1)+' '+(y-hh*.52).toFixed(1)+' '+(x+ww).toFixed(1)+' '+(y-hh*.18).toFixed(1)+
+      ' '+(x+ww).toFixed(1)+' '+(y-hh*.02).toFixed(1)+
+    ' C'+(x+ww).toFixed(1)+' '+(y+hh*.17).toFixed(1)+' '+(x+ww*.52).toFixed(1)+' '+(y+hh*.25).toFixed(1)+
+      ' '+x.toFixed(1)+' '+(y+hh*.25).toFixed(1)+
+    ' C'+(x-ww*.52).toFixed(1)+' '+(y+hh*.25).toFixed(1)+' '+(x-ww).toFixed(1)+' '+(y+hh*.17).toFixed(1)+
+      ' '+(x-ww).toFixed(1)+' '+(y-hh*.02).toFixed(1)+
+    ' C'+(x-ww).toFixed(1)+' '+(y-hh*.18).toFixed(1)+' '+(x-ww*.95).toFixed(1)+' '+(y-hh*.52).toFixed(1)+
+      ' '+(x+sw).toFixed(1)+' '+(y-hh).toFixed(1)+' Z';
+  g.innerHTML=
+    '<ellipse cx="'+x.toFixed(1)+'" cy="'+(y-h*.34).toFixed(1)+'" rx="'+(w*2.3).toFixed(1)+
+      '" ry="'+(h*.95).toFixed(1)+'" fill="'+e.flame+'" opacity=".18" filter="url(#fGlow)"/>'+
+    '<path d="'+tear(w,h,sway)+'" fill="'+e.flame+'" opacity=".5" filter="url(#fFlame)"/>'+
+    '<path d="'+tear(w*.54,h*.62,sway*.6)+'" fill="'+e.flame+'" opacity=".86"/>'+
+    '<ellipse cx="'+x.toFixed(1)+'" cy="'+(y-h*.04).toFixed(1)+'" rx="'+(w*.34).toFixed(1)+
+      '" ry="'+(h*.15).toFixed(1)+'" fill="#FFFFFF" opacity=".5"/>';
 }
 
 /* ═══════════ 18족 벤치 ═══════════ */
@@ -2560,15 +2745,7 @@ function step18(u,s,dt){
     if(s.mols.length<4&&t>.6&&Math.random()<.07) spawnMol18(u,104,DISH.surf-8,-1);
     if(t>8&&!s.done)s.done=true;
   }
-  else if(s.mode==='phenol'){
-    const d=B(u,'dropper'), drop=B(u,'drop'), k=ease(Math.min(1,t/.55));
-    d.setAttribute('opacity','1');
-    d.setAttribute('transform','translate(152,'+(74+(DISH.surf-40-74)*k).toFixed(1)+')');
-    if(t>.6&&t<1.05){drop.setAttribute('opacity','1');drop.setAttribute('cy',(30+(t-.6)*120).toFixed(1))}
-    else drop.setAttribute('opacity','0');
-    if(t>2.6)d.setAttribute('opacity',Math.max(0,1-(t-2.6)*2).toFixed(2));
-    if(t>3.2&&!s.done){s.done=true;d.setAttribute('opacity','0')}
-  }
+  else if(s.mode==='phenol') dropperStep(u,s,t,dt,false);
   else if(s.mode==='air'){
     /* 밸브를 열어 공기 중으로 내보낸다. 공기(1.29 g/L)보다 가벼우면 위로, 무거우면 아래로 */
     const up=parseFloat(e.dens)<1.29;
@@ -3120,7 +3297,7 @@ function renderHelp(){
   <h3 class="t-sub" style="margin:24px 0 8px">화면에 쓴 기구의 규격</h3>
   <p class="t-meta" style="line-height:1.7">
     실험 장면은 <b>1 SVG 유닛 = 1 mm</b> 좌표로 그렸습니다.<br>
-    · 갈색 시약병(등유 보관) — 몸통 지름 66 mm × 전체 높이 110 mm<br>
+    · 무색 투명 시약병(등유 보관) — 몸통 지름 66 mm × 전체 높이 110 mm · 안에 든 금속 조각이 보이도록 투명 유리를 씁니다<br>
     · 페트리 접시 아래 접시 — 지름 90 mm × 높이 15 mm (관찰을 위해 뚜껑을 벗긴 상태)<br>
     · 시계 접시 — 지름 60 mm<br>
     · 스포이트 — 유리관 지름 6 mm × 길이 90 mm, 고무 젖꼭지 25 mm<br>
@@ -3135,7 +3312,8 @@ function renderHelp(){
     · 녹는점·끓는점·밀도는 대한화학회 표준 주기율표(2018)와 CRC Handbook의 값입니다.<br>
     · 1족 금속과 물의 반응은 실제로 위험해 <b>교사 시범 실험</b>으로만 진행합니다. 칼륨은 스스로 불이 붙습니다.<br>
     · 18족은 <b>거의</b> 반응하지 않습니다. 제논(Xe) 같은 무거운 원소는 특별한 조건에서 화합물을 만들기도 합니다.<br>
-    · 방전관의 빛은 화학 반응이 아니라 <b>전기 방전</b>으로 나오는 빛입니다.</p>
+    · 방전관의 빛은 화학 반응이 아니라 <b>전기 방전</b>으로 나오는 빛입니다.<br>
+    · <b>불꽃 반응</b>은 금속 원자가 열을 받아 들뜬 상태가 되었다가 바닥 상태로 돌아오며 원소 고유의 빛을 내는 현상입니다. 금속 자체를 가열해도 같은 색이 나타나지만, 순수한 1족 금속은 위험해 학교에서는 <b>그 원소가 든 화합물 수용액</b>을 백금선에 묻혀 씁니다. 칼륨의 연보라(404·767 nm)는 나트륨의 노랑(589 nm)에 가려지기 쉬워 <b>코발트 유리</b>를 통해 봅니다.</p>
 
   <h3 class="t-sub" style="margin:24px 0 8px">수업 정보</h3>
   <p class="t-meta" style="line-height:1.7">
