@@ -2112,13 +2112,19 @@ function svg1(u){return `
      <rect x="10" y="134" width="64" height="4" fill="var(--kero)" opacity=".55"/></g>
    <path d="M12 134 Q42 137.5 72 134" fill="none" stroke="var(--kero)" stroke-width="1.1" opacity=".9"/>
    <g clip-path="url(#cj${u})">
-     <rect x="22" y="140" width="13" height="8" rx="2" fill="url(#mPiece)" stroke="var(--metal-1)" stroke-width=".5"/>
-     <rect x="47" y="146" width="11" height="7" rx="2" fill="url(#mPiece)" stroke="var(--metal-1)" stroke-width=".5"/></g>
+     <rect id="b${u}-stored1" x="36" y="140" width="12" height="8" rx="2" fill="url(#mPiece)"
+           stroke="var(--metal-1)" stroke-width=".5"/>
+     <rect x="18" y="150" width="11" height="7" rx="2" fill="url(#mPiece)" stroke="var(--metal-1)" stroke-width=".5"/>
+     <rect x="55" y="152" width="10" height="6.4" rx="2" fill="url(#mPiece)" stroke="var(--metal-1)" stroke-width=".5"/></g>
    <path d="M29 80 H55 V98 L74 116 V164 q0 8 -8 8 H18 q-8 0 -8 -8 V116 L29 98 Z"
          fill="url(#mGlassA)" stroke="var(--ap-line)" stroke-width="1.5" stroke-linejoin="round"/>
    <path d="M27.4 80 H56.6" stroke="var(--ap-line)" stroke-width="2.2" stroke-linecap="round"/>
-   <path d="M29 70 H55 L53 80 H31 Z" fill="url(#mGlassA)" stroke="var(--ap-line)" stroke-width="1.4" stroke-linejoin="round"/>
-   <rect x="25" y="62" width="34" height="9" rx="3" fill="url(#mGlassA)" stroke="var(--ap-line)" stroke-width="1.4"/>
+   <!-- 유리 마개 — 실험을 시작하면 열어 실험대 옆에 세워 둔다 -->
+   <g id="b${u}-stopper">
+     <path d="M29 70 H55 L53 80 H31 Z" fill="url(#mGlassA)" stroke="var(--ap-line)" stroke-width="1.4" stroke-linejoin="round"/>
+     <rect x="25" y="62" width="34" height="9" rx="3" fill="url(#mGlassA)" stroke="var(--ap-line)" stroke-width="1.4"/>
+     <path d="M28.6 64.4 H36" stroke="var(--ap-hi)" stroke-width="1.6" opacity=".35" stroke-linecap="round"/>
+   </g>
    <path d="M16 124 V158" stroke="var(--ap-hi)" stroke-width="2.6" stroke-linecap="round" opacity=".34"/>
    <path d="M70 130 V152" stroke="var(--ap-hi)" stroke-width="1.1" stroke-linecap="round" opacity=".14"/>
    <rect x="20" y="152" width="44" height="15" rx="1.6" fill="var(--surface-1)" opacity=".9"/>
@@ -2153,6 +2159,22 @@ function svg1(u){return `
      <circle id="b${u}-drop" cx="0" cy="28" r="2.5" fill="var(--phenol)" opacity="0"/></g>
    <ellipse id="b${u}-ripple" cx="152" cy="160" rx="3" ry="1" fill="none"
             stroke="var(--phenol)" stroke-width="1" opacity="0"/></g>
+
+ <!-- 집게 — 등유 속 금속을 꺼내 페트리 접시로 옮긴다. 끝점이 원점(0,0) -->
+ <g id="b${u}-tongs" opacity="0">
+   <g id="b${u}-tongL">
+     <path d="M-5.5 0 C-5.2 -30 -4.3 -70 -2.4 -117 L-1.0 -117 C-2.7 -70 -3.4 -30 -3.7 -0.4 Z"
+           fill="url(#mMetalA)" stroke="var(--metal-4)" stroke-width=".35" stroke-linejoin="round"/>
+     <path d="M-4.7 -14 C-4.3 -46 -3.5 -82 -2.3 -110" fill="none" stroke="var(--ap-hi)"
+           stroke-width=".7" opacity=".45" stroke-linecap="round"/>
+   </g>
+   <g id="b${u}-tongR">
+     <path d="M5.5 0 C5.2 -30 4.3 -70 2.4 -117 L1.0 -117 C2.7 -70 3.4 -30 3.7 -0.4 Z"
+           fill="url(#mMetalA)" stroke="var(--metal-4)" stroke-width=".35" stroke-linejoin="round"/>
+   </g>
+   <path d="M-2.6 -117 Q0 -123.6 2.6 -117" fill="none" stroke="var(--metal-3)"
+         stroke-width="2.8" stroke-linecap="round"/>
+ </g>
 
  <g id="b${u}-molL" opacity="0">
    <path d="M131 150 V112" stroke="var(--line-2)" stroke-width=".8" stroke-dasharray="3 3" fill="none"/>
@@ -2422,12 +2444,12 @@ function resetScene(u){
   clearPool(u);
   if(s.kind===1){
     s.shrink=1;s.pink=0;s.tarnish=0;s.slot='watch';
-    s.__cut=0;
+    s.__cut=0; s.__grip=0; s.__plop=0;
     ['piece','cut','knife','flame','dropper','lamp','lampFlame','wire','luster','molL','pieceBall',
-     'pieceL','pieceR','flTint','ripple'].forEach(n=>{const e=B(u,n);if(e)e.setAttribute('opacity','0')});
-    ['watch','pieceBody','lump','faceL','faceR'].forEach(n=>{const e=B(u,n);if(e)e.setAttribute('opacity','1')});
-    ['lump','pieceL','pieceR','knife','flOut','flMid','flTint'].forEach(n=>{
-      const e=B(u,n); if(e)e.removeAttribute('transform')});
+     'pieceL','pieceR','flTint','ripple','tongs'].forEach(n=>{const e=B(u,n);if(e)e.setAttribute('opacity','0')});
+    ['watch','pieceBody','lump','faceL','faceR','stored1'].forEach(n=>{const e=B(u,n);if(e)e.setAttribute('opacity','1')});
+    ['lump','pieceL','pieceR','knife','flOut','flMid','flTint','stopper','tongs','tongL','tongR','stored1']
+      .forEach(n=>{const e=B(u,n); if(e)e.removeAttribute('transform')});
     const sl=B(u,'slotLabel'); if(sl)sl.textContent='공기 중 관찰';
     const tt=document.querySelector('.bench[data-u="'+u+'"] .tool-tag'); if(tt)tt.textContent='시계 접시';
     const lb=B(u,'lusterBar'); if(lb)lb.setAttribute('width','60');
@@ -2557,14 +2579,11 @@ function step(u,dt){const s=SC[u];if(!s)return;s.t+=dt;(s.kind===1?step1:step18)
 function step1(u,s,dt){
   const e=EL[s.sym], t=s.t, piece=B(u,'piece');
   if(s.mode==='water'){
-    const fly=Math.min(1,t/.75), k=ease(fly);
-    if(fly<1){
-      const x=30+(DISH.cx-30)*k, y=150+(DISH.surf-3-150)*k-Math.sin(k*Math.PI)*34;
+    if(t<INTRO_END){ waterIntro(u,s,t*ISPEED); return }
+    {
+      B(u,'tongs').setAttribute('opacity','0');
       piece.setAttribute('opacity','1');
-      piece.setAttribute('transform','translate('+x.toFixed(1)+','+y.toFixed(1)+') rotate('+(k*140).toFixed(0)+')');
-    }else{
-      piece.setAttribute('opacity','1');
-      const tt=t-.75, r=e.react, dur=9/r;
+      const tt=t-INTRO_END, r=e.react, dur=9/r;
       s.shrink=Math.max(.14,1-tt/dur);
       const dx=DISH.cx+Math.sin(tt*1.5*r)*22, dy=DISH.surf-3;
       piece.setAttribute('transform','translate('+dx.toFixed(1)+','+dy.toFixed(1)+') scale('+s.shrink.toFixed(3)+')');
@@ -2657,6 +2676,8 @@ function cutStep(u,s,t){
   const kn=B(u,'knife'), cut=B(u,'cut'), lump=B(u,'lump'),
         pL=B(u,'pieceL'), pR=B(u,'pieceR'), lus=B(u,'luster');
   cut.setAttribute('opacity','1');
+  const stp=B(u,'stopper');
+  stp.setAttribute('transform','translate(-39,'+(90*Math.min(1,t/.4)).toFixed(1)+')');
   if(t<.55){                                  /* 등유병에서 꺼내 시계 접시에 올린다 */
     const k=ease(Math.min(1,t/.45));
     lump.setAttribute('opacity','1');
@@ -2696,6 +2717,74 @@ function cutStep(u,s,t){
     B(u,'lusterVal').textContent=Math.round(v*100)+' %';
     if(s.tarnish>=1&&!s.done){s.done=true;sfx('done');
       setObs(+u,obsText(s.sym,'air')+' 지금 광택은 <b>0 %</b>예요.');updateLive()}
+  }
+}
+/* ── 물에 넣기 절차 — 보관 용기에서 꺼내는 과정 자체가 학습 내용이다 ──
+   마개 열기 → 집게 하강 → 집기 → 들어 올림 → 접시 위로 → 내려놓기 → 물러남 */
+const RM = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const ISPEED = RM ? 6 : 1;                 /* 모션 최소화 설정이면 절차를 빠르게 지나간다 */
+const WI = {open:.35, down:.78, grip:.94, lift:1.24, move:1.62, place:1.88, rel:2.00, away:2.28};
+const INTRO_END = 2.3 / ISPEED;
+const JARP={x:42,y:144}, HIGH=64, SETY=155;
+
+function tongsAt(u,x,y,open){
+  const g=B(u,'tongs');
+  g.setAttribute('opacity','1');
+  g.setAttribute('transform','translate('+x.toFixed(1)+','+y.toFixed(1)+')');
+  B(u,'tongL').setAttribute('transform','rotate('+(open*2.6).toFixed(2)+' 0 -117)');
+  B(u,'tongR').setAttribute('transform','rotate('+(-open*2.6).toFixed(2)+' 0 -117)');
+}
+function waterIntro(u,s,t){
+  const stp=B(u,'stopper'), pc=B(u,'piece'), s1=B(u,'stored1');
+  /* ① 유리 마개를 들어 실험대 옆에 세워 둔다 */
+  if(t<WI.open){
+    const k=ease(t/WI.open);
+    stp.setAttribute('transform','translate('+(-39*k).toFixed(1)+','+
+      (90*k-20*Math.sin(k*Math.PI)).toFixed(1)+')');
+    B(u,'tongs').setAttribute('opacity','0'); pc.setAttribute('opacity','0');
+    return;
+  }
+  stp.setAttribute('transform','translate(-39,90)');
+  /* ② 집게가 병 목으로 내려간다 */
+  if(t<WI.down){
+    const k=ease((t-WI.open)/(WI.down-WI.open));
+    tongsAt(u,JARP.x, 30+(JARP.y-30)*k, 1);
+    pc.setAttribute('opacity','0');
+    return;
+  }
+  /* ③ 집는다 */
+  if(t<WI.grip){
+    const k=(t-WI.down)/(WI.grip-WI.down);
+    tongsAt(u,JARP.x,JARP.y,1-k);
+    if(!s.__grip&&k>.6){s.__grip=1;sfx('click')}
+    return;
+  }
+  /* ④ 들어 올림 → ⑤ 접시 위로 → ⑥ 내려놓기 */
+  let x,y;
+  if(t<WI.lift){ const k=ease((t-WI.grip)/(WI.lift-WI.grip)); x=JARP.x; y=JARP.y+(HIGH-JARP.y)*k }
+  else if(t<WI.move){ const k=ease((t-WI.lift)/(WI.move-WI.lift)); x=JARP.x+(DISH.cx-JARP.x)*k; y=HIGH }
+  else if(t<WI.place){ const k=ease((t-WI.move)/(WI.place-WI.move)); x=DISH.cx; y=HIGH+(SETY-HIGH)*k }
+  else { x=DISH.cx; y=SETY }
+  /* 병 안에서는 유리 뒤(클립 안)의 조각을 그대로 끌어올리고,
+     병 목을 벗어난 뒤에야 바깥 레이어의 조각으로 바꾼다 — 유리 앞으로 튀어나오지 않게 */
+  if(t<WI.lift&&y>88){
+    s1.setAttribute('opacity','1');
+    s1.setAttribute('transform','translate(0,'+(y-JARP.y).toFixed(1)+')');
+    pc.setAttribute('opacity','0');
+  }else{
+    s1.setAttribute('opacity','0');
+    pc.setAttribute('opacity','1');
+    pc.setAttribute('transform','translate('+x.toFixed(1)+','+(y+2).toFixed(1)+')');
+  }
+  /* ⑦ 집게를 벌려 놓고 물러난다 */
+  if(t<WI.rel){
+    tongsAt(u,x,y, t<WI.place?0:Math.min(1,(t-WI.place)/(WI.rel-WI.place)));
+  }else{
+    const k=ease(Math.min(1,(t-WI.rel)/(WI.away-WI.rel)));
+    tongsAt(u,DISH.cx, SETY+(30-SETY)*k, 1);
+    B(u,'tongs').setAttribute('opacity',(1-k).toFixed(2));
+    pc.setAttribute('transform','translate('+DISH.cx+','+(SETY+2)+')');
+    if(!s.__plop&&k>.1){s.__plop=1;sfx('pour')}
   }
 }
 function spawnBubble(u,x){
