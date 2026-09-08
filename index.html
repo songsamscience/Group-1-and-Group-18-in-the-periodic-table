@@ -49,6 +49,9 @@
   --bench:#1A2331; --bench-top:#212C3C;
   --wall-1:#0C1119; --wall-2:#141C28; --refl-c:#FFFFFF;
   --bench-1:#2A3141; --bench-2:#1D2431; --bench-3:#262E3D;
+  /* 장면 조명 — 천장 등 하나가 실험대 가운데를 비춘다는 전제.
+     키 라이트·비네트·접합 그늘·앞모서리는 모두 이 네 값에서 나온다 */
+  --key-c:#FFFFFF; --key-o:.15; --vig-o:.52; --ao-o:.32; --edge-o:.24;
 
   /* 간격·반지름 — 스케일에 없는 값을 즉흥으로 만들지 않는다 */
   --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:24px; --s7:32px; --s8:40px; --s9:48px;
@@ -93,6 +96,7 @@
   --bench:#E3E9F1; --bench-top:#EDF1F7;
   --wall-1:#EAEFF6; --wall-2:#F6F8FB; --refl-c:#5A6678;
   --bench-1:#C9D2DE; --bench-2:#DCE3EC; --bench-3:#CFD7E2;
+  --key-c:#FFFFFF; --key-o:.50; --vig-o:.14; --ao-o:.13; --edge-o:.30;
   --shadow-float:0 6px 20px -8px rgba(30,44,64,.22);
   --shadow-modal:0 24px 64px -18px rgba(30,44,64,.30);
 }
@@ -772,6 +776,14 @@ textarea.field{min-height:100px}
 :root[data-present="on"] .goal .dim{display:none}
 :root[data-present="on"] .qz-q{font-size:22px}
 :root[data-present="on"] .qz-opt{font-size:18px}
+:root[data-present="on"] .ops{
+  flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;
+  justify-content:flex-start;scrollbar-width:none;
+}
+:root[data-present="on"] .ops::-webkit-scrollbar{display:none}
+:root[data-present="on"] .ops>:first-child{margin-left:auto}
+:root[data-present="on"] .ops>:last-child{margin-right:auto}
+:root[data-present="on"] .op{flex:0 0 auto}
 :root[data-present="on"]{--text-2:#C3CEDD;--line-1:#33415A}
 :root[data-present="on"][data-theme="light"]{--text-2:#38455A;--line-1:#BCC7D6}
 
@@ -1409,12 +1421,12 @@ textarea.field{min-height:100px}
     <stop offset="1" stop-color="#000" stop-opacity="0"/>
   </radialGradient>
   <!-- 실험실 뒷벽 · 위가 어둡고 아래로 갈수록 조금 밝다 -->
-  <linearGradient id="wallG" x1="0" y1="0" x2="0" y2="1">
+  <linearGradient id="wallG" gradientUnits="userSpaceOnUse" x1="0" y1="-6" x2="0" y2="172">
     <stop offset="0"   stop-color="var(--wall-1)"/>
     <stop offset="1"   stop-color="var(--wall-2)"/>
   </linearGradient>
   <!-- 실험대 상판 · 검은 페놀 수지. 앞으로 올수록 반사가 늘어난다 -->
-  <linearGradient id="benchG" x1="0" y1="0" x2="0" y2="1">
+  <linearGradient id="benchG" gradientUnits="userSpaceOnUse" x1="0" y1="172" x2="0" y2="216">
     <stop offset="0"    stop-color="var(--bench-1)"/>
     <stop offset=".22"  stop-color="var(--bench-2)"/>
     <stop offset="1"    stop-color="var(--bench-3)"/>
@@ -1424,6 +1436,37 @@ textarea.field{min-height:100px}
     <stop offset="0" stop-color="var(--refl-c)" stop-opacity=".18"/>
     <stop offset="1" stop-color="var(--refl-c)" stop-opacity="0"/>
   </linearGradient>
+  <!-- 천장 등 — 실험대 가운데 위에서 벽을 넓게 훑는다. 기구의 하이라이트와 같은 광원 -->
+  <radialGradient id="keyG" gradientUnits="userSpaceOnUse" cx="124" cy="92" r="196"
+                  gradientTransform="translate(124 92) scale(1 .72) translate(-124 -92)">
+    <stop offset="0"   stop-color="var(--key-c)" stop-opacity="var(--key-o)"/>
+    <stop offset=".52" stop-color="var(--key-c)" stop-opacity="calc(var(--key-o) * .34)"/>
+    <stop offset="1"   stop-color="var(--key-c)" stop-opacity="0"/>
+  </radialGradient>
+  <!-- 비네트 — 시선을 실험대 가운데로 모은다. 기구와 이름표는 밝은 구간에 둔다 -->
+  <radialGradient id="vigG" gradientUnits="userSpaceOnUse" cx="131" cy="126" r="198"
+                  gradientTransform="translate(131 126) scale(1.5 1) translate(-131 -126)">
+    <stop offset=".46" stop-color="#000" stop-opacity="0"/>
+    <stop offset="1"   stop-color="#000" stop-opacity="var(--vig-o)"/>
+  </radialGradient>
+  <!-- 벽과 상판이 만나는 자리의 그늘 — 벽을 상판에 붙여 놓는 유일한 수단 -->
+  <linearGradient id="aoG" gradientUnits="userSpaceOnUse" x1="0" y1="142" x2="0" y2="172">
+    <stop offset="0" stop-color="#000" stop-opacity="0"/>
+    <stop offset="1" stop-color="#000" stop-opacity="var(--ao-o)"/>
+  </linearGradient>
+  <!-- 상판 앞모서리 — 광원을 정면으로 받아 한 줄만 밝다 -->
+  <linearGradient id="edgeG" gradientUnits="userSpaceOnUse" x1="0" y1="172" x2="0" y2="177.6">
+    <stop offset="0"   stop-color="var(--refl-c)" stop-opacity="var(--edge-o)"/>
+    <stop offset=".5"  stop-color="var(--refl-c)" stop-opacity="calc(var(--edge-o) * .28)"/>
+    <stop offset="1"   stop-color="var(--refl-c)" stop-opacity="0"/>
+  </linearGradient>
+  <!-- 기포 — 속은 비고 가장자리만 밝다. 납작한 원이 아니라 '껍질'로 보이게 -->
+  <radialGradient id="bubG">
+    <stop offset="0"   stop-color="#FFFFFF" stop-opacity=".05"/>
+    <stop offset=".58" stop-color="#FFFFFF" stop-opacity=".12"/>
+    <stop offset=".84" stop-color="#FFFFFF" stop-opacity=".70"/>
+    <stop offset="1"   stop-color="#FFFFFF" stop-opacity=".22"/>
+  </radialGradient>
   <filter id="fFlame" x="-90%" y="-40%" width="280%" height="180%">
     <feGaussianBlur stdDeviation="2.6"/>
   </filter>
@@ -1674,9 +1717,10 @@ const THEORY=[
    '<line x1="10" y1="96" x2="370" y2="96" stroke="{LINE2}"/>'+
    '<path d="M110 78 H250 V88 q0 6 -6 6 H116 q-6 0 -6 -6 Z" fill="none" stroke="{LINE2}" stroke-width="1.4"/>'+
    '<ellipse cx="180" cy="78" rx="70" ry="6" fill="none" stroke="{LINE2}" stroke-width="1.4"/>'+
-   '<ellipse cx="180" cy="81" rx="66" ry="5" fill="{G18}" opacity=".16"/>'+
+   '<ellipse cx="180" cy="81" rx="66" ry="5" fill="{GLASSY}" opacity=".26"/>'+
    '<rect x="170" y="74" width="18" height="9" rx="2" fill="{TEXT2}"/>'+
-   '<g fill="{TEXT3}"><circle cx="166" cy="64" r="3"/><circle cx="192" cy="58" r="3.6"/><circle cx="178" cy="48" r="2.6"/>'+
+   '<g fill="none" stroke="{TEXT3}" stroke-width="1.2">'+
+   '<circle cx="166" cy="64" r="3"/><circle cx="192" cy="58" r="3.6"/><circle cx="178" cy="48" r="2.6"/>'+
    '<circle cx="200" cy="44" r="3"/><circle cx="160" cy="50" r="2.4"/></g>'+
    '<text x="212" y="44" font-size="9" fill="{TEXT2}">수소 기체 H₂</text>'+
    '<text x="180" y="110" font-size="9" fill="{TEXT3}" text-anchor="middle">물에 뜬 채로 반응하며 기포가 발생한다</text></svg>',
@@ -1691,13 +1735,13 @@ const THEORY=[
 {t:'18족 원소의 성질',
  fig:'<svg viewBox="0 0 380 118" role="img" aria-label="방전관에서 18족 기체가 저마다 다른 색으로 빛나는 모습">'+
    '<g>'+
-   '<rect x="40" y="30" width="24" height="62" rx="8" fill="#FFB8A0" opacity=".45"/>'+
+   '<rect x="40" y="30" width="24" height="62" rx="8" fill="#FFB8A0" opacity=".5" filter="url(#fGlow)"/>'+
    '<rect x="44" y="34" width="16" height="54" rx="6" fill="none" stroke="{LINE2}" stroke-width="1.3"/>'+
    '<text x="52" y="110" font-size="9.5" fill="{TEXT2}" text-anchor="middle">He</text>'+
-   '<rect x="168" y="30" width="24" height="62" rx="8" fill="#FF5A2B" opacity=".45"/>'+
+   '<rect x="168" y="30" width="24" height="62" rx="8" fill="#FF5A2B" opacity=".5" filter="url(#fGlow)"/>'+
    '<rect x="172" y="34" width="16" height="54" rx="6" fill="none" stroke="{LINE2}" stroke-width="1.3"/>'+
    '<text x="180" y="110" font-size="9.5" fill="{TEXT2}" text-anchor="middle">Ne</text>'+
-   '<rect x="296" y="30" width="24" height="62" rx="8" fill="#B9A6FF" opacity=".45"/>'+
+   '<rect x="296" y="30" width="24" height="62" rx="8" fill="#B9A6FF" opacity=".5" filter="url(#fGlow)"/>'+
    '<rect x="300" y="34" width="16" height="54" rx="6" fill="none" stroke="{LINE2}" stroke-width="1.3"/>'+
    '<text x="308" y="110" font-size="9.5" fill="{TEXT2}" text-anchor="middle">Ar</text></g>'+
    '<text x="190" y="18" font-size="9" fill="{TEXT3}" text-anchor="middle">방전관에 전류를 흘렸을 때 (화학 반응이 아니다)</text></svg>',
@@ -2077,6 +2121,23 @@ function setLabMode(m){
    입자 모형은 mm 격자를 벗어나므로 '모형' 표기와 함께 별도 층에 둔다
    ═══════════════════════════════════════════════════════════════ */
 const DISH={cx:131,surf:160,bot:170};
+
+/* 실험실 배경 — 1족·18족이 같은 층을 공유해 '같은 방의 두 실험대'로 읽힌다.
+   viewBox(0 0 260 200) 밖으로 넉넉히 늘려 둔다. SVG 는 viewBox 가 아니라
+   뷰포트에서 잘리므로, 화면 비율이 어떻게 되든 벽과 상판이 끝까지 이어진다 */
+const ENV=`
+ <g aria-hidden="true">
+   <rect x="-620" y="-560" width="1500" height="732" fill="url(#wallG)"/>
+   <rect x="-620" y="-560" width="1500" height="732" fill="url(#keyG)"/>
+   <path d="M-620 57 H880" stroke="var(--refl-c)" stroke-width=".7" opacity=".08"/>
+   <path d="M-620 58.6 H880" stroke="#000" stroke-width="1" opacity=".10"/>
+   <rect x="-620" y="142" width="1500" height="30" fill="url(#aoG)"/>
+   <rect x="-620" y="172" width="1500" height="200" fill="url(#benchG)"/>
+   <line x1="-620" y1="172" x2="880" y2="172" stroke="var(--line-2)" stroke-width=".9"/>
+   <rect x="-620" y="172" width="1500" height="5.6" fill="url(#edgeG)"/>
+ </g>`;
+/* 비네트 — 기구를 다 그린 뒤 덮는다. 이름표가 놓인 밝은 구간은 건드리지 않는다 */
+const VIG=`<rect x="-620" y="-560" width="1500" height="932" fill="url(#vigG)" pointer-events="none" aria-hidden="true"/>`;
 const SC={};
 let raf=0,last=0;
 const B=(u,n)=>document.getElementById('b'+u+'-'+n);
@@ -2084,14 +2145,29 @@ function setAttrs(n,o){for(const k in o)n.setAttribute(k,o[k])}
 
 /* ── 1족 벤치 SVG ── */
 function svg1(u){return `
-<svg viewBox="0 0 260 200" preserveAspectRatio="xMidYMax meet" role="img" aria-labelledby="t${u} d${u}">
+<svg viewBox="0 0 260 200" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="t${u} d${u}">
  <title id="t${u}">1족 원소 실험대</title>
  <desc id="d${u}">왼쪽에 등유가 든 무색 투명 시약병(몸통 지름 66 mm · 전체 높이 110 mm), 가운데에 물을 담은 페트리 접시 아래 접시(지름 90 mm · 높이 15 mm), 오른쪽에 시계 접시(지름 60 mm)가 놓인 실험대.</desc>
- <g>
-   <rect x="-20" y="-14" width="300" height="186" fill="url(#wallG)"/>
-   <rect x="-20" y="172" width="300" height="44" fill="url(#benchG)"/>
-   <line x1="-20" y1="172" x2="280" y2="172" stroke="var(--line-2)" stroke-width=".9"/>
-   <line x1="-20" y1="173.3" x2="280" y2="173.3" stroke="var(--refl-c)" stroke-width=".8" opacity=".16"/>
+ <defs>
+   <!-- 불꽃이 벽에 뿌리는 빛. 색은 이 원소의 불꽃 반응색을 그대로 쓴다 -->
+   <radialGradient id="sw${u}" gradientUnits="userSpaceOnUse" cx="213" cy="94" r="104">
+     <stop offset="0"   stop-color="var(--flame,#FFC21A)" stop-opacity=".30"/>
+     <stop offset=".45" stop-color="var(--flame,#FFC21A)" stop-opacity=".10"/>
+     <stop offset="1"   stop-color="var(--flame,#FFC21A)" stop-opacity="0"/>
+   </radialGradient>
+   <!-- 상판에 떨어지는 빛 웅덩이. 상판은 수평면이라 세로로 눌린다 -->
+   <radialGradient id="sp${u}" gradientUnits="userSpaceOnUse" cx="213" cy="172" r="88"
+                   gradientTransform="translate(213 172) scale(1 .3) translate(-213 -172)">
+     <stop offset="0"   stop-color="var(--flame,#FFC21A)" stop-opacity=".50"/>
+     <stop offset=".5"  stop-color="var(--flame,#FFC21A)" stop-opacity=".16"/>
+     <stop offset="1"   stop-color="var(--flame,#FFC21A)" stop-opacity="0"/>
+   </radialGradient>
+ </defs>
+${ENV}
+ <!-- 불꽃 빛 — 벽과 상판을 먼저 물들인다. 기구보다 아래 층이라 기구 위로 번지지 않는다 -->
+ <g id="b${u}-lampLight" opacity="0">
+   <ellipse cx="213" cy="94" rx="104" ry="104" fill="url(#sw${u})"/>
+   <ellipse cx="213" cy="172" rx="88" ry="27" fill="url(#sp${u})"/>
  </g>
  <!-- 상판에 비치는 흐린 반사 + 접촉 그림자(넓고 옅은 층 + 좁고 진한 층) -->
  <g>
@@ -2126,7 +2202,11 @@ function svg1(u){return `
      <path d="M28.6 64.4 H36" stroke="var(--ap-hi)" stroke-width="1.6" opacity=".35" stroke-linecap="round"/>
    </g>
    <path d="M16 124 V158" stroke="var(--ap-hi)" stroke-width="2.6" stroke-linecap="round" opacity=".34"/>
+   <!-- 어깨 — 꺾이는 면이 광원을 정면으로 받는 자리 -->
+   <path d="M12.6 114.4 L27.4 100.4" stroke="var(--ap-hi)" stroke-width="2" stroke-linecap="round" opacity=".26"/>
    <path d="M70 130 V152" stroke="var(--ap-hi)" stroke-width="1.1" stroke-linecap="round" opacity=".14"/>
+   <path d="M13.4 163.4 Q42 168.4 70.6 163.4" fill="none" stroke="var(--ap-hi)"
+         stroke-width=".9" opacity=".16"/>
    <rect x="20" y="152" width="44" height="15" rx="1.6" fill="var(--surface-1)" opacity=".9"/>
    <text x="42" y="163" text-anchor="middle" font-size="8.4" font-weight="600" fill="var(--text-2)">등유</text></g>
 
@@ -2148,10 +2228,18 @@ function svg1(u){return `
    <path d="M86 157 H176 V166 q0 6 -6 6 H92 q-6 0 -6 -6 Z"
          fill="url(#mGlassA)" stroke="var(--ap-line)" stroke-width="1.3" stroke-linejoin="round"/>
    <ellipse cx="131" cy="157" rx="45" ry="6.2" fill="none" stroke="var(--ap-line)" stroke-width="1.3"/>
+   <!-- 테두리 정반사 — 주 광원(좌상단)을 받는 안쪽 반만 밝다 -->
+   <path d="M86.5 155.9 A45 6.2 0 0 1 131 150.8" fill="none" stroke="var(--ap-hi)"
+         stroke-width="1.5" opacity=".40" stroke-linecap="round"/>
+   <!-- 바닥 두께 — 접시 안쪽 바닥이 한 겹 더 비쳐 보인다 -->
+   <ellipse cx="131" cy="169.6" rx="36" ry="3.2" fill="none" stroke="var(--ap-line)"
+            stroke-width=".7" opacity=".4"/>
    <path d="M88.4 160.4 Q90.4 157.4 94.2 158.2 M173.6 160.4 Q171.6 157.4 167.8 158.2"
          fill="none" stroke="var(--glassy)" stroke-width="1.1" opacity=".55" stroke-linecap="round"/>
    <path d="M92 160 V168" stroke="var(--ap-hi)" stroke-width="1.8" stroke-linecap="round" opacity=".3"/>
    <path d="M96 158.6 L120 158" stroke="var(--ap-hi)" stroke-width=".9" stroke-linecap="round" opacity=".22"/>
+   <path d="M166 166.6 Q171 165 173 161.6" fill="none" stroke="var(--ap-hi)" stroke-width=".9"
+         opacity=".16" stroke-linecap="round"/>
    <g id="b${u}-dropper" opacity="0">
      <path d="M-3 -34 h6 v56 l-2 6 h-2 l-2 -6 Z" fill="url(#mGlassA)" stroke="var(--ap-line)" stroke-width=".9" stroke-linejoin="round"/>
      <path d="M0 -60 c5.4 0 7 6.4 7 13 0 6.6 -2.8 12 -7 12 -4.2 0 -7 -5.4 -7 -12 0 -6.6 1.6 -13 7 -13 Z"
@@ -2185,7 +2273,10 @@ function svg1(u){return `
 
  <g id="b${u}-watch">
    <path d="M190 162 Q220 176 250 162" fill="url(#mGlassA)" stroke="var(--ap-line)" stroke-width="1.3" stroke-linejoin="round"/>
-   <path d="M190 162 H250" stroke="var(--ap-line)" stroke-width="1" opacity=".55"/>
+   <ellipse cx="220" cy="162" rx="30" ry="3.2" fill="var(--glassy)" opacity=".09"/>
+   <ellipse cx="220" cy="162" rx="30" ry="3.2" fill="none" stroke="var(--ap-line)" stroke-width="1" opacity=".55"/>
+   <path d="M191.4 160.8 A30 3.2 0 0 1 220 158.8" fill="none" stroke="var(--ap-hi)"
+         stroke-width="1.2" opacity=".36" stroke-linecap="round"/>
    <path d="M196 164.5 Q205 169 212 170.4" fill="none" stroke="var(--ap-hi)" stroke-width="1.6" stroke-linecap="round" opacity=".32"/>
    <g id="b${u}-cut" opacity="0">
      <!-- 자르기 전 덩어리 (약 16 mm) — 겉면은 이미 산화되어 흐리다 -->
@@ -2269,10 +2360,14 @@ function svg1(u){return `
    <rect x="210" y="102" width="6" height="6" rx="2" fill="var(--wick,#D8CFAE)"/>
    <path d="M193 164 C190 152 192 140 197 132" fill="none" stroke="var(--ap-hi)" stroke-width="2.2" stroke-linecap="round" opacity=".28"/>
    <g><ellipse cx="245" cy="173" rx="13" ry="2.6" fill="url(#mContact)"/>
-     <path d="M233 172 V148 q0 -3.4 3.4 -3.4 H253.6 q3.4 0 3.4 3.4 V172 Z"
+     <path d="M233 172 V150 q0 -3.2 3.2 -3.2 H253.8 q3.2 0 3.2 3.2 V172 Z"
            fill="url(#mGlassA)" stroke="var(--ap-line)" stroke-width="1.3" stroke-linejoin="round"/>
-     <path d="M237 152 V168" stroke="var(--ap-hi)" stroke-width="1.8" stroke-linecap="round" opacity=".3"/></g></g>
+     <ellipse cx="245" cy="147" rx="12" ry="2.7" fill="url(#mGlassA)" stroke="var(--ap-line)" stroke-width="1.1"/>
+     <path d="M236.5 145.9 A12 2.7 0 0 1 245 144.3" fill="none" stroke="var(--ap-hi)"
+           stroke-width="1.1" opacity=".38" stroke-linecap="round"/>
+     <path d="M237 153 V168" stroke="var(--ap-hi)" stroke-width="1.8" stroke-linecap="round" opacity=".3"/></g></g>
 
+ ${VIG}
  <g id="b${u}-labels" font-size="9" font-weight="500" fill="var(--text-2)" text-anchor="middle">
    <text x="42" y="186">보관</text><text x="131" y="186">물과의 반응</text>
    <text id="b${u}-slotLabel" x="220" y="186">공기 중 관찰</text></g>
@@ -2280,14 +2375,28 @@ function svg1(u){return `
 
 /* ── 18족 벤치 SVG ── */
 function svg18(u,sym){return `
-<svg viewBox="0 0 260 200" preserveAspectRatio="xMidYMax meet" role="img" aria-labelledby="t${u} d${u}">
+<svg viewBox="0 0 260 200" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="t${u} d${u}">
  <title id="t${u}">18족 원소 실험대</title>
  <desc id="d${u}">왼쪽에 기체가 든 실험용 가스 실린더(지름 44 mm · 높이 124 mm), 가운데에 1족 실험대와 똑같은 위치의 물을 담은 페트리 접시(지름 90 mm), 오른쪽에 받침 위에 세운 방전관(관 지름 14 mm · 길이 112 mm)이 놓인 실험대.</desc>
- <g>
-   <rect x="-20" y="-14" width="300" height="186" fill="url(#wallG)"/>
-   <rect x="-20" y="172" width="300" height="44" fill="url(#benchG)"/>
-   <line x1="-20" y1="172" x2="280" y2="172" stroke="var(--line-2)" stroke-width=".9"/>
-   <line x1="-20" y1="173.3" x2="280" y2="173.3" stroke="var(--refl-c)" stroke-width=".8" opacity=".16"/>
+ <defs>
+   <!-- 방전관이 벽에 뿌리는 빛. 색은 이 원소의 방전 빛깔을 그대로 쓴다 -->
+   <radialGradient id="sw${u}" gradientUnits="userSpaceOnUse" cx="220" cy="104" r="100">
+     <stop offset="0"   stop-color="var(--glow,#B9A6FF)" stop-opacity=".26"/>
+     <stop offset=".45" stop-color="var(--glow,#B9A6FF)" stop-opacity=".09"/>
+     <stop offset="1"   stop-color="var(--glow,#B9A6FF)" stop-opacity="0"/>
+   </radialGradient>
+   <radialGradient id="sp${u}" gradientUnits="userSpaceOnUse" cx="220" cy="172" r="80"
+                   gradientTransform="translate(220 172) scale(1 .3) translate(-220 -172)">
+     <stop offset="0"   stop-color="var(--glow,#B9A6FF)" stop-opacity=".44"/>
+     <stop offset=".5"  stop-color="var(--glow,#B9A6FF)" stop-opacity=".14"/>
+     <stop offset="1"   stop-color="var(--glow,#B9A6FF)" stop-opacity="0"/>
+   </radialGradient>
+ </defs>
+${ENV}
+ <!-- 방전 빛 — 1족 불꽃과 같은 규칙으로 벽과 상판을 물들인다 -->
+ <g id="b${u}-tubeLight" opacity="0">
+   <ellipse cx="220" cy="104" rx="100" ry="100" fill="url(#sw${u})"/>
+   <ellipse cx="220" cy="172" rx="80" ry="24" fill="url(#sp${u})"/>
  </g>
  <g>
    <rect x="20" y="172" width="44" height="16" fill="url(#reflG)" opacity=".55"/>
@@ -2322,10 +2431,18 @@ function svg18(u,sym){return `
    <path d="M86 157 H176 V166 q0 6 -6 6 H92 q-6 0 -6 -6 Z"
          fill="url(#mGlassA)" stroke="var(--ap-line)" stroke-width="1.3" stroke-linejoin="round"/>
    <ellipse cx="131" cy="157" rx="45" ry="6.2" fill="none" stroke="var(--ap-line)" stroke-width="1.3"/>
+   <!-- 테두리 정반사 — 주 광원(좌상단)을 받는 안쪽 반만 밝다 -->
+   <path d="M86.5 155.9 A45 6.2 0 0 1 131 150.8" fill="none" stroke="var(--ap-hi)"
+         stroke-width="1.5" opacity=".40" stroke-linecap="round"/>
+   <!-- 바닥 두께 — 접시 안쪽 바닥이 한 겹 더 비쳐 보인다 -->
+   <ellipse cx="131" cy="169.6" rx="36" ry="3.2" fill="none" stroke="var(--ap-line)"
+            stroke-width=".7" opacity=".4"/>
    <path d="M88.4 160.4 Q90.4 157.4 94.2 158.2 M173.6 160.4 Q171.6 157.4 167.8 158.2"
          fill="none" stroke="var(--glassy)" stroke-width="1.1" opacity=".55" stroke-linecap="round"/>
    <path d="M92 160 V168" stroke="var(--ap-hi)" stroke-width="1.8" stroke-linecap="round" opacity=".3"/>
    <path d="M96 158.6 L120 158" stroke="var(--ap-hi)" stroke-width=".9" stroke-linecap="round" opacity=".22"/>
+   <path d="M166 166.6 Q171 165 173 161.6" fill="none" stroke="var(--ap-hi)" stroke-width=".9"
+         opacity=".16" stroke-linecap="round"/>
    <g id="b${u}-dropper" opacity="0">
      <path d="M-3 -34 h6 v56 l-2 6 h-2 l-2 -6 Z" fill="url(#mGlassA)" stroke="var(--ap-line)" stroke-width=".9" stroke-linejoin="round"/>
      <path d="M0 -60 c5.4 0 7 6.4 7 13 0 6.6 -2.8 12 -7 12 -4.2 0 -7 -5.4 -7 -12 0 -6.6 1.6 -13 7 -13 Z"
@@ -2353,6 +2470,7 @@ function svg18(u,sym){return `
    <path d="M229 158 H246 V142" fill="none" stroke="var(--rubber-1)" stroke-width="2.2" stroke-linecap="round"/>
    <path d="M218 62 V150" stroke="var(--ap-hi)" stroke-width="1.6" stroke-linecap="round" opacity=".3"/></g>
 
+ ${VIG}
  <g id="b${u}-labels" font-size="9" font-weight="500" fill="var(--text-2)" text-anchor="middle">
    <text x="42" y="186">보관</text><text x="131" y="186">물과의 반응</text><text x="220" y="186">방전관</text></g>
 </svg>`}
@@ -2445,8 +2563,8 @@ function resetScene(u){
   if(s.kind===1){
     s.shrink=1;s.pink=0;s.tarnish=0;s.slot='watch';
     s.__cut=0; s.__grip=0; s.__plop=0;
-    ['piece','cut','knife','flame','dropper','lamp','lampFlame','wire','luster','molL','pieceBall',
-     'pieceL','pieceR','flTint','ripple','tongs'].forEach(n=>{const e=B(u,n);if(e)e.setAttribute('opacity','0')});
+    ['piece','cut','knife','flame','dropper','lamp','lampFlame','lampLight','wire','luster','molL',
+     'pieceBall','pieceL','pieceR','flTint','ripple','tongs'].forEach(n=>{const e=B(u,n);if(e)e.setAttribute('opacity','0')});
     ['watch','pieceBody','lump','faceL','faceR','stored1'].forEach(n=>{const e=B(u,n);if(e)e.setAttribute('opacity','1')});
     ['lump','pieceL','pieceR','knife','flOut','flMid','flTint','stopper','tongs','tongL','tongR','stored1']
       .forEach(n=>{const e=B(u,n); if(e)e.removeAttribute('transform')});
@@ -2456,7 +2574,7 @@ function resetScene(u){
     const lv=B(u,'lusterVal'); if(lv)lv.textContent='100 %';
     paintWater(u,0);
   }else{
-    ['dropper','glow','inner','molL'].forEach(n=>{const e=B(u,n);if(e)e.setAttribute('opacity','0')});
+    ['dropper','glow','inner','tubeLight','molL'].forEach(n=>{const e=B(u,n);if(e)e.setAttribute('opacity','0')});
   }
   hiss(false);
 }
@@ -2520,9 +2638,15 @@ function runOp(op){
       s.slot=(op==='light')?'lamp':'watch';
       B(u,'watch').setAttribute('opacity',s.slot==='watch'?'1':'0');
       B(u,'lamp').setAttribute('opacity',s.slot==='lamp'?'1':'0');
+      if(s.slot!=='lamp')B(u,'lampLight').setAttribute('opacity','0');
       B(u,'slotLabel').textContent=s.slot==='lamp'?'불꽃 반응':'공기 중 관찰';
       document.querySelector('.bench[data-u="'+u+'"] .tool-tag').textContent=
         s.slot==='lamp'?'알코올램프 · 백금선':'시계 접시';
+    }
+    /* 방전은 [4 빛으로 확인하기]에서만 켠다. 다른 조작으로 넘어가면 반드시 끈다
+       — 페놀프탈레인은 장면을 되돌리지 않으므로 여기서 직접 꺼 줘야 한다 */
+    else if(op!=='light'){
+      ['glow','inner','tubeLight'].forEach(n=>B(u,n).setAttribute('opacity','0'));
     }
     ST.runs[r.sym]=ST.runs[r.sym]||{}; ST.runs[r.sym][op]=1;
     setObs(i,obsText(r.sym,op));
@@ -2622,6 +2746,10 @@ function step1(u,s,dt){
     flick(B(u,'flOut'),f*1.0,1+f*.055,213,113);
     flick(B(u,'flMid'),f*.6,1+f*.04,213,111);
     B(u,'flCore').setAttribute('ry',(5.6+f*.5).toFixed(2));
+    /* 불꽃이 켜지면 주변이 함께 밝아지고, 시료가 들어가 색이 물들면 더 세진다 */
+    const tinted=t>1.25?Math.min(1,(t-1.25)/.7):0;
+    B(u,'lampLight').setAttribute('opacity',
+      Math.min(1,Math.min(1,t/.5)*(.46+.54*tinted)*(1+f*.12)).toFixed(3));
     if(t>.6){
       const w=B(u,'wire'), k=ease(Math.min(1,(t-.6)/.7));
       w.setAttribute('opacity','1');
@@ -2789,7 +2917,7 @@ function waterIntro(u,s,t){
 }
 function spawnBubble(u,x){
   const s=SC[u], n=getPart(u);
-  setAttrs(n,{fill:'var(--ap-hi)','fill-opacity':'.55',stroke:'var(--ap-line)','stroke-width':'.3'});
+  setAttrs(n,{fill:'url(#bubG)',stroke:'var(--ap-hi)','stroke-width':'.22','stroke-opacity':'.5'});
   s.parts.push({n:n,x:x+(Math.random()-.5)*16,y:DISH.surf+4,r:.7+Math.random()*1.5,
     vy:-(9+Math.random()*13),life:1});
 }
@@ -2813,6 +2941,9 @@ function drawFlame(u,x,y,r,tt){
     ' C'+(x-ww).toFixed(1)+' '+(y-hh*.18).toFixed(1)+' '+(x-ww*.95).toFixed(1)+' '+(y-hh*.52).toFixed(1)+
       ' '+(x+sw).toFixed(1)+' '+(y-hh).toFixed(1)+' Z';
   g.innerHTML=
+    /* 불꽃이 바로 아래 수면을 물들인다 — 빛이 나면 주변이 밝아진다는 규칙은 램프와 같다 */
+    '<ellipse cx="'+x.toFixed(1)+'" cy="'+(DISH.surf+1).toFixed(1)+'" rx="'+(w*3.6).toFixed(1)+
+      '" ry="'+(w*1.15).toFixed(1)+'" fill="'+e.flame+'" opacity=".22" filter="url(#fSoft)"/>'+
     '<ellipse cx="'+x.toFixed(1)+'" cy="'+(y-h*.34).toFixed(1)+'" rx="'+(w*2.3).toFixed(1)+
       '" ry="'+(h*.95).toFixed(1)+'" fill="'+e.flame+'" opacity=".18" filter="url(#fGlow)"/>'+
     '<path d="'+tear(w,h,sway)+'" fill="'+e.flame+'" opacity=".5" filter="url(#fFlame)"/>'+
@@ -2829,6 +2960,8 @@ function step18(u,s,dt){
     B(u,'molL').setAttribute('opacity',Math.min(1,Math.max(0,(t-.4)/.8)).toFixed(2));
     B(u,'molLine').setAttribute('d','M110 150 V112');
     B(u,'molDot').setAttribute('cx','110'); B(u,'molDot').setAttribute('cy','150');
+    setAttrs(B(u,'molCap'), {x:'131',y:'106','text-anchor':'middle'});
+    setAttrs(B(u,'molCap2'),{x:'131',y:'96', 'text-anchor':'middle'});
     B(u,'molCap').textContent=e.sym+' 원자 · 모형 (단원자 분자)';
     B(u,'molCap2').textContent='물에 녹지 않고 그대로 빠져나가요';
     if(s.mols.length<4&&t>.6&&Math.random()<.07) spawnMol18(u,104,DISH.surf-8,-1);
@@ -2841,8 +2974,8 @@ function step18(u,s,dt){
     B(u,'molL').setAttribute('opacity',Math.min(1,t/.6).toFixed(2));
     B(u,'molLine').setAttribute('d','M74 62 H104');
     B(u,'molDot').setAttribute('cx','74'); B(u,'molDot').setAttribute('cy','62');
-    B(u,'molCap').setAttribute('x','160'); B(u,'molCap2').setAttribute('x','160');
-    B(u,'molCap').setAttribute('y','60'); B(u,'molCap2').setAttribute('y','50');
+    setAttrs(B(u,'molCap'), {x:'200',y:'56','text-anchor':'end'});
+    setAttrs(B(u,'molCap2'),{x:'200',y:'46','text-anchor':'end'});
     B(u,'molCap').textContent=e.sym+' 원자 · 모형 · 공기보다 '+(up?'가벼워 위로':'무거워 아래로');
     B(u,'molCap2').textContent='무색이라 눈에는 보이지 않아요';
     if(t<7&&s.mols.length<9&&Math.random()<.10) spawnMol18(u,64,66,up?-1:1);
@@ -2852,12 +2985,13 @@ function step18(u,s,dt){
     const on=Math.min(1,t/.45);
     B(u,'glow').setAttribute('opacity',(on*.85).toFixed(2));
     B(u,'inner').setAttribute('opacity',(on*(.55+Math.sin(t*5)*.06)).toFixed(3));
+    B(u,'tubeLight').setAttribute('opacity',(on*(.88+Math.sin(t*5)*.10)).toFixed(3));
     if(t>6&&!s.done)s.done=true;
   }
 }
 function spawnBubble18(u){
   const s=SC[u], n=getPart(u);
-  setAttrs(n,{fill:'var(--ap-hi)','fill-opacity':'.5',stroke:'var(--ap-line)','stroke-width':'.3'});
+  setAttrs(n,{fill:'url(#bubG)',stroke:'var(--ap-hi)','stroke-width':'.22','stroke-opacity':'.5'});
   s.parts.push({n:n,x:104+(Math.random()-.5)*5,y:164,r:.9+Math.random()*1.6,
     vy:-(11+Math.random()*10),life:1});
 }
@@ -3332,7 +3466,8 @@ function tok(){
   const s=getComputedStyle(document.documentElement), g=n=>s.getPropertyValue(n).trim();
   return {'{LINE}':g('--line-1'),'{LINE2}':g('--line-2'),'{TEXT1}':g('--text-1'),
     '{TEXT2}':g('--text-2'),'{TEXT3}':g('--text-3'),'{ACC}':g('--accent'),
-    '{G1}':g('--g1'),'{G18}':g('--g18'),'{WARN}':g('--warn'),'{PANEL}':g('--surface-2')};
+    '{G1}':g('--g1'),'{G18}':g('--g18'),'{WARN}':g('--warn'),'{PANEL}':g('--surface-2'),
+    '{GLASSY}':g('--glassy')};
 }
 function paint(svg){
   const t=tok(); let out=svg;
