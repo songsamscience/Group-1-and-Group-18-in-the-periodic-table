@@ -1600,7 +1600,8 @@ const Q7=[
    m1:'다른 원소와 <b>쉽게 반응</b>하므로 <b>불안정</b>해요.',
    m18:'다른 원소와 거의 반응하지 않으므로 <b>매우 안정</b>해요.'},
   {k:'keep',t:'보관 방법',
-   m1:'산소·물과 쉽게 반응하기 때문에 <b>기름(석유) 속에 넣어</b> 보관해요.',
+   m1:'산소·물과 쉽게 반응하기 때문에 <b>기름(석유) 속에 넣어</b> 보관해요. 꺼낼 때만 마개를 열고, '+
+      '<b>꺼낸 즉시 다시 닫아</b> 공기 중의 수분과 만나지 않게 합니다.',
    m18:'반응하지 않으므로 특별한 처리 없이 <b>기체 용기</b>에 담아 두면 돼요.'},
   {k:'use',t:'쓰임새',
    m1:'리튬 — 리튬 이온 전지 / 나트륨 — 가로등·소금 원료 / 칼륨 — 비료·성냥',
@@ -2156,7 +2157,19 @@ function svg1(u){return `
  <title id="t${u}">1족 원소 실험대</title>
  <desc id="d${u}">왼쪽에 등유가 든 무색 투명 시약병(몸통 지름 66 mm · 전체 높이 110 mm), 가운데에 물을 담은 페트리 접시 아래 접시(지름 90 mm · 높이 15 mm), 오른쪽에 시계 접시(지름 60 mm)가 놓인 실험대.</desc>
  <defs>
-   <!-- 불꽃이 벽에 뿌리는 빛. 색은 이 원소의 불꽃 반응색을 그대로 쓴다 -->
+   <!-- 시료를 넣기 전 — 알코올램프 자체의 옅은 청백색 불꽃빛 -->
+   <radialGradient id="swB${u}" gradientUnits="userSpaceOnUse" cx="213" cy="94" r="104">
+     <stop offset="0"   stop-color="var(--fl-mid,#CFE9FF)" stop-opacity=".13"/>
+     <stop offset=".45" stop-color="var(--fl-mid,#CFE9FF)" stop-opacity=".045"/>
+     <stop offset="1"   stop-color="var(--fl-mid,#CFE9FF)" stop-opacity="0"/>
+   </radialGradient>
+   <radialGradient id="spB${u}" gradientUnits="userSpaceOnUse" cx="213" cy="172" r="88"
+                   gradientTransform="translate(213 172) scale(1 .3) translate(-213 -172)">
+     <stop offset="0"   stop-color="var(--fl-mid,#CFE9FF)" stop-opacity=".22"/>
+     <stop offset=".5"  stop-color="var(--fl-mid,#CFE9FF)" stop-opacity=".07"/>
+     <stop offset="1"   stop-color="var(--fl-mid,#CFE9FF)" stop-opacity="0"/>
+   </radialGradient>
+   <!-- 시료가 들어간 뒤 벽에 뿌리는 빛. 색은 이 원소의 불꽃 반응색을 그대로 쓴다 -->
    <radialGradient id="sw${u}" gradientUnits="userSpaceOnUse" cx="213" cy="94" r="104">
      <stop offset="0"   stop-color="var(--flame,#FFC21A)" stop-opacity=".30"/>
      <stop offset=".45" stop-color="var(--flame,#FFC21A)" stop-opacity=".10"/>
@@ -2173,8 +2186,13 @@ function svg1(u){return `
 ${ENV}
  <!-- 불꽃 빛 — 벽과 상판을 먼저 물들인다. 기구보다 아래 층이라 기구 위로 번지지 않는다 -->
  <g id="b${u}-lampLight" opacity="0">
-   <ellipse cx="213" cy="94" rx="104" ry="104" fill="url(#sw${u})"/>
-   <ellipse cx="213" cy="172" rx="88" ry="27" fill="url(#sp${u})"/>
+   <ellipse cx="213" cy="94" rx="104" ry="104" fill="url(#swB${u})"/>
+   <ellipse cx="213" cy="172" rx="88" ry="27" fill="url(#spB${u})"/>
+   <!-- 불꽃 반응색은 시료가 겉불꽃에 닿은 뒤에만 주변을 물들인다 -->
+   <g id="b${u}-lampTint" opacity="0">
+     <ellipse cx="213" cy="94" rx="104" ry="104" fill="url(#sw${u})"/>
+     <ellipse cx="213" cy="172" rx="88" ry="27" fill="url(#sp${u})"/>
+   </g>
  </g>
  <!-- 상판에 비치는 흐린 반사 + 접촉 그림자(넓고 옅은 층 + 좁고 진한 층) -->
  <g>
@@ -2202,7 +2220,7 @@ ${ENV}
    <path d="M29 80 H55 V98 L74 116 V164 q0 8 -8 8 H18 q-8 0 -8 -8 V116 L29 98 Z"
          fill="url(#mGlassA)" stroke="var(--ap-line)" stroke-width="1.5" stroke-linejoin="round"/>
    <path d="M27.4 80 H56.6" stroke="var(--ap-line)" stroke-width="2.2" stroke-linecap="round"/>
-   <!-- 유리 마개 — 실험을 시작하면 열어 실험대 옆에 세워 둔다 -->
+   <!-- 유리 마개 — 조각을 꺼낼 때만 열어 두고, 꺼내자마자 다시 닫는다 -->
    <g id="b${u}-stopper">
      <path d="M29 70 H55 L53 80 H31 Z" fill="url(#mGlassA)" stroke="var(--ap-line)" stroke-width="1.4" stroke-linejoin="round"/>
      <rect x="25" y="62" width="34" height="9" rx="3" fill="url(#mGlassA)" stroke="var(--ap-line)" stroke-width="1.4"/>
@@ -2359,7 +2377,16 @@ ${ENV}
    <g id="b${u}-wire" opacity="0">
      <rect x="172" y="48" width="16" height="5.4" rx="2.7" fill="url(#mRubberA)"/>
      <path d="M187 51 L206 74" stroke="url(#mMetalA)" stroke-width="1.4" stroke-linecap="round"/>
-     <circle id="b${u}-bead" cx="207" cy="75" r="3.2" fill="var(--flame,#FFD34D)"/></g>
+     <!-- 백금선에 묻힌 시료 — 1족 화합물 수용액은 무색이다. 불꽃에 넣기 전에는
+          물방울의 반사만 보이고 원소의 색은 나타나지 않는다 (§7.4 주) -->
+     <g id="b${u}-sample">
+       <circle cx="207" cy="75" r="3.2" fill="var(--glassy)" opacity=".34"/>
+       <circle cx="207" cy="75" r="3.2" fill="none" stroke="var(--ap-line)" stroke-width=".6" opacity=".7"/>
+       <path d="M204.6 73.4 A3.2 3.2 0 0 1 207.4 72" fill="none" stroke="var(--ap-hi)"
+             stroke-width=".9" opacity=".75" stroke-linecap="round"/>
+     </g>
+     <!-- 겉불꽃 속에서 들뜬 원자가 내는 빛 — 색은 불꽃에 들어간 뒤에만 생긴다 -->
+     <circle id="b${u}-bead" cx="207" cy="75" r="3.2" fill="var(--flame,#FFD34D)" opacity="0"/></g>
    <path d="M186 172 V140 C186 128 194 120 205 118 H221 C232 120 240 128 240 140 V172 Z"
          fill="url(#mGlassA)" stroke="var(--ap-line)" stroke-width="1.5" stroke-linejoin="round"/>
    <path d="M204 118 H222 V110 q0 -2.2 -2.2 -2.2 H206.2 q-2.2 0 -2.2 2.2 Z"
@@ -2569,10 +2596,10 @@ function resetScene(u){
   clearPool(u);
   if(s.kind===1){
     s.shrink=1;s.pink=0;s.tarnish=0;s.slot='watch';
-    s.__cut=0; s.__grip=0; s.__plop=0;
-    ['piece','cut','knife','flame','dropper','lamp','lampFlame','lampLight','wire','luster','molL',
-     'pieceBall','pieceL','pieceR','flTint','ripple','tongs'].forEach(n=>{const e=B(u,n);if(e)e.setAttribute('opacity','0')});
-    ['watch','pieceBody','lump','faceL','faceR','stored1'].forEach(n=>{const e=B(u,n);if(e)e.setAttribute('opacity','1')});
+    s.__cut=0; s.__grip=0; s.__plop=0; s.__shut=0;
+    ['piece','cut','knife','flame','dropper','lamp','lampFlame','lampLight','lampTint','wire','luster','molL',
+     'pieceBall','pieceL','pieceR','flTint','bead','ripple','tongs'].forEach(n=>{const e=B(u,n);if(e)e.setAttribute('opacity','0')});
+    ['watch','pieceBody','lump','faceL','faceR','stored1','sample'].forEach(n=>{const e=B(u,n);if(e)e.setAttribute('opacity','1')});
     ['lump','pieceL','pieceR','knife','flOut','flMid','flTint','stopper','tongs','tongL','tongR','stored1']
       .forEach(n=>{const e=B(u,n); if(e)e.removeAttribute('transform')});
     const sl=B(u,'slotLabel'); if(sl)sl.textContent='공기 중 관찰';
@@ -2756,19 +2783,22 @@ function step1(u,s,dt){
     /* 불꽃이 켜지면 주변이 함께 밝아지고, 시료가 들어가 색이 물들면 더 세진다 */
     const tinted=t>1.25?Math.min(1,(t-1.25)/.7):0;
     B(u,'lampLight').setAttribute('opacity',
-      Math.min(1,Math.min(1,t/.5)*(.46+.54*tinted)*(1+f*.12)).toFixed(3));
+      Math.min(1,Math.min(1,t/.5)*(1+f*.12)).toFixed(3));
+    B(u,'lampTint').setAttribute('opacity',tinted.toFixed(3));
     if(t>.6){
       const w=B(u,'wire'), k=ease(Math.min(1,(t-.6)/.7));
       w.setAttribute('opacity','1');
       w.setAttribute('transform','translate('+(-30+30*k).toFixed(1)+','+(-22+22*k).toFixed(1)+')');
       if(t>1.25){
-        /* 시료가 겉불꽃에 닿으면 불꽃 전체가 원소 고유의 색으로 물든다 */
+        /* 시료가 겉불꽃에 닿으면 물이 날아가고, 들뜬 원자가 바닥 상태로 돌아오며
+           불꽃 전체가 원소 고유의 색으로 물든다. 색은 이 순간 처음 생긴다 */
         const a=Math.min(1,(t-1.25)/.7), tint=B(u,'flTint');
         tint.setAttribute('opacity',(a*(.80+f*.10)).toFixed(3));
         flick(tint,f*1.3,1+f*.06,211,117);
         const pz=.74+Math.sin(t*7)*.13;
+        B(u,'sample').setAttribute('opacity',(1-a).toFixed(3));
         B(u,'bead').setAttribute('r',(3.2+pz*1.5).toFixed(2));
-        B(u,'bead').setAttribute('opacity',pz.toFixed(2));
+        B(u,'bead').setAttribute('opacity',(a*pz).toFixed(3));
       }
     }
     if(t>6&&!s.done)s.done=true;
@@ -2858,17 +2888,35 @@ function cutStep(u,s,t){
   }
 }
 /* ── 물에 넣기 절차 — 보관 용기에서 꺼내는 과정 자체가 학습 내용이다 ──
-   마개 열기 → 집게 하강 → 집기 → 들어 올림 → 접시 위로 → 내려놓기 → 물러남 */
+   마개 열기 → 집게 하강 → 집기 → 들어 올림 → 마개 닫기 → 접시 위로 → 내려놓기 → 물러남 */
 const RM = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const ISPEED = RM ? 6 : 1;                 /* 모션 최소화 설정이면 절차를 빠르게 지나간다 */
-const WI = {open:.35, down:.78, grip:.94, lift:1.24, move:1.62, place:1.88, rel:2.00, away:2.28};
+const WI = {open:.35, down:.78, grip:.94, lift:1.24, shut:1.24, shutEnd:1.66,
+            move:1.62, place:1.88, rel:2.00, away:2.28};
 const INTRO_END = 2.3 / ISPEED;
 const JARP={x:42,y:144}, HIGH=64, SETY=155;
 /* 자르기용 — 옮기는 거리가 페트리 접시보다 멀어 ⑤⑥에 시간을 조금 더 준다 */
-const CI = {open:.35, down:.78, grip:.94, lift:1.24, move:1.74, place:2.02, rel:2.14, away:2.42};
+const CI = {open:.35, down:.78, grip:.94, lift:1.24, shut:1.24, shutEnd:1.66,
+            move:1.74, place:2.02, rel:2.14, away:2.42};
 const CUT_END = 2.5 / ISPEED;
 const WATCHP={x:220, y:163};        /* 시계 접시에 내려놓을 때의 집게 끝 위치 */
 
+/* 유리 마개 — 조각이 병 목을 벗어나는 즉시 다시 닫는다.
+   1족 금속은 공기 중의 수분·산소와 바로 반응하므로 병을 열어 둔 채로 실험하지 않는다.
+   k = 0 닫힘 · 1 실험대 옆에 세워 둔 상태 */
+function stopperAt(u,s,t,P){
+  const stp=B(u,'stopper');
+  const k = t<P.open      ? ease(t/P.open)
+          : t<P.shut      ? 1
+          : 1-ease(Math.min(1,(t-P.shut)/(P.shutEnd-P.shut)));
+  if(k<=0){
+    stp.removeAttribute('transform');
+    if(!s.__shut&&t>=P.shut){s.__shut=1;sfx('click')}   /* 열기 전(k=0)에는 울리지 않는다 */
+    return;
+  }
+  stp.setAttribute('transform','translate('+(-39*k).toFixed(1)+','+
+    (90*k-20*Math.sin(k*Math.PI)).toFixed(1)+')');
+}
 function tongsAt(u,x,y,open){
   const g=B(u,'tongs');
   g.setAttribute('opacity','1');
@@ -2877,16 +2925,13 @@ function tongsAt(u,x,y,open){
   B(u,'tongR').setAttribute('transform','rotate('+(-open*2.6).toFixed(2)+' 0 -117)');
 }
 function waterIntro(u,s,t){
-  const stp=B(u,'stopper'), pc=B(u,'piece'), s1=B(u,'stored1');
-  /* ① 유리 마개를 들어 실험대 옆에 세워 둔다 */
+  const pc=B(u,'piece'), s1=B(u,'stored1');
+  /* ① 유리 마개를 들어 실험대 옆에 세워 둔다 → ⑤ 꺼내자마자 다시 닫는다 */
+  stopperAt(u,s,t,WI);
   if(t<WI.open){
-    const k=ease(t/WI.open);
-    stp.setAttribute('transform','translate('+(-39*k).toFixed(1)+','+
-      (90*k-20*Math.sin(k*Math.PI)).toFixed(1)+')');
     B(u,'tongs').setAttribute('opacity','0'); pc.setAttribute('opacity','0');
     return;
   }
-  stp.setAttribute('transform','translate(-39,90)');
   /* ② 집게가 병 목으로 내려간다 */
   if(t<WI.down){
     const k=ease((t-WI.open)/(WI.down-WI.open));
@@ -2932,16 +2977,13 @@ function waterIntro(u,s,t){
 /* ── 잘라서 공기 중에 두기 절차 — 물에 넣기와 같은 일곱 단계.
    도착지만 페트리 접시(131,155)에서 시계 접시(220,163)로 바뀐다 ── */
 function cutIntro(u,s,t){
-  const stp=B(u,'stopper'), lump=B(u,'lump'), s1=B(u,'stored1');
-  /* ① 유리 마개를 들어 실험대 옆에 세워 둔다 */
+  const lump=B(u,'lump'), s1=B(u,'stored1');
+  /* ① 유리 마개를 들어 실험대 옆에 세워 둔다 → ⑤ 꺼내자마자 다시 닫는다 */
+  stopperAt(u,s,t,CI);
   if(t<CI.open){
-    const k=ease(t/CI.open);
-    stp.setAttribute('transform','translate('+(-39*k).toFixed(1)+','+
-      (90*k-20*Math.sin(k*Math.PI)).toFixed(1)+')');
     B(u,'tongs').setAttribute('opacity','0'); lump.setAttribute('opacity','0');
     return;
   }
-  stp.setAttribute('transform','translate(-39,90)');
   /* ② 집게가 병 목으로 내려간다 */
   if(t<CI.down){
     const k=ease((t-CI.open)/(CI.down-CI.open));
@@ -3632,9 +3674,10 @@ function renderHelp(){
     · 반응 속도와 조각이 줄어드는 시간은 수업에서 관찰할 수 있도록 <b>교육용으로 빠르게</b> 맞춘 값입니다. 실제 시간과 다릅니다.<br>
     · 녹는점·끓는점·밀도는 대한화학회 표준 주기율표(2018)와 CRC Handbook의 값입니다.<br>
     · 1족 금속과 물의 반응은 실제로 위험해 <b>교사 시범 실험</b>으로만 진행합니다. 칼륨은 스스로 불이 붙습니다.<br>
+    · 보관 병의 <b>마개는 조각을 꺼내는 동안만</b> 열어 둡니다. 열어 둔 채로 실험하면 금속이 <b>공기 중의 수분·산소</b>와 반응해 위험합니다.<br>
     · 18족은 <b>거의</b> 반응하지 않습니다. 제논(Xe) 같은 무거운 원소는 특별한 조건에서 화합물을 만들기도 합니다.<br>
     · 방전관의 빛은 화학 반응이 아니라 <b>전기 방전</b>으로 나오는 빛입니다.<br>
-    · <b>불꽃 반응</b>은 금속 원자가 열을 받아 들뜬 상태가 되었다가 바닥 상태로 돌아오며 원소 고유의 빛을 내는 현상입니다. 금속 자체를 가열해도 같은 색이 나타나지만, 순수한 1족 금속은 위험해 학교에서는 <b>그 원소가 든 화합물 수용액</b>을 백금선에 묻혀 씁니다. 칼륨의 연보라(404·767 nm)는 나트륨의 노랑(589 nm)에 가려지기 쉬워 <b>코발트 유리</b>를 통해 봅니다.</p>
+    · <b>불꽃 반응</b>은 금속 원자가 열을 받아 들뜬 상태가 되었다가 바닥 상태로 돌아오며 원소 고유의 빛을 내는 현상입니다. 금속 자체를 가열해도 같은 색이 나타나지만, 순수한 1족 금속은 위험해 학교에서는 <b>그 원소가 든 화합물 수용액</b>을 백금선에 묻혀 씁니다. Li⁺·Na⁺·K⁺는 <b>비활성 기체와 같은 전자 배치</b>라 가시광선을 흡수하지 않습니다. 그래서 화합물은 흰색 고체, 수용액은 <b>무색</b>이고 금속 자체는 <b>은백색</b>이에요. <b>색은 불꽃에 넣은 뒤에만 나타납니다</b> — 이 자료도 백금선의 시료를 불꽃에 넣기 전에는 색 없는 물방울로 그렸습니다. 칼륨의 연보라(404·767 nm)는 나트륨의 노랑(589 nm)에 가려지기 쉬워 <b>코발트 유리</b>를 통해 봅니다.</p>
 
   <h3 class="t-sub" style="margin:24px 0 8px">수업 정보</h3>
   <p class="t-meta" style="line-height:1.7">
