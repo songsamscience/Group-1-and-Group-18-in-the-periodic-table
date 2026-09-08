@@ -2248,22 +2248,6 @@ ${ENV}
    <ellipse id="b${u}-ripple" cx="152" cy="160" rx="3" ry="1" fill="none"
             stroke="var(--phenol)" stroke-width="1" opacity="0"/></g>
 
- <!-- 집게 — 등유 속 금속을 꺼내 페트리 접시로 옮긴다. 끝점이 원점(0,0) -->
- <g id="b${u}-tongs" opacity="0">
-   <g id="b${u}-tongL">
-     <path d="M-5.5 0 C-5.2 -30 -4.3 -70 -2.4 -117 L-1.0 -117 C-2.7 -70 -3.4 -30 -3.7 -0.4 Z"
-           fill="url(#mMetalA)" stroke="var(--metal-4)" stroke-width=".35" stroke-linejoin="round"/>
-     <path d="M-4.7 -14 C-4.3 -46 -3.5 -82 -2.3 -110" fill="none" stroke="var(--ap-hi)"
-           stroke-width=".7" opacity=".45" stroke-linecap="round"/>
-   </g>
-   <g id="b${u}-tongR">
-     <path d="M5.5 0 C5.2 -30 4.3 -70 2.4 -117 L1.0 -117 C2.7 -70 3.4 -30 3.7 -0.4 Z"
-           fill="url(#mMetalA)" stroke="var(--metal-4)" stroke-width=".35" stroke-linejoin="round"/>
-   </g>
-   <path d="M-2.6 -117 Q0 -123.6 2.6 -117" fill="none" stroke="var(--metal-3)"
-         stroke-width="2.8" stroke-linecap="round"/>
- </g>
-
  <g id="b${u}-molL" opacity="0">
    <path d="M131 150 V112" stroke="var(--line-2)" stroke-width=".8" stroke-dasharray="3 3" fill="none"/>
    <circle cx="131" cy="150" r="1.5" fill="var(--line-2)"/>
@@ -2326,6 +2310,22 @@ ${ENV}
      <rect id="b${u}-lusterBar" x="190" y="134" width="60" height="6" rx="3" fill="url(#mPiece)"/>
      <text id="b${u}-lusterVal" x="220" y="150" text-anchor="middle" font-size="9" font-weight="700" fill="var(--text-1)">100 %</text></g>
  </g>
+ <!-- 집게 — 등유 속 금속을 꺼내 페트리 접시나 시계 접시로 옮긴다. 끝점이 원점(0,0) -->
+ <g id="b${u}-tongs" opacity="0">
+   <g id="b${u}-tongL">
+     <path d="M-5.5 0 C-5.2 -30 -4.3 -70 -2.4 -117 L-1.0 -117 C-2.7 -70 -3.4 -30 -3.7 -0.4 Z"
+           fill="url(#mMetalA)" stroke="var(--metal-4)" stroke-width=".35" stroke-linejoin="round"/>
+     <path d="M-4.7 -14 C-4.3 -46 -3.5 -82 -2.3 -110" fill="none" stroke="var(--ap-hi)"
+           stroke-width=".7" opacity=".45" stroke-linecap="round"/>
+   </g>
+   <g id="b${u}-tongR">
+     <path d="M5.5 0 C5.2 -30 4.3 -70 2.4 -117 L1.0 -117 C2.7 -70 3.4 -30 3.7 -0.4 Z"
+           fill="url(#mMetalA)" stroke="var(--metal-4)" stroke-width=".35" stroke-linejoin="round"/>
+   </g>
+   <path d="M-2.6 -117 Q0 -123.6 2.6 -117" fill="none" stroke="var(--metal-3)"
+         stroke-width="2.8" stroke-linecap="round"/>
+ </g>
+
  <g id="b${u}-lamp" opacity="0">
    <ellipse cx="214" cy="173" rx="31" ry="3.6" fill="url(#mContact)"/>
    <g id="b${u}-lampFlame" opacity="0">
@@ -2799,33 +2799,36 @@ function dropperStep(u,s,t,dt,react){
   if(t>2.4)d.setAttribute('opacity',Math.max(0,1-(t-2.4)*2).toFixed(2));
   if(t>3.0&&!s.done){s.done=true;d.setAttribute('opacity','0')}
 }
-/* 자르기 — 덩어리를 올림 → 칼이 내려와 누름 → 두 조각으로 갈라짐 → 새 단면이 흐려짐 */
+/* 자르기 — 등유병에서 집게로 꺼내 시계 접시에 올림 → 칼이 내려와 누름
+   → 두 조각으로 갈라짐 → 새 단면이 흐려짐.
+   앞의 '꺼내기'는 물에 넣기와 똑같은 절차다. 꺼내는 과정 자체가 학습 내용이므로
+   두 조작에서 같은 동작을 보여 준다 (§7.1-6) */
 function cutStep(u,s,t){
   const kn=B(u,'knife'), cut=B(u,'cut'), lump=B(u,'lump'),
         pL=B(u,'pieceL'), pR=B(u,'pieceR'), lus=B(u,'luster');
   cut.setAttribute('opacity','1');
-  const stp=B(u,'stopper');
-  stp.setAttribute('transform','translate(-39,'+(90*Math.min(1,t/.4)).toFixed(1)+')');
-  if(t<.55){                                  /* 등유병에서 꺼내 시계 접시에 올린다 */
-    const k=ease(Math.min(1,t/.45));
-    lump.setAttribute('opacity','1');
-    lump.setAttribute('transform','translate(0,'+(-24*(1-k)).toFixed(1)+')');
+  if(t<CUT_END){
     kn.setAttribute('opacity','0'); lus.setAttribute('opacity','0');
-  }else if(t<1.1){                            /* 칼이 비스듬히 내려온다 */
-    const k=ease((t-.55)/.55);
+    cutIntro(u,s,t*ISPEED); return;
+  }
+  const tt=t-CUT_END;
+  B(u,'tongs').setAttribute('opacity','0');
+  if(tt<.9)lump.setAttribute('opacity','1');  /* 갈라진 뒤에는 두 조각만 남는다 */
+  if(tt<.55){                                 /* 칼이 비스듬히 내려온다 */
+    const k=ease(tt/.55);
     lump.removeAttribute('transform');
     kn.setAttribute('opacity','1');
     kn.setAttribute('transform','translate('+(9*(1-k)).toFixed(1)+','+(-44*(1-k)).toFixed(1)+')');
-  }else if(t<1.45){                           /* 눌러 자른다 */
-    const k=(t-1.1)/.35;
+  }else if(tt<.9){                            /* 눌러 자른다 */
+    const k=(tt-.55)/.35;
     kn.setAttribute('transform','translate(0,'+(k*2.2).toFixed(2)+')');
     lump.setAttribute('transform','translate(0,'+(k*.45).toFixed(2)+')');
     if(!s.__cut&&k>.65){s.__cut=1;sfx('flip')}
-  }else if(t<1.95){                           /* 두 조각이 갈라지며 단면이 드러난다 */
+  }else if(tt<1.4){                           /* 두 조각이 갈라지며 단면이 드러난다 */
     /* 회전축은 접시에 닿아 있는 바깥쪽 밑 모서리(L 212.4/168.5 · R 227.8/168.5).
        축은 제자리에 두고 안쪽(잘린 면)만 들리므로 조각이 접시를 뚫지 않는다.
        옆으로 미끄러질 때는 오목면이 올라오는 만큼(약 0.11 mm/mm) 함께 올려 준다. */
-    const k=ease((t-1.45)/.5);
+    const k=ease((tt-.9)/.5);
     lump.setAttribute('opacity','0');
     pL.setAttribute('opacity','1'); pR.setAttribute('opacity','1');
     pL.setAttribute('transform','translate('+(-2.6*k).toFixed(2)+','+(-0.3*k).toFixed(2)+
@@ -2837,7 +2840,7 @@ function cutStep(u,s,t){
     lus.setAttribute('opacity',k.toFixed(2));
   }else{                                      /* 산소와 반응해 광택이 사라진다 */
     kn.setAttribute('opacity','0'); lus.setAttribute('opacity','1');
-    s.tarnish=Math.min(1,(t-1.95)/4.3);
+    s.tarnish=Math.min(1,(tt-1.4)/4.3);
     const v=1-s.tarnish;
     B(u,'faceL').setAttribute('opacity',v.toFixed(3));
     B(u,'faceR').setAttribute('opacity',v.toFixed(3));
@@ -2854,6 +2857,10 @@ const ISPEED = RM ? 6 : 1;                 /* 모션 최소화 설정이면 절�
 const WI = {open:.35, down:.78, grip:.94, lift:1.24, move:1.62, place:1.88, rel:2.00, away:2.28};
 const INTRO_END = 2.3 / ISPEED;
 const JARP={x:42,y:144}, HIGH=64, SETY=155;
+/* 자르기용 — 옮기는 거리가 페트리 접시보다 멀어 ⑤⑥에 시간을 조금 더 준다 */
+const CI = {open:.35, down:.78, grip:.94, lift:1.24, move:1.74, place:2.02, rel:2.14, away:2.42};
+const CUT_END = 2.5 / ISPEED;
+const WATCHP={x:220, y:163};        /* 시계 접시에 내려놓을 때의 집게 끝 위치 */
 
 function tongsAt(u,x,y,open){
   const g=B(u,'tongs');
@@ -2913,6 +2920,58 @@ function waterIntro(u,s,t){
     B(u,'tongs').setAttribute('opacity',(1-k).toFixed(2));
     pc.setAttribute('transform','translate('+DISH.cx+','+(SETY+2)+')');
     if(!s.__plop&&k>.1){s.__plop=1;sfx('pour')}
+  }
+}
+/* ── 잘라서 공기 중에 두기 절차 — 물에 넣기와 같은 일곱 단계.
+   도착지만 페트리 접시(131,155)에서 시계 접시(220,163)로 바뀐다 ── */
+function cutIntro(u,s,t){
+  const stp=B(u,'stopper'), lump=B(u,'lump'), s1=B(u,'stored1');
+  /* ① 유리 마개를 들어 실험대 옆에 세워 둔다 */
+  if(t<CI.open){
+    const k=ease(t/CI.open);
+    stp.setAttribute('transform','translate('+(-39*k).toFixed(1)+','+
+      (90*k-20*Math.sin(k*Math.PI)).toFixed(1)+')');
+    B(u,'tongs').setAttribute('opacity','0'); lump.setAttribute('opacity','0');
+    return;
+  }
+  stp.setAttribute('transform','translate(-39,90)');
+  /* ② 집게가 병 목으로 내려간다 */
+  if(t<CI.down){
+    const k=ease((t-CI.open)/(CI.down-CI.open));
+    tongsAt(u,JARP.x, 30+(JARP.y-30)*k, 1);
+    lump.setAttribute('opacity','0');
+    return;
+  }
+  /* ③ 집는다 */
+  if(t<CI.grip){
+    const k=(t-CI.down)/(CI.grip-CI.down);
+    tongsAt(u,JARP.x,JARP.y,1-k);
+    if(!s.__grip&&k>.6){s.__grip=1;sfx('click')}
+    return;
+  }
+  /* ④ 들어 올림 → ⑤ 시계 접시 위로 → ⑥ 내려놓기 */
+  let x,y;
+  if(t<CI.lift){ const k=ease((t-CI.grip)/(CI.lift-CI.grip)); x=JARP.x; y=JARP.y+(HIGH-JARP.y)*k }
+  else if(t<CI.move){ const k=ease((t-CI.lift)/(CI.move-CI.lift)); x=JARP.x+(WATCHP.x-JARP.x)*k; y=HIGH }
+  else if(t<CI.place){ const k=ease((t-CI.move)/(CI.place-CI.move)); x=WATCHP.x; y=HIGH+(WATCHP.y-HIGH)*k }
+  else { x=WATCHP.x; y=WATCHP.y }
+  /* 병 안에서는 유리 뒤(클립 안)의 조각을 끌어올리고, 병 목을 지나는 구간에서
+     겉면이 흐린 덩어리로 겹쳐 바꾼다 — 바뀌는 순간이 눈에 띄지 않게 */
+  const inJar = t<CI.lift;
+  const q = inJar ? Math.max(0,Math.min(1,(94-y)/14)) : 1;
+  s1.setAttribute('opacity',(1-q).toFixed(3));
+  s1.setAttribute('transform','translate(0,'+(inJar?(y-JARP.y).toFixed(1):0)+')');
+  lump.setAttribute('opacity',q.toFixed(3));
+  lump.setAttribute('transform','translate('+(x-WATCHP.x).toFixed(1)+','+(y-WATCHP.y).toFixed(1)+')');
+  /* ⑦ 집게를 벌려 놓고 물러난다 */
+  if(t<CI.rel){
+    tongsAt(u,x,y, t<CI.place?0:Math.min(1,(t-CI.place)/(CI.rel-CI.place)));
+  }else{
+    const k=ease(Math.min(1,(t-CI.rel)/(CI.away-CI.rel)));
+    tongsAt(u,WATCHP.x, WATCHP.y+(30-WATCHP.y)*k, 1);
+    B(u,'tongs').setAttribute('opacity',(1-k).toFixed(2));
+    lump.removeAttribute('transform');
+    if(!s.__plop&&k>.1){s.__plop=1;sfx('click')}
   }
 }
 function spawnBubble(u,x){
