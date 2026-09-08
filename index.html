@@ -41,6 +41,12 @@
   --g1:#E39A4B;            /* 1족 세로줄 식별색 = 등유 계열 */
   --g18:#A9A6FF;           /* 18족 세로줄 식별색 = 아르곤 방전 계열 */
 
+  /* 보어 원자모형 — 세 입자를 전하의 부호로 갈라 칠한다 */
+  --nuc-p:#E8705E;         /* 양성자 — 양(+)전하 */
+  --nuc-n:#8F9BAD;         /* 중성자 — 전하 없음 */
+  --elec:#5FC2E8;          /* 전자 — 음(−)전하 */
+  --elec-out:#F2C14E;      /* 가장 바깥 껍질의 전자 — 반응을 결정하는 전자 */
+
   /* 기구 재질 */
   --ap-line:#8994A4; --ap-hi:#FFFFFF; --ap-tick:#B7C2D0; --ap-mark:#DCE4EE;
   --glass-c:#FFFFFF; --glass-o1:.26; --glass-o2:.05; --glass-o3:.035; --glass-o4:.14;
@@ -89,6 +95,7 @@
   --focus:#0F6FB8; --scrim:rgba(20,27,38,.42);
   --kero:#B07E22; --kero-2:#8A6320; --phenol:#C42F63; --glassy:#5E88A6;
   --g1:#8A5410; --g18:#4B47B8;
+  --nuc-p:#C4432F; --nuc-n:#5F6B7D; --elec:#0F6E8C; --elec-out:#8A5D04;
   --ap-line:#5C6774; --ap-hi:#FFFFFF; --ap-tick:#4A5563; --ap-mark:#1D242E;
   --glass-c:#2E4A63; --glass-o1:.11; --glass-o2:.03; --glass-o3:.025; --glass-o4:.07;
   --metal-1:#8C949E; --metal-2:#F2F5F9; --metal-3:#AEB6C0; --metal-4:#6D757F;
@@ -556,6 +563,139 @@ textarea.field{min-height:100px}
 .ptbl th{font-size:12px;color:var(--text-2);font-weight:600}
 .ptbl td{font-variant-numeric:tabular-nums;font-weight:600}
 .ptbl tr.hl td{color:var(--accent)}
+
+/* ── 보어 원자모형 — 카드를 누르면 열리는 '원자 속' 그림 ── */
+#ptFlipT{font-size:15px;font-weight:600;margin-bottom:var(--s3)}
+#ptFlipT sup{font-size:.68em}
+.bohr{display:grid;grid-template-columns:300px minmax(0,1fr);gap:var(--s5);
+  align-items:start;margin-bottom:var(--s4)}
+.bohr-fig{padding:var(--s3);border-radius:var(--r-2);
+  background:var(--surface-2);border:1px solid var(--line-1)}
+.bohr-fig svg{display:block;width:100%;height:auto}
+.bohr-key{display:flex;flex-wrap:wrap;gap:var(--s1) var(--s3);margin-top:var(--s2);
+  font-size:11px;color:var(--text-2)}
+.bohr-key span{display:inline-flex;align-items:center;gap:5px}
+.bohr-key i{width:9px;height:9px;border-radius:var(--r-f);flex-shrink:0}
+.bohr-key i.dash{background:none;border:1.4px dashed var(--elec-out)}
+.bohr-cap{font-size:11px;color:var(--text-3);margin-top:var(--s2);line-height:1.5}
+.bohr-info{display:flex;flex-direction:column;gap:var(--s3);min-width:0}
+.bohr-sw{align-self:flex-start}
+/* 최외각 전자 수 — 이 화면에서 가장 크게 읽혀야 하는 한 숫자 */
+.bval{display:flex;align-items:center;gap:var(--s3);padding:var(--s3) var(--s4);
+  border-radius:var(--r-2);
+  background:color-mix(in srgb,var(--elec-out) 13%,var(--surface-2));
+  border:1px solid color-mix(in srgb,var(--elec-out) 34%,transparent)}
+.bval .n{font-size:30px;font-weight:800;line-height:1;letter-spacing:-.03em;
+  color:var(--elec-out);font-variant-numeric:tabular-nums}
+.bval .n em{font-size:15px;font-style:normal;font-weight:700;margin-left:1px}
+.bval .l{font-size:13px;font-weight:600;line-height:1.35}
+.bval .l span{display:block;font-size:11px;font-weight:400;color:var(--text-2);margin-top:2px}
+.bcfg{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12px;color:var(--text-2)}
+.bcfg .t{font-weight:600;margin-right:var(--s1)}
+.bcfg b{display:inline-grid;place-items:center;min-width:26px;height:26px;padding:0 6px;
+  border-radius:var(--r-1);background:var(--surface-2);border:1px solid var(--line-1);
+  font-size:13px;font-weight:700;color:var(--text-1)}
+.bcfg b.out{border-color:var(--elec-out);
+  background:color-mix(in srgb,var(--elec-out) 20%,var(--surface-2))}
+.bcfg .sep{color:var(--text-3)}
+.bcfg .was{color:var(--text-3);text-decoration:line-through}
+.bnum{width:100%;border-collapse:collapse;font-size:13px}
+.bnum td{padding:5px var(--s2);border-bottom:1px solid var(--line-1)}
+.bnum tr:last-child td{border-bottom:none}
+.bnum td:first-child{color:var(--text-2);white-space:nowrap;padding-left:0}
+.bnum td.v{text-align:right;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.bnum td.m{font-size:11px;color:var(--text-3);text-align:right;padding-right:0}
+.bnum tr.chg td.v{color:var(--elec-out)}
+.bnote{font-size:13px;line-height:1.65;padding:var(--s3);border-radius:var(--r-1);
+  background:var(--surface-2)}
+.bnote.ion{background:var(--accent-soft)}
+.bnote sup{font-size:.68em}
+.bsub{font-size:12px;font-weight:600;color:var(--text-2);margin:var(--s5) 0 var(--s2)}
+
+/* 족 번호 = 세로줄을 통째로 여는 단추 */
+.pt-head .gh{
+  width:100%;text-align:center;font-size:10px;font-weight:600;color:var(--text-1);
+  border-radius:var(--r-1);padding:1px 0;position:relative;
+  background:var(--surface-2);border:1px solid var(--line-1);
+  transition:background var(--m-icon) var(--ease-in),color var(--m-icon) var(--ease-in),
+             border-color var(--m-icon) var(--ease-in);
+}
+.pt-head .gh::before{content:"";position:absolute;inset:-4px 0}
+.pt-head .gh:hover{border-color:var(--accent);color:var(--accent)}
+.pt-head .gh[aria-pressed="true"]{background:var(--accent);border-color:transparent;
+  color:var(--accent-ink);font-weight:700}
+.pt-cell.gsel{box-shadow:inset 0 0 0 1px var(--accent)}
+
+/* ── 세로줄 견주기 안내 막대 — 이 기능은 드러내 두지 않으면 아무도 누르지 않는다 ── */
+.cmp-bar{
+  margin-top:var(--s4);padding:var(--s4);border-radius:var(--r-2);
+  background:var(--surface-1);border:1px solid var(--line-1);
+  transition:border-color var(--m-panel) var(--ease-in),background var(--m-panel) var(--ease-in);
+}
+.cmp-bar.nudge{border-color:var(--accent);background:var(--accent-soft)}
+.cmp-h{display:flex;align-items:flex-start;gap:var(--s3);margin-bottom:var(--s3)}
+.cmp-h>svg{width:20px;height:20px;flex-shrink:0;color:var(--accent);margin-top:1px}
+.cmp-h b{display:block;font-size:13px;font-weight:600;color:var(--text-1)}
+.cmp-tag{display:inline-block;margin-left:var(--s2);padding:1px 7px;border-radius:var(--r-f);
+  background:var(--accent);color:var(--accent-ink);font-size:10px;font-weight:700;
+  font-style:normal;letter-spacing:-.01em;vertical-align:1px}
+.cmp-h p{font-size:12px;color:var(--text-2);margin-top:2px;line-height:1.55;max-width:64ch}
+.cmp-h p b{display:inline;font-weight:600}
+.cmp-btns{display:flex;flex-wrap:wrap;gap:var(--s2)}
+.cmpb{
+  display:flex;flex-direction:column;align-items:flex-start;gap:1px;
+  padding:5px var(--s3);border-radius:var(--r-1);position:relative;
+  background:var(--surface-2);border:1px solid var(--line-1);
+  transition:border-color var(--m-icon) var(--ease-in),background var(--m-icon) var(--ease-in),
+             transform var(--m-icon) var(--ease-in);
+}
+.cmpb::before{content:"";position:absolute;inset:-3px}
+.cmpb b{font-size:13px;font-weight:700;letter-spacing:-.01em;color:var(--text-1);line-height:1.25}
+.cmpb em{font-style:normal;font-size:11px;font-weight:500;color:var(--text-3);line-height:1.3}
+.cmpb:hover{border-color:var(--line-2)}
+.cmpb:active{transform:scale(.97)}
+.cmpb.g1 b{color:var(--g1)}
+.cmpb.g18 b{color:var(--g18)}
+.cmpb[aria-pressed="true"]{background:var(--accent);border-color:transparent}
+.cmpb[aria-pressed="true"] b,.cmpb[aria-pressed="true"] em{color:var(--accent-ink)}
+.cmpb.close{background:transparent;border-style:dashed}
+.cmpb.close b{color:var(--text-2)}
+@media (max-width:560px){
+  .cmpb em{display:none}
+  .cmpb{padding:6px var(--s3)}
+}
+
+/* 세로줄 견주기 — 같은 족 원소의 모형을 나란히 */
+.bgh{display:flex;align-items:center;gap:var(--s3);flex-wrap:wrap;margin-bottom:var(--s3)}
+.bgh p{font-size:13px;color:var(--text-2);flex:1;min-width:200px}
+.bgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+  gap:var(--s3);margin-bottom:var(--s4)}
+.bcell{
+  display:block;width:100%;text-align:left;padding:var(--s3);border-radius:var(--r-2);
+  background:var(--surface-2);border:1px solid var(--line-1);position:relative;
+  transition:border-color var(--m-icon) var(--ease-in);
+}
+.bcell:hover{border-color:var(--line-2)}
+.bcell svg{display:block;width:100%;max-width:230px;height:auto;margin:0 auto}
+.bc-h{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.bc-h b{font-size:17px;font-weight:800;letter-spacing:-.02em;color:var(--text-1)}
+.bc-h span{font-size:12px;font-weight:600;color:var(--text-1)}
+.bc-h i{font-size:11px;font-style:normal;color:var(--text-3);margin-left:auto}
+.bc-h sup{font-size:.66em}
+.bc-f{display:flex;align-items:center;justify-content:space-between;gap:var(--s2);
+  margin-top:var(--s2);padding-top:var(--s2);border-top:1px solid var(--line-1);
+  font-size:12px;color:var(--text-2)}
+.bc-f .cfg{font-weight:700;color:var(--text-1);font-variant-numeric:tabular-nums}
+.bc-f .v b{color:var(--elec-out)}
+.bc-n{font-size:11px;color:var(--text-2);margin-top:5px;line-height:1.4}
+@media (max-width:560px){
+  .bgrid{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:var(--s2)}
+  .bcell{padding:var(--s2)}
+}
+@media (max-width:780px){
+  .bohr{grid-template-columns:minmax(0,1fr)}
+  .bohr-fig{max-width:320px}
+}
 
 /* ── 세로줄 예측 활동 ── */
 .predict{margin-top:var(--s4);padding:var(--s4);border-radius:var(--r-2);
@@ -1199,7 +1339,7 @@ textarea.field{min-height:100px}
     <div class="work"><div class="work-in">
       <div class="work-h">
         <h2>1~20번 원소를 주기율표에 배치하기</h2>
-        <p>원자 번호 순서대로 놓다가, 성질이 비슷한 원소가 같은 세로줄에 오도록 줄을 바꿉니다. 카드에는 번호가 적혀 있지 않아요 — 카드를 누르면 <b>원자 번호</b>와 <b>양성자·중성자·전자 수</b>를 확인할 수 있습니다.</p>
+        <p>원자 번호 순서대로 놓다가, 성질이 비슷한 원소가 같은 세로줄에 오도록 줄을 바꿉니다. 카드에는 번호가 적혀 있지 않아요 — 카드를 누르면 <b>원자 번호</b>와 <b>양성자·중성자·전자 수</b>, 그리고 <b>보어 원자모형</b>이 아래에 펼쳐집니다. 껍질별 전자 배치와 <b>가장 바깥 껍질의 전자 수</b>를 확인하고, [이온] 단추로 전자를 잃거나 얻으면 무엇이 바뀌는지도 볼 수 있어요.</p>
       </div>
 
       <div class="sec">
@@ -1214,10 +1354,11 @@ textarea.field{min-height:100px}
         <div class="pt-head" id="ptHead"></div>
         <div class="ptable" id="ptable" role="grid" aria-label="주기율표 1~4주기"></div>
       </div>
+      <div class="cmp-bar" id="ptCmp"></div>
 
       <div class="pt-flip" id="ptFlip">
-        <h4 id="ptFlipT">카드를 누르면 원자 번호와 구성 입자 수를 볼 수 있어요</h4>
-        <div id="ptFlipBody"><p style="font-size:13px;color:var(--text-2)">아직 고른 카드가 없어요. 위에서 카드를 하나 눌러 보세요.</p></div>
+        <h4 id="ptFlipT">카드를 누르면 원자 번호 · 구성 입자 · 보어 원자모형을 볼 수 있어요</h4>
+        <div id="ptFlipBody"><p style="font-size:13px;color:var(--text-2)">아직 고른 카드가 없어요. 위에서 카드를 하나 누르거나, <b>세로줄 견주기</b>에서 족을 골라 보세요.</p></div>
       </div>
 
       <div class="predict" id="predict">
@@ -1641,6 +1782,22 @@ function ptPos(z){
   return[4,z-18];
 }
 
+/* 전자 껍질은 안쪽부터 차례로 채워진다 — 1~20번에 쓰는 학교 규칙 2 · 8 · 8 · 2.
+   K(19)를 2·8·9가 아니라 2·8·8·1로 읽어야 1족 세로줄이 맞아떨어진다 */
+const SHELL_CAP=[2,8,8,2];
+function shellsOf(ne){
+  const out=[]; let left=ne;
+  for(let i=0;i<SHELL_CAP.length&&left>0;i++){const k=Math.min(left,SHELL_CAP[i]);out.push(k);left-=k}
+  return out;
+}
+/* 흔히 만드는 한 원자짜리 이온의 전하. 목록에 없는 원소(B·C·Si·18족)는
+   전자를 주고받기보다 서로 내어 공유하므로 이온 모형을 보여 주지 않는다 */
+const ION={H:1,Li:1,Na:1,K:1,Be:2,Mg:2,Ca:2,Al:3,N:-3,P:-3,O:-2,S:-2,F:-1,Cl:-1};
+const NOBLE={2:'헬륨(He)',10:'네온(Ne)',18:'아르곤(Ar)'};
+function ionMark(sym,q){
+  return sym+'<sup>'+(Math.abs(q)>1?Math.abs(q):'')+(q>0?'+':'\u2212')+'</sup>';
+}
+
 /* 세로줄 예측 활동 */
 const PRED=[
  {q:'루비듐(Rb, 37번)은 <b>칼륨(K) 바로 아래 1족</b>에 있습니다. Rb의 성질로 가장 알맞은 예상은?',
@@ -1717,7 +1874,7 @@ const THEORY=[
     '1족은 가장 바깥 전자가 <b>1개</b>여서 그 전자를 잃기 쉽습니다. 그래서 물·산소와 잘 반응해요.',
     '18족은 가장 바깥 전자 껍질이 <b>꽉 차 있어</b> 전자를 주고받을 필요가 없습니다. 그래서 거의 반응하지 않아요.',
     '반응하는 방식이 같으니 <b>성질도 닮게</b> 됩니다.'],
- tie:'Li·Na·K가 모두 물과 반응해 수소 기체를 낸 것, He·Ne·Ar이 모두 아무 변화가 없던 것이 바로 이 때문입니다.',
+ tie:'Li·Na·K가 모두 물과 반응해 수소 기체를 낸 것, He·Ne·Ar이 모두 아무 변화가 없던 것이 바로 이 때문입니다. <b>주기율표 배치</b> 단계에서 카드를 누르면 원소마다 이 전자 배치를 보어 원자모형으로 직접 확인할 수 있어요.',
  more:{t:'헬륨은 왜 예외처럼 보일까?',c:'He는 전자가 2개뿐이라 가장 바깥 전자도 2개예요. 하지만 <b>첫 번째 전자 껍질은 2개로 꽉 차기</b> 때문에 다른 18족과 똑같이 안정합니다.'}},
 
 {t:'1족 원소의 성질 (수소 제외)',
@@ -3286,8 +3443,15 @@ function savePT(){Learn.set('pt',ST.pt)}
 function renderPT(){
   const head=$('#ptHead');
   if(!head.childElementCount){
+    /* 원소가 있는 세로줄의 번호는 단추다 — 누르면 그 족을 통째로 견준다 */
     head.innerHTML='<span class="ax">족</span>'+
-      Array.from({length:18},(_,i)=>'<span>'+(i+1)+'</span>').join('');
+      Array.from({length:18},(_,i)=>{
+        const g=i+1;
+        return GRPS.includes(g)
+          ? '<button class="gh" data-g="'+g+'" aria-pressed="false" '+
+            'aria-label="'+g+'족 세로줄. 누르면 이 족 원소들의 보어 원자모형을 나란히 견줍니다">'+g+'</button>'
+          : '<span>'+g+'</span>';
+      }).join('');
   }
   const g=$('#ptable'); g.innerHTML='';
   const placedZ=Object.values(ST.pt).map(Number);
@@ -3299,6 +3463,7 @@ function renderPT(){
       const key=p+'-'+c;
       const target=EL20.find(e=>{const q=ptPos(e.z); return q[0]===p&&q[1]===c});
       const d=document.createElement('div');
+      d.dataset.c=c;
       if(p<=3&&!target){
         // 1~3주기의 빈 자리 — 실제 주기율표에서 원소가 없는 칸
         d.className='pt-cell blank';
@@ -3315,7 +3480,7 @@ function renderPT(){
           const e=EL20.find(x=>x.sym===got);
           d.innerHTML='<span class="z">'+e.z+'</span><span class="s">'+e.sym+'</span>';
           d.setAttribute('aria-label',p+'주기 '+c+'족, '+e.z+'번 '+e.kr+
-            ' 배치됨. 누르면 구성 입자를 봅니다');
+            ' 배치됨. 누르면 구성 입자와 보어 원자모형을 봅니다');
           if(e.z!==target.z)d.classList.add('wrong');
         }else{
           d.innerHTML='<span class="z">'+target.z+'</span>';
@@ -3325,13 +3490,14 @@ function renderPT(){
       g.appendChild(d);
     }
   }
+  paintGroupSel();
   const rest=EL20.filter(e=>!Object.values(ST.pt).includes(e.sym));
   /* 남은 카드에는 원자 번호를 적지 않는다 — 카드와 자리에 같은 번호가 보이면
      숫자끼리 짝만 맞추면 되어, '이 원소가 몇 번인지'를 떠올릴 일이 없어진다.
      카드를 누르면 아래 표에서 원자 번호를 확인할 수 있다 */
   $('#ptTray').innerHTML=rest.map(e=>
     '<button class="card'+(ST.ptSel===e.sym?' sel':'')+'" data-sym="'+e.sym+'" data-z="'+e.z+'" role="listitem" '+
-    'aria-label="'+e.kr+' '+e.sym+'. 누르면 원자 번호를 확인할 수 있고, 표의 자리를 누르면 놓입니다">'+
+    'aria-label="'+e.kr+' '+e.sym+'. 누르면 원자 번호와 보어 원자모형을 확인할 수 있고, 표의 자리를 누르면 놓입니다">'+
     '<span class="s">'+e.sym+'</span></button>').join('')
     ||'<span class="cc">카드를 모두 놓았어요.</span>';
   $('#trayCnt').textContent=rest.length+'개 남음';
@@ -3346,18 +3512,294 @@ function placeCard(sym,key){
   else{sfx('no');toast('<b>'+e.kr+'</b>은 원자 번호 '+e.z+'번이에요. 원자 번호 순서대로 놓아 보세요.')}
   ST.ptSel=null; renderPT(); showFlip(sym);
 }
-function showFlip(sym){
-  const e=EL20.find(x=>x.sym===sym); if(!e)return;
-  $('#ptFlipT').textContent=e.z+'번 '+e.kr+' ('+e.sym+') — 원자의 구성 입자';
-  const near=EL20.filter(x=>Math.abs(x.z-e.z)<=1);
-  $('#ptFlipBody').innerHTML=
-    '<p style="font-size:13px;color:var(--text-2);margin-bottom:12px">'+e.f+'</p>'+
-    '<table class="ptbl"><tr><th>구성 입자</th>'+near.map(x=>'<th>'+x.sym+' ('+x.z+')</th>').join('')+'</tr>'+
-    '<tr class="hl"><td>양성자 수</td>'+near.map(x=>'<td>'+x.z+'</td>').join('')+'</tr>'+
-    '<tr><td>중성자 수</td>'+near.map(x=>'<td>'+x.n+'</td>').join('')+'</tr>'+
-    '<tr><td>전자 수 (중성 원자)</td>'+near.map(x=>'<td>'+x.z+'</td>').join('')+'</tr></table>'+
-    '<p style="font-size:12px;color:var(--text-3);margin-top:8px">양성자 수는 원소마다 하나씩 정해져 겹치지 않아요. 이것이 원자 번호이자 배치 기준입니다.</p>';
+/* ── 보어 원자모형 그리기 ──────────────────────────────────────────
+   원자핵은 양성자·중성자를 낱개로 흩어 놓고(해바라기 배치), 껍질마다 전자를
+   고르게 돌린다. q는 이온의 전하 — 0이면 중성 원자.
+   전자가 '어디로 갔는지'가 보여야 이온을 이해하므로, 잃은 전자는 제자리에
+   점선 자국과 바깥으로 나가는 화살표로, 얻은 전자는 점선 테두리로 남긴다 */
+const BOHR_R=[[46],[42,70],[36,62,88],[33,56,78,100]];
+function bohrSVG(e,q){
+  const ne=e.z-q, sa=shellsOf(e.z), si=shellsOf(ne);
+  const nsh=Math.max(sa.length,si.length,1), R=BOHR_R[nsh-1];
+  const CX=130, CY=130, A=e.z+e.n, F=v=>v.toFixed(1);
+  const Rn=Math.min(26,8+2.6*Math.sqrt(A));                 /* 핵의 크기는 핵자 수를 따른다 */
+  const rd=Math.max(1.9,Math.min(5.2,.70*Rn/Math.sqrt(A))); /* 낱알 하나의 크기 */
+  let orb='',els='',lab='';
+  for(let i=0;i<nsh;i++){
+    const r=R[i], have=si[i]||0, was=sa[i]||0, cnt=Math.max(have,was);
+    const outer=(i===si.length-1);
+    orb+='<circle cx="130" cy="130" r="'+r+'" fill="none" stroke="var('+(outer?'--elec-out':'--line-2')+')"'+
+      ' stroke-width="'+(outer?1.6:1)+'"'+(have?'':' stroke-dasharray="3 4" opacity=".45"')+'/>';
+    for(let j=0;j<cnt;j++){
+      const th=(-90+360*j/cnt)*Math.PI/180, c=Math.cos(th), sn=Math.sin(th);
+      const x=CX+r*c, y=CY+r*sn;
+      const st=j<have?(j<was?'keep':'gain'):'lost';
+      if(st==='lost'){
+        const ax=CX+(r+8)*c, ay=CY+(r+8)*sn, bx=CX+(r+17)*c, by=CY+(r+17)*sn;
+        els+='<circle cx="'+F(x)+'" cy="'+F(y)+'" r="4.4" fill="none" stroke="var(--elec)"'+
+             ' stroke-width="1.3" stroke-dasharray="2 2.2" opacity=".6"/>'+
+             '<path d="M'+F(ax)+' '+F(ay)+'L'+F(bx)+' '+F(by)+
+             'M'+F(bx-5*c-3.2*sn)+' '+F(by-5*sn+3.2*c)+'L'+F(bx)+' '+F(by)+
+             'L'+F(bx-5*c+3.2*sn)+' '+F(by-5*sn-3.2*c)+'" fill="none" stroke="var(--elec-out)"'+
+             ' stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>';
+      }else{
+        if(st==='gain')els+='<circle cx="'+F(x)+'" cy="'+F(y)+'" r="8.4" fill="none"'+
+          ' stroke="var(--elec-out)" stroke-width="1.3" stroke-dasharray="2 2.4"/>';
+        els+='<circle cx="'+F(x)+'" cy="'+F(y)+'" r="'+(outer?5:4.4)+
+          '" fill="var('+(outer?'--elec-out':'--elec')+')"/>';
+      }
+    }
+    /* 껍질마다 전자 수를 궤도 위에 적는다 — 2 · 8 · 1을 그림에서 바로 읽도록 */
+    const lx=CX+r*Math.cos(3.5255), ly=CY+r*Math.sin(3.5255);
+    lab+='<circle cx="'+F(lx)+'" cy="'+F(ly)+'" r="9" fill="var(--surface-2)"/>'+
+      '<text x="'+F(lx)+'" y="'+F(ly+3.6)+'" text-anchor="middle" font-size="10.5"'+
+      ' font-weight="700" fill="var('+(have?'--text-1':'--text-3')+')">'+have+'</text>';
+  }
+  let nuc='';
+  for(let i=0;i<A;i++){
+    const rr=Rn*.8*Math.sqrt((i+.5)/A), th=i*2.39996323;
+    nuc+='<circle cx="'+F(CX+rr*Math.cos(th))+'" cy="'+F(CY+rr*Math.sin(th))+'" r="'+F(rd)+
+      '" fill="var('+(((i*e.z)%A)<e.z?'--nuc-p':'--nuc-n')+')"/>';
+  }
+  const al=e.kr.split('(')[0]+(q?' 이온':' 원자')+'의 보어 모형. 원자핵에 양성자 '+e.z+
+    '개와 중성자 '+e.n+'개, 전자 껍질에는 안쪽부터 '+(si.length?si.join('·'):'0')+
+    '개의 전자가 있고 가장 바깥 껍질의 전자는 '+(si[si.length-1]||0)+'개입니다.';
+  return '<svg viewBox="0 0 260 260" role="img" aria-label="'+al+'">'+orb+nuc+els+lab+'</svg>';
 }
+/* 모형 아래에 붙는 한 문장 — 최외각 전자 수와 반응성을 잇는다 */
+function bohrNote(e,q,v){
+  if(q){
+    const ne=e.z-q, nob=NOBLE[ne];
+    return '전자 <b>'+Math.abs(q)+'개를 '+(q>0?'잃어':'얻어')+'</b> '+ionMark(e.sym,q)+
+      '이 되었어요. <b>양성자 수는 '+e.z+'개 그대로</b>이고 전자 수만 '+e.z+'개 → <b>'+ne+
+      '개</b>로 바뀌어, 전하가 <b>'+(q>0?'+':'−')+Math.abs(q)+'</b>이 됩니다.'+
+      (ne===0?' 전자가 하나도 남지 않아 <b>양성자 1개</b>만 남았어요.'
+             :nob?' 전자 배치가 18족인 <b>'+nob+'</b>과 같아져 안정해졌습니다.':'');
+  }
+  if(e.g===18)return '가장 바깥 껍질이 전자로 <b>꽉 차 있어요.</b> 전자를 주고받을 필요가 없으므로 '+
+    '<b>다른 원소와 거의 반응하지 않습니다.</b>';
+  if(e.g===1&&e.z>1)return '가장 바깥 전자가 <b>1개</b>뿐이에요. 이 전자를 <b>잃기 쉬워</b> '+
+    '물·산소와 쉽게 반응합니다. 1족이 모두 닮은 까닭이 여기에 있어요.';
+  if(e.g===17)return '가장 바깥 전자가 <b>7개</b>예요. <b>1개만 얻으면</b> 8개로 꽉 차기 때문에 '+
+    '전자를 얻으려는 성질이 큽니다.';
+  if(e.z===1)return '수소는 1족 자리에 있지만 금속이 아니에요. 전자가 <b>1개</b>뿐이라 '+
+    '첫 번째 껍질(2개까지)이 절반만 찼습니다.';
+  return '가장 바깥 껍질의 전자가 <b>'+v+'개</b>입니다. <b>같은 족(세로줄) 원소끼리는 이 수가 같아요</b> '+
+    '— 그래서 성질이 닮습니다.'+(ION[e.sym]==null
+      ? ' 다만 이 원소는 전자를 주고받기보다 <b>서로 내어 공유</b>하므로 한 원자짜리 이온을 잘 만들지 않아요.':'');
+}
+/* 세로줄 견주기 — 같은 족 원소의 모형을 나란히 놓으면 무엇이 같은지가 드러난다 */
+const GRPS=[...new Set(EL20.map(e=>e.g))].sort((a,b)=>a-b);
+function groupNote(g,els,ion){
+  const q=ION[els[0].sym];
+  if(ion)return g+'족 원소는 모두 전자 <b>'+Math.abs(q)+'개를 '+(q>0?'잃어':'얻어')+'</b> '+
+    '<b>'+(q>0?'+':'−')+Math.abs(q)+' 이온</b>이 됩니다. 양성자 수는 저마다 그대로인데 '+
+    '전자 수만 달라져, 전자 배치가 <b>가까운 18족과 같아져</b> 안정해져요. '+
+    '이온이 되는 방식까지 같은 것이 <b>같은 족 원소가 닮은 까닭</b>입니다.'+
+    (g===1?' 다만 <b>수소 이온(H<sup>+</sup>)</b>은 전자가 하나도 남지 않는 특별한 경우예요.':'');
+  if(g===18)return '18족은 가장 바깥 껍질이 <b>전자로 꽉 차 있어요.</b> He는 2개, Ne·Ar은 8개인데 '+
+    '<b>첫 번째 껍질은 2개로 꽉 차기</b> 때문에 셋 다 똑같이 안정합니다. '+
+    '전자를 주고받을 필요가 없으므로 <b>다른 원소와 거의 반응하지 않아요.</b>';
+  const v=shellsOf(els[0].z).slice(-1)[0];
+  return g+'족 원소는 원자핵 속 <b>양성자·중성자 수는 저마다 다르지만</b>, '+
+    '<b>가장 바깥 껍질의 전자가 모두 '+v+'개</b>로 같아요. 반응에 관여하는 것은 이 바깥 전자이므로 '+
+    '<b>성질이 서로 닮습니다.</b>'+
+    (g===1?' 다만 <b>수소</b>는 1족 자리에 있어도 금속이 아니어서 알칼리 금속에 넣지 않아요.':'');
+}
+function renderGroupFlip(){
+  const g=ptFlipGrp, els=EL20.filter(e=>e.g===g).sort((a,b)=>a.z-b.z);
+  const can=els.every(e=>ION[e.sym]!=null), ion=ptGrpIon&&can;
+  $('#ptFlipT').innerHTML=g+'족 세로줄 — '+els.map(e=>e.sym).join(' · ')+
+    (ion?' 이온의 전자 배치 견주기':' 보어 원자모형 견주기');
+  $('#ptFlipBody').innerHTML=
+  '<div class="bgh"><p>같은 세로줄 원소 '+els.length+'개를 나란히 놓았어요. '+
+    '<b>원자핵 속 알갱이 수</b>와 <b>가장 바깥 껍질의 전자 수</b> 가운데 무엇이 같은지 견주어 보세요.</p>'+
+    '<div class="modesw bohr-sw" role="group" aria-label="원자와 이온 바꿔 보기">'+
+      '<button data-m="atom" aria-pressed="'+(!ion)+'">원자</button>'+
+      '<button data-m="ion" aria-pressed="'+ion+'"'+
+        (can?'':' disabled title="'+(g===18
+          ?'18족은 가장 바깥 껍질이 이미 꽉 차 있어 이온이 되지 않아요'
+          :'이 족에는 한 원자짜리 이온을 잘 만들지 않는 원소가 있어요')+'"')+
+        '>이온</button></div></div>'+
+  /* 칸 너비는 원소 수에 맞춘다 — 4개짜리가 3+1로 접히면 견주기가 흐트러진다 */
+  '<div class="bgrid" style="grid-template-columns:repeat(auto-fit,minmax('+
+    (els.length>=4?160:els.length===3?180:200)+'px,1fr))">'+els.map(e=>{
+    const q=ion?ION[e.sym]:0, cur=shellsOf(e.z-q), v=cur[cur.length-1]||0;
+    return '<button class="bcell" data-sym="'+e.sym+'" aria-label="'+e.kr.split('(')[0]+
+      ' 자세히 보기">'+
+      '<div class="bc-h"><b>'+(q?ionMark(e.sym,q):e.sym)+'</b><span>'+e.kr.split('(')[0]+
+      '</span><i>'+e.z+'번</i></div>'+bohrSVG(e,q)+
+      '<div class="bc-f"><span class="cfg">'+(cur.join(' · ')||'0')+
+      '</span><span class="v">최외각 <b>'+v+'</b>개</span></div>'+
+      (q?'<div class="bc-n">'+(NOBLE[e.z-q]
+        ?'전자 배치가 <b>'+NOBLE[e.z-q]+'</b>과 같아요'
+        :'전자가 하나도 남지 않았어요')+'</div>':'')+'</button>';
+  }).join('')+'</div>'+
+  '<p class="bnote'+(ion?' ion':'')+'">'+groupNote(g,els,ion)+'</p>'+
+  '<div class="bsub">'+(ion?'이온이 되어도 양성자 수는 그대로다'
+                          :'양성자·중성자 수는 원소마다 다르다')+'</div>'+
+  '<table class="ptbl"><tr><th>구성 입자</th>'+els.map(e=>'<th>'+e.sym+' ('+e.z+')</th>').join('')+'</tr>'+
+  '<tr class="hl"><td>양성자 수</td>'+els.map(e=>'<td>'+e.z+'</td>').join('')+'</tr>'+
+  '<tr><td>중성자 수</td>'+els.map(e=>'<td>'+e.n+'</td>').join('')+'</tr>'+
+  '<tr><td>전자 수</td>'+els.map(e=>'<td>'+(e.z-(ion?ION[e.sym]:0))+'</td>').join('')+'</tr>'+
+  (ion?'<tr><td>전하</td>'+els.map(e=>{const q2=ION[e.sym];
+    return '<td>'+(q2>0?'+':'−')+Math.abs(q2)+'</td>'}).join('')+'</tr>':'')+
+  '<tr><td>전자 껍질 수</td>'+els.map(e=>'<td>'+shellsOf(e.z-(ion?ION[e.sym]:0)).length+'</td>').join('')+'</tr>'+
+  '<tr><td>가장 바깥 껍질 전자 수</td>'+els.map(e=>{const t=shellsOf(e.z-(ion?ION[e.sym]:0));
+    return '<td>'+(t[t.length-1]||0)+'</td>'}).join('')+'</tr></table>'+
+  '<p style="font-size:12px;color:var(--text-3);margin-top:8px">'+(ion
+    ? '<b>양성자 수는 하나도 변하지 않았습니다.</b> 달라진 것은 전자 수뿐이에요 — 그래서 주기율표의 배치 기준이 '+
+      '전자가 아니라 <b>양성자 수(원자 번호)</b>인 것입니다.'
+    : '위에서 아래로 갈수록 <b>전자 껍질이 한 겹씩 늘어</b>납니다. 그래도 <b>가장 바깥 껍질의 전자 수는 그대로</b>예요.')+
+    ' 모형 하나를 눌러 그 원소만 자세히 볼 수도 있습니다.</p>';
+}
+/* 카드 뒷면 — 원소 하나를 펼칠지, 세로줄 하나를 통째로 견줄지 */
+let ptFlipSym=null, ptFlipIon=false, ptFlipGrp=null, ptGrpIon=false;
+/* 견주기를 한 번이라도 눌러 봤는지 — 새로고침하면 되돌아간다(수업마다 다른 학생) */
+let cmpUsed=false;
+function renderCmpBar(){
+  const open=ptFlipGrp!=null, bar=$('#ptCmp'); if(!bar)return;
+  bar.className='cmp-bar'+(!cmpUsed&&!open?' nudge':'');
+  bar.innerHTML=
+    '<div class="cmp-h">'+
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" '+
+        'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+        '<rect x="3.5" y="3.5" width="6.5" height="17" rx="1.6"/>'+
+        '<rect x="14" y="3.5" width="6.5" height="17" rx="1.6"/></svg>'+
+      '<div><b>세로줄 견주기'+(!cmpUsed&&!open?'<i class="cmp-tag">눌러 보세요</i>':'')+
+      '</b><p>'+(open
+        ? '지금 <b>'+ptFlipGrp+'족</b>을 아래에 펼쳐 두었어요. 다른 족을 누르면 바꿔 볼 수 있습니다.'
+        : '아래 <b>족 단추</b>를 누르면 같은 세로줄 원소의 <b>보어 원자모형</b>이 바로 아래에 나란히 열립니다. '+
+          '원자핵 속 알갱이 수는 저마다 달라도 <b>가장 바깥 껍질의 전자 수</b>는 같은지 확인해 보세요. '+
+          '표 위쪽의 족 번호를 눌러도 같은 화면이 열려요.')+'</p></div>'+
+    '</div>'+
+    '<div class="cmp-btns" role="group" aria-label="견줄 족 고르기">'+
+      GRPS.map(g=>{
+        const els=EL20.filter(e=>e.g===g).sort((a,b)=>a.z-b.z);
+        return '<button class="cmpb'+(g===1?' g1':g===18?' g18':'')+'" data-g="'+g+'" '+
+          'aria-pressed="'+(ptFlipGrp===g)+'" aria-label="'+g+'족 원소 '+
+          els.map(x=>x.kr.split('(')[0]).join(', ')+'의 보어 원자모형 견주기">'+
+          '<b>'+g+'족</b><em>'+els.map(x=>x.sym).join('·')+'</em></button>';
+      }).join('')+
+      (open?'<button class="cmpb close" data-g="0"><b>견주기 닫기</b><em>표로 돌아가기</em></button>':'')+
+    '</div>';
+}
+function closeGroup(){
+  ptFlipGrp=null; paintGroupSel();
+  $('#ptFlipT').textContent='카드를 누르면 원자 번호 · 구성 입자 · 보어 원자모형을 볼 수 있어요';
+  $('#ptFlipBody').innerHTML='<p style="font-size:13px;color:var(--text-2)">'+
+    '카드를 하나 누르거나, 위의 <b>세로줄 견주기</b>에서 족을 골라 보세요.</p>';
+}
+function paintGroupSel(){
+  renderCmpBar();
+  $$('#ptHead .gh').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.g===ptFlipGrp)));
+  $$('#ptable .pt-cell').forEach(c=>
+    c.classList.toggle('gsel',ptFlipGrp!=null&&+c.dataset.c===ptFlipGrp
+      &&!c.classList.contains('blank')));   /* 원소가 없는 빈자리는 굳이 두르지 않는다 */
+}
+function showFlip(sym){
+  if(!EL20.some(x=>x.sym===sym))return;
+  if(ptFlipSym!==sym)ptFlipIon=false;      /* 다른 원소를 고르면 원자 모습부터 */
+  ptFlipSym=sym; ptFlipGrp=null; paintGroupSel(); renderFlip();
+}
+function showGroup(g){
+  if(ptFlipGrp!==g)ptGrpIon=false;
+  ptFlipGrp=g; ptFlipSym=null; paintGroupSel(); renderFlip();
+}
+function renderFlip(){
+  if(ptFlipGrp!=null){renderGroupFlip();return}
+  const e=EL20.find(x=>x.sym===ptFlipSym); if(!e)return;
+  const can=ION[e.sym]!=null, ion=ptFlipIon&&can;
+  const q=ion?ION[e.sym]:0, ne=e.z-q;
+  const sa=shellsOf(e.z), si=shellsOf(ne), cur=ion?si:sa;
+  const v=cur[cur.length-1]||0, krS=e.kr.split('(')[0];
+
+  $('#ptFlipT').innerHTML=ion
+    ? krS+' 이온 ('+ionMark(e.sym,q)+') — 전자 '+Math.abs(q)+'개를 '+(q>0?'잃은':'얻은')+' 모습'
+    : e.z+'번 '+e.kr+' ('+e.sym+') — 원자의 구성 입자와 보어 원자모형';
+
+  const chips=ar=>ar.map((k,i)=>'<b'+(i===ar.length-1?' class="out"':'')+'>'+k+'</b>')
+    .join('<span class="sep">·</span>')||'<b>0</b>';
+  const rows=[
+    ['양성자 수',e.z,'원자 번호와 같아요',false],
+    ['중성자 수',e.n,e.z===1?'수소는 중성자가 없어요':'',false],
+    ['전자 수',ne,ion?Math.abs(q)+'개 '+(q>0?'잃음':'얻음'):'중성 원자 — 양성자 수와 같아요',ion],
+    ['전하',ion?(q>0?'+':'−')+Math.abs(q):'0',
+      ion?'양성자 '+e.z+' · 전자 '+ne:'양성자 수 = 전자 수',ion]
+  ];
+  const near=EL20.filter(x=>Math.abs(x.z-e.z)<=1);
+
+  $('#ptFlipBody').innerHTML=
+  '<div class="bohr">'+
+    '<div class="bohr-fig">'+bohrSVG(e,q)+
+      '<div class="bohr-key">'+
+        '<span><i style="background:var(--nuc-p)"></i>양성자</span>'+
+        '<span><i style="background:var(--nuc-n)"></i>중성자</span>'+
+        '<span><i style="background:var(--elec)"></i>전자</span>'+
+        '<span><i style="background:var(--elec-out)"></i>가장 바깥 껍질</span>'+
+        (ion?'<span><i class="dash"></i>'+(q>0?'잃은':'얻은')+' 전자</span>':'')+
+      '</div>'+
+      '<div class="bohr-cap">보어 원자모형 · 껍질 위 숫자는 그 껍질의 전자 수예요. '+
+        '크게 그린 모형이라 실제 크기·모양과 다릅니다.</div>'+
+    '</div>'+
+    '<div class="bohr-info">'+
+      '<div class="modesw bohr-sw" role="group" aria-label="원자와 이온 바꿔 보기">'+
+        '<button data-m="atom" aria-pressed="'+(!ion)+'">원자</button>'+
+        '<button data-m="ion" aria-pressed="'+ion+'"'+
+          (can?'':' disabled title="'+(e.g===18
+            ?'18족은 가장 바깥 껍질이 이미 꽉 차 있어 이온이 되지 않아요'
+            :'이 원소는 한 원자짜리 이온을 잘 만들지 않아요')+'"')+
+          '>이온'+(can?' '+ionMark(e.sym,ION[e.sym]):'')+'</button>'+
+      '</div>'+
+      '<div class="bval"><div class="n">'+v+'<em>개</em></div>'+
+        '<div class="l">가장 바깥 껍질의 전자 (최외각 전자)'+
+        '<span>'+(e.g===18||v===8||(e.z===2&&v===2)
+          ? '꽉 차 있어 안정해요'
+          : '같은 족 원소끼리 이 수가 같습니다')+'</span></div></div>'+
+      '<div class="bcfg"><span class="t">전자 배치</span>'+
+        (ion?'<span class="was">'+sa.join('·')+'</span><span class="sep">→</span>':'')+
+        chips(cur)+'</div>'+
+      '<table class="bnum">'+rows.map(r=>'<tr'+(r[3]?' class="chg"':'')+'><td>'+r[0]+
+        '</td><td class="v">'+r[1]+'</td><td class="m">'+r[2]+'</td></tr>').join('')+'</table>'+
+      '<p class="bnote'+(ion?' ion':'')+'">'+bohrNote(e,q,v)+'</p>'+
+    '</div>'+
+  '</div>'+
+  '<p style="font-size:13px;color:var(--text-2)">'+e.f+'</p>'+
+  '<div class="bsub">이웃한 원소와 견주기 — 무엇이 겹치고 무엇이 겹치지 않을까?</div>'+
+  '<table class="ptbl"><tr><th>구성 입자</th>'+near.map(x=>'<th>'+x.sym+' ('+x.z+')</th>').join('')+'</tr>'+
+  '<tr class="hl"><td>양성자 수</td>'+near.map(x=>'<td>'+x.z+'</td>').join('')+'</tr>'+
+  '<tr><td>중성자 수</td>'+near.map(x=>'<td>'+x.n+'</td>').join('')+'</tr>'+
+  '<tr><td>전자 수 (중성 원자)</td>'+near.map(x=>'<td>'+x.z+'</td>').join('')+'</tr>'+
+  '<tr><td>가장 바깥 껍질 전자 수</td>'+near.map(x=>{const t=shellsOf(x.z);
+    return '<td>'+t[t.length-1]+'</td>'}).join('')+'</tr></table>'+
+  '<p style="font-size:12px;color:var(--text-3);margin-top:8px">양성자 수는 원소마다 하나씩 정해져 겹치지 않아요. '+
+  '이것이 원자 번호이자 배치 기준입니다. 전자 수는 <b>이온이 되면 달라진다</b>는 것도 위에서 확인해 보세요.</p>';
+}
+/* 원자 ↔ 이온 전환 — 껍질 그림과 입자 수가 함께 바뀐다.
+   견주기 화면에서는 카드를 눌러 그 원소만 자세히 볼 수도 있다 */
+$('#ptFlipBody').addEventListener('click',ev=>{
+  const c=ev.target.closest('.bcell');
+  if(c){showFlip(c.dataset.sym);sfx('click');
+    $('#ptFlip').scrollIntoView({behavior:'smooth',block:'nearest'});return}
+  const b=ev.target.closest('.bohr-sw button'); if(!b||b.disabled)return;
+  const want=(b.dataset.m==='ion');
+  if(ptFlipGrp!=null){ if(want===ptGrpIon)return; ptGrpIon=want }
+  else{ if(want===ptFlipIon)return; ptFlipIon=want }
+  renderFlip(); sfx('click');
+});
+/* 족 고르기 — 표 머리의 번호와 안내 막대의 단추가 같은 일을 한다 */
+function pickGroup(g){
+  sfx('click');
+  if(!g||ptFlipGrp===g){closeGroup();return}
+  cmpUsed=true; ST.ptSel=null; showGroup(g); renderPT();
+  $('#ptFlip').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+$('#ptHead').addEventListener('click',ev=>{
+  const b=ev.target.closest('.gh'); if(b)pickGroup(+b.dataset.g);
+});
+$('#ptCmp').addEventListener('click',ev=>{
+  const b=ev.target.closest('.cmpb'); if(b)pickGroup(+b.dataset.g);
+});
 $('#ptTray').addEventListener('click',e=>{
   const c=e.target.closest('.card'); if(!c)return;
   ST.ptSel=(ST.ptSel===c.dataset.sym)?null:c.dataset.sym;
