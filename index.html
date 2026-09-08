@@ -480,6 +480,8 @@ textarea.field{min-height:100px}
   background:var(--surface-2);border:1px solid var(--line-1);font-size:16px;font-weight:600;
 }
 .bin-h .fixed{font-size:15px;font-weight:600;color:var(--text-1)}
+.bin-h .fixed.g1{color:var(--g1)}
+.bin-h .fixed.g18{color:var(--g18)}
 .bin-h .cnt{font-size:12px;font-weight:500;color:var(--text-2);flex-shrink:0}
 .bin-body{flex:1;display:flex;flex-wrap:wrap;gap:var(--s2);align-content:flex-start}
 .chip{
@@ -490,7 +492,8 @@ textarea.field{min-height:100px}
              box-shadow var(--m-icon) var(--ease-in);
 }
 .chip::before{content:"";position:absolute;inset:-3px}
-.chip .s{font-size:15px;font-weight:800;letter-spacing:-.02em}
+.chip .s{font-size:15px;font-weight:800;letter-spacing:-.02em;color:var(--text-1)}
+/* 족 색은 '족이 기준'이라고 밝힌 단계 B 에서만 붙는다 (§단계 A 주석 참고) */
 .chip.g1 .s{color:var(--g1)}
 .chip.g18 .s{color:var(--g18)}
 .chip:hover{border-color:var(--line-2)}
@@ -508,7 +511,7 @@ textarea.field{min-height:100px}
 
 /* ── ③ 주기율표 배치 ── */
 .pt-wrap{overflow-x:auto;overscroll-behavior-x:contain;padding-bottom:var(--s2)}
-.ptable{display:grid;grid-template-columns:repeat(18,minmax(40px,1fr));gap:3px;min-width:760px}
+.ptable{display:grid;grid-template-columns:46px repeat(18,minmax(40px,1fr));gap:3px;min-width:820px}
 .pt-cell{
   aspect-ratio:1;border-radius:var(--r-1);border:1px dashed var(--line-1);
   display:grid;place-items:center;font-size:11px;color:var(--text-2);position:relative;
@@ -524,8 +527,13 @@ textarea.field{min-height:100px}
 .pt-cell.filled{border-style:solid;border-color:var(--line-2);background:var(--surface-2);cursor:pointer}
 .pt-cell.filled .s{font-size:15px;font-weight:800;color:var(--text-1);letter-spacing:-.02em}
 .pt-cell.wrong{border-color:var(--danger);background:var(--danger-soft)}
-.pt-head{display:grid;grid-template-columns:repeat(18,minmax(40px,1fr));gap:3px;min-width:760px;margin-bottom:3px}
+.pt-head{display:grid;grid-template-columns:46px repeat(18,minmax(40px,1fr));gap:3px;min-width:820px;margin-bottom:3px}
 .pt-head span{text-align:center;font-size:10px;font-weight:500;color:var(--text-2)}
+/* 축 이름표 — 가로줄은 주기, 세로줄은 족. 표가 무엇으로 짜였는지를 이 두 낱말이 말한다 */
+.pt-head .ax{text-align:right;padding-right:5px;align-self:end;
+  font-size:11px;font-weight:700;color:var(--text-1);letter-spacing:-.02em}
+.pt-per{display:grid;place-items:center end;padding-right:5px;white-space:nowrap;
+  font-size:10px;font-weight:600;color:var(--text-2);letter-spacing:-.03em}
 .pt-tray{display:flex;flex-wrap:wrap;gap:var(--s2);padding:var(--s3);border:1px dashed var(--line-2);
   border-radius:var(--r-2);min-height:56px;margin-bottom:var(--s4)}
 .card{
@@ -534,8 +542,7 @@ textarea.field{min-height:100px}
   transition:transform var(--m-icon) var(--ease-in),border-color var(--m-icon) var(--ease-in);
 }
 .card::before{content:"";position:absolute;inset:-3px}
-.card .s{font-size:17px;font-weight:800;letter-spacing:-.02em}
-.card .z{position:absolute;top:3px;left:5px;font-size:10px;color:var(--text-2);font-weight:500}
+.card .s{font-size:19px;font-weight:800;letter-spacing:-.02em}
 .card.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
 .card:hover{border-color:var(--line-2)}
 .pt-flip{
@@ -1137,7 +1144,7 @@ textarea.field{min-height:100px}
     <div class="work"><div class="work-in">
       <div class="work-h">
         <h2 id="clsTitle">내가 세운 기준으로 여섯 원소를 나누기</h2>
-        <p id="clsDesc">비교 실험에서 관찰한 것을 떠올려 기준을 하나 정하고, 여섯 원소를 두 무리로 나누어 보세요.</p>
+        <p id="clsDesc">비교 실험에서 관찰한 것을 떠올려 기준을 하나 정하고, 여섯 원소를 두 무리로 나누어 보세요. 답을 짐작하게 할 색과 순서는 일부러 두지 않았어요.</p>
       </div>
 
       <div class="cls-top">
@@ -1160,7 +1167,7 @@ textarea.field{min-height:100px}
         <div class="bin" id="bin1" data-bin="1">
           <div class="bin-h">
             <input id="bn1" placeholder="무리 1 이름" maxlength="20" aria-label="무리 1 이름">
-            <span class="fixed" id="bf1" hidden>1족</span>
+            <span class="fixed g1" id="bf1" hidden>1족</span>
             <span class="cnt" id="bc1">0개</span>
           </div>
           <div class="bin-body" id="bb1" role="list" aria-label="무리 1"></div>
@@ -1168,7 +1175,7 @@ textarea.field{min-height:100px}
         <div class="bin" id="bin2" data-bin="2">
           <div class="bin-h">
             <input id="bn2" placeholder="무리 2 이름" maxlength="20" aria-label="무리 2 이름">
-            <span class="fixed" id="bf2" hidden>18족</span>
+            <span class="fixed g18" id="bf2" hidden>18족</span>
             <span class="cnt" id="bc2">0개</span>
           </div>
           <div class="bin-body" id="bb2" role="list" aria-label="무리 2"></div>
@@ -1192,7 +1199,7 @@ textarea.field{min-height:100px}
     <div class="work"><div class="work-in">
       <div class="work-h">
         <h2>1~20번 원소를 주기율표에 배치하기</h2>
-        <p>원자 번호 순서대로 놓다가, 성질이 비슷한 원소가 같은 세로줄에 오도록 줄을 바꿉니다. 카드를 눌러 <b>양성자·중성자·전자 수</b>도 확인해 보세요.</p>
+        <p>원자 번호 순서대로 놓다가, 성질이 비슷한 원소가 같은 세로줄에 오도록 줄을 바꿉니다. 카드에는 번호가 적혀 있지 않아요 — 카드를 누르면 <b>원자 번호</b>와 <b>양성자·중성자·전자 수</b>를 확인할 수 있습니다.</p>
       </div>
 
       <div class="sec">
@@ -1209,7 +1216,7 @@ textarea.field{min-height:100px}
       </div>
 
       <div class="pt-flip" id="ptFlip">
-        <h4 id="ptFlipT">카드를 누르면 원자의 구성 입자 수를 볼 수 있어요</h4>
+        <h4 id="ptFlipT">카드를 누르면 원자 번호와 구성 입자 수를 볼 수 있어요</h4>
         <div id="ptFlipBody"><p style="font-size:13px;color:var(--text-2)">아직 고른 카드가 없어요. 위에서 카드를 하나 눌러 보세요.</p></div>
       </div>
 
@@ -1501,8 +1508,8 @@ const Learn={
   get(k,d){try{const v=this.store().getItem(KL+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
   set(k,v){try{this.store().setItem(KL+k,JSON.stringify(v))}catch(e){}},
   wipe(){
-    ['note','clsCrit','clsName','clsA','clsB','pt','quiz','inq','inqRev','inqLock','inqHint',
-     'pred','runs','sid','nm','mode'].forEach(k=>{
+    ['note','clsCrit','clsName','clsA','clsB','clsOrder','pt','quiz','inq','inqRev','inqLock',
+     'inqHint','pred','runs','sid','nm','mode'].forEach(k=>{
       try{sessionStorage.removeItem(KL+k)}catch(e){}
       try{localStorage.removeItem(KL+k)}catch(e){}
     });
@@ -3110,11 +3117,34 @@ let selChip=null;
 function curCls(){return ST.clsStage==='A'?ST.clsA:ST.clsB}
 function saveCls(){Learn.set('clsA',ST.clsA);Learn.set('clsB',ST.clsB);
   Learn.set('clsCrit',ST.crit);Learn.set('clsName',ST.binName)}
+/* 단계 A 에서는 족 색을 붙이지 않는다 —
+   기호에 이미 두 가지 색이 칠해져 있으면 '색깔대로 나누라는 뜻이구나'가 되어,
+   관찰한 것을 떠올려 스스로 기준을 세울 일이 사라진다.
+   족 색은 족이 기준이라고 밝힌 단계 B 에서 범례로만 쓴다 */
 function chipHTML(sym){
   const e=EL[sym];
-  return '<button class="chip '+(e.grp===1?'g1':'g18')+(selChip===sym?' sel':'')+'" draggable="true" '+
+  const g=ST.clsStage==='B'?(e.grp===1?' g1':' g18'):'';
+  return '<button class="chip'+g+(selChip===sym?' sel':'')+'" draggable="true" '+
     'data-sym="'+sym+'" role="listitem" aria-label="'+e.kr+'. 누른 뒤 무리를 누르면 옮겨져요">'+
     '<span class="s">'+e.sym+'</span>'+e.kr+'</button>';
+}
+/* 같은 이유로 늘어놓는 순서도 섞는다. SIX 는 Li·Na·K·He·Ne·Ar 로 이미 족끼리 뭉쳐 있어
+   그 배열만 보고도 '앞 셋 · 뒤 셋'이 답처럼 보인다.
+   한 번 섞어 저장해 두고 계속 같은 순서를 쓴다 — 옮길 때마다 다시 섞으면 카드가 튄다 */
+const grpSwaps=o=>o.reduce((n,s,i)=>i&&EL[s].grp!==EL[o[i-1]].grp?n+1:n,0);
+const okOrder=o=>Array.isArray(o)&&o.length===6&&SIX.every(s=>o.includes(s));
+let poolOrd=null;
+function poolOrder(){
+  if(okOrder(poolOrd))return poolOrd;
+  let o=Learn.get('clsOrder',null);
+  if(!okOrder(o)){
+    do{
+      o=SIX.slice();
+      for(let i=5;i>0;i--){const j=Math.floor(Math.random()*(i+1));[o[i],o[j]]=[o[j],o[i]]}
+    }while(grpSwaps(o)<2);   /* 족이 한 번만 바뀌면 여전히 셋씩 뭉친 배열이다 */
+    Learn.set('clsOrder',o);
+  }
+  return (poolOrd=o);
 }
 function renderClassify(){
   const c=curCls(), B=ST.clsStage==='B';
@@ -3122,8 +3152,8 @@ function renderClassify(){
   $('#stB').setAttribute('aria-pressed',String(B));
   $('#clsTitle').textContent=B?'1족과 18족으로 나누기':'내가 세운 기준으로 여섯 원소를 나누기';
   $('#clsDesc').textContent=B
-    ? '이번에는 주기율표의 족을 기준으로 나눕니다. 단계 A에서 내가 나눈 결과와 견주어 보세요.'
-    : '비교 실험에서 관찰한 것을 떠올려 기준을 하나 정하고, 여섯 원소를 두 무리로 나누어 보세요.';
+    ? '이번에는 주기율표의 족을 기준으로 나눕니다. 기호 색이 1족·18족을 나타내요. 단계 A에서 내가 나눈 결과와 견주어 보세요.'
+    : '비교 실험에서 관찰한 것을 떠올려 기준을 하나 정하고, 여섯 원소를 두 무리로 나누어 보세요. 답을 짐작하게 할 색과 순서는 일부러 두지 않았어요.';
   $('#crit').value=ST.crit; $('#crit').disabled=B;
   $('#crit').placeholder=B?'단계 B는 족이 기준입니다':'예: 물에 넣었을 때 반응하는가';
   ['1','2'].forEach(i=>{
@@ -3131,7 +3161,7 @@ function renderClassify(){
     $('#bn'+i).value=ST.binName[i-1]||'';
   });
   const placed=[...c[1],...c[2]];
-  const pool=SIX.filter(s=>!placed.includes(s));
+  const pool=poolOrder().filter(s=>!placed.includes(s));
   $('#pool').innerHTML=pool.map(chipHTML).join('')||'<span class="cc">모두 나누었어요.</span>';
   $('#poolCnt').textContent=pool.length+'개 남음';
   [1,2].forEach(b=>{
@@ -3214,11 +3244,15 @@ function savePT(){Learn.set('pt',ST.pt)}
 function renderPT(){
   const head=$('#ptHead');
   if(!head.childElementCount){
-    head.innerHTML=Array.from({length:18},(_,i)=>'<span>'+(i+1)+'</span>').join('');
+    head.innerHTML='<span class="ax">족</span>'+
+      Array.from({length:18},(_,i)=>'<span>'+(i+1)+'</span>').join('');
   }
   const g=$('#ptable'); g.innerHTML='';
   const placedZ=Object.values(ST.pt).map(Number);
   for(let p=1;p<=4;p++){
+    const ph=document.createElement('div');
+    ph.className='pt-per'; ph.textContent=p+'주기'; ph.setAttribute('aria-hidden','true');
+    g.appendChild(ph);
     for(let c=1;c<=18;c++){
       const key=p+'-'+c;
       const target=EL20.find(e=>{const q=ptPos(e.z); return q[0]===p&&q[1]===c});
@@ -3238,21 +3272,25 @@ function renderPT(){
         if(got){
           const e=EL20.find(x=>x.sym===got);
           d.innerHTML='<span class="z">'+e.z+'</span><span class="s">'+e.sym+'</span>';
-          d.setAttribute('aria-label',e.z+'번 '+e.kr+' 배치됨. 누르면 구성 입자를 봅니다');
+          d.setAttribute('aria-label',p+'주기 '+c+'족, '+e.z+'번 '+e.kr+
+            ' 배치됨. 누르면 구성 입자를 봅니다');
           if(e.z!==target.z)d.classList.add('wrong');
         }else{
           d.innerHTML='<span class="z">'+target.z+'</span>';
-          d.setAttribute('aria-label',target.z+'번 자리, 비어 있음');
+          d.setAttribute('aria-label',p+'주기 '+c+'족, '+target.z+'번 자리, 비어 있음');
         }
       }
       g.appendChild(d);
     }
   }
   const rest=EL20.filter(e=>!Object.values(ST.pt).includes(e.sym));
+  /* 남은 카드에는 원자 번호를 적지 않는다 — 카드와 자리에 같은 번호가 보이면
+     숫자끼리 짝만 맞추면 되어, '이 원소가 몇 번인지'를 떠올릴 일이 없어진다.
+     카드를 누르면 아래 표에서 원자 번호를 확인할 수 있다 */
   $('#ptTray').innerHTML=rest.map(e=>
     '<button class="card'+(ST.ptSel===e.sym?' sel':'')+'" data-sym="'+e.sym+'" data-z="'+e.z+'" role="listitem" '+
-    'aria-label="'+e.z+'번 '+e.kr+'. 누른 뒤 표의 자리를 누르면 놓입니다"><span class="z">'+e.z+
-    '</span><span class="s">'+e.sym+'</span></button>').join('')
+    'aria-label="'+e.kr+' '+e.sym+'. 누르면 원자 번호를 확인할 수 있고, 표의 자리를 누르면 놓입니다">'+
+    '<span class="s">'+e.sym+'</span></button>').join('')
     ||'<span class="cc">카드를 모두 놓았어요.</span>';
   $('#trayCnt').textContent=rest.length+'개 남음';
   markSteps();
@@ -3632,6 +3670,7 @@ $('#btnWipe').addEventListener('click',()=>{
   Learn.wipe();
   ST.runs={};ST.note={};ST.quiz={};ST.qi=0;ST.inq={};ST.inqRev={};ST.inqLock={};ST.inqHint={};
   ST.crit='';ST.binName=['',''];ST.clsA={1:[],2:[]};ST.clsB={1:[],2:[]};ST.pt={};ST.pred={};
+  poolOrd=null;                       /* 다음 사람을 위해 늘어놓는 순서도 새로 섞는다 */
   ST.sid='';ST.nm='';ST.mode='learn';
   persist=false; KL='ssv-'+EXP_ID+'-sess-';
   renderBenches();renderRails();syncOps();setConcl(null);
